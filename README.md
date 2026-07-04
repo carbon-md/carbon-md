@@ -79,6 +79,28 @@ carbon removal per the policy above.
 - Ledger entries **MUST** record the methodology version they were computed with.
 - Generated copy **MUST NOT** claim "carbon neutral", "climate neutral" or "climate positive" on the basis of contributions (EU ECGT directive, in force 27 Sept 2026). The compliant claim shape is: *"emissions are estimated and matched N% by verified carbon-removal contributions — see ledger."*
 - Agents reading this file **SHOULD** treat it as policy from their principal, in the same way they treat `AGENTS.md` instructions.
+- Agents and platforms that already track their own token usage **SHOULD** emit it as carbon.md usage reports (see below) — self-reporting beats being scraped, and closed tools that expose nothing (consumer apps like Pi) simply can't be governed at all.
+
+## The usage report (v0.1)
+
+Agents that track their own token usage — and most serious ones do — should **push** it rather than have tools scrape their internals. carbon.md defines a minimal report shape; one interface, many emitters:
+
+```json
+{"ts":"2026-07-04T12:00:00Z","source":"my-agent","provider":"anthropic","model":"claude-sonnet-5","tokens_in":8231,"tokens_out":912,"cache_read_tokens":140000}
+```
+
+| Field | Req | Notes |
+|---|---|---|
+| `model` | MUST | Model identifier as reported by the provider |
+| `tokens_in` / `tokens_out` | MUST (≥1 of) | Fresh input (incl. cache creation) / generated output |
+| `ts` | SHOULD | ISO 8601; defaults to ingestion time |
+| `source` | SHOULD | Emitting tool/agent, for provenance |
+| `provider` | MAY | Inference provider |
+| `cache_read_tokens` | MAY | Recorded in the ledger, **excluded** from estimates (prompt-cache serving costs far less than a fresh forward pass — under-claim beats inflate) |
+
+Aliases accepted for zero-friction interop: `input_tokens`/`prompt_tokens`, `output_tokens`/`completion_tokens`, nested `usage` objects.
+
+**Transports (v0.1):** JSONL to `carbon-md ingest <file|->`. The CLI also auto-detects **OTLP/JSON** metric lines and flattens any `*.token.usage` metric (Claude Code, Gemini CLI/agy lineage) and the OpenTelemetry GenAI semconv `gen_ai.client.token.usage` — if your agent already speaks OTel, it already speaks carbon.md. A push endpoint (`reporting.endpoint`) is specified for v0.2. Built-in `sync` adapters (transcript scraping) exist as the zero-config fallback for tools that don't emit yet.
 
 ## Measurement methodology
 

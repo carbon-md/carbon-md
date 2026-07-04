@@ -16,7 +16,7 @@ Usage:
   npx carbon-md sync claude-code [--all | --dir <path>] [--dry-run]
                                          Sync usage from Claude Code transcripts
   npx carbon-md ingest <file|-> [--source <label>]
-                                         Ingest usage JSONL ({model, tokens_in, tokens_out})
+                                         Ingest usage reports (JSONL) or OTLP/JSON metrics
   npx carbon-md status                   Footprint + contribution position (with uncertainty)
   npx carbon-md contribute               Prepare the monthly contribution order
   npx carbon-md contribute --record --tonnes <t> --cost <amt> [--rail <r>] [--receipt <url>]
