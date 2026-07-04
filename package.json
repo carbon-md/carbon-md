@@ -1,0 +1,48 @@
+{
+  "name": "carbon-md",
+  "version": "0.1.0",
+  "description": "carbon.md — an open standard for carbon-governed AI agents. Reference CLI: measure agent emissions, govern them with a policy file, fund verified carbon removal, prove it.",
+  "keywords": [
+    "ai",
+    "agents",
+    "carbon",
+    "sustainability",
+    "llm",
+    "emissions",
+    "climate"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "carbon-md": "dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "yaml": "^2.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/carbon-md/carbon-md.git"
+  },
+  "homepage": "https://github.com/carbon-md/carbon-md#readme",
+  "bugs": {
+    "url": "https://github.com/carbon-md/carbon-md/issues"
+  }
+}
