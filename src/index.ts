@@ -4,9 +4,16 @@ import { cmdIngest } from "./commands/ingest.js";
 import { cmdInit } from "./commands/init.js";
 import { cmdStatus } from "./commands/status.js";
 import { cmdSync } from "./commands/sync-claude.js";
+import { readFileSync } from "node:fs";
 import { CLASS_FACTORS, FACTORS_VERSION, INPUT_TOKEN_WEIGHT } from "./core/factors.js";
 
-const VERSION = "0.1.0";
+const VERSION: string = (() => {
+  try {
+    return JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version;
+  } catch {
+    return "unknown";
+  }
+})();
 
 const HELP = `
 carbon-md ${VERSION} — carbon governance for AI agents (spec v0.1)
