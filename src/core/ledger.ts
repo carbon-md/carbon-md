@@ -16,6 +16,8 @@ export interface UsageEvent {
   gco2e: Range;
   model_class: string;
   factors: string;
+  /** extra source-specific data kept for future factor revisions (e.g. cache reads) */
+  meta?: Record<string, unknown>;
 }
 
 export interface ContributionEvent {

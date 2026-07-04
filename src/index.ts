@@ -3,6 +3,7 @@ import { cmdContribute } from "./commands/contribute.js";
 import { cmdIngest } from "./commands/ingest.js";
 import { cmdInit } from "./commands/init.js";
 import { cmdStatus } from "./commands/status.js";
+import { cmdSync } from "./commands/sync-claude.js";
 import { CLASS_FACTORS, FACTORS_VERSION, INPUT_TOKEN_WEIGHT } from "./core/factors.js";
 
 const VERSION = "0.1.0";
@@ -12,6 +13,8 @@ carbon-md ${VERSION} — carbon governance for AI agents (spec v0.1)
 
 Usage:
   npx carbon-md init [--yes] [--force]   Write carbon.md policy + local ledger
+  npx carbon-md sync claude-code [--all | --dir <path>] [--dry-run]
+                                         Sync usage from Claude Code transcripts
   npx carbon-md ingest <file|-> [--source <label>]
                                          Ingest usage JSONL ({model, tokens_in, tokens_out})
   npx carbon-md status                   Footprint + contribution position (with uncertainty)
@@ -45,6 +48,8 @@ async function main(): Promise<number> {
   switch (cmd) {
     case "init":
       return cmdInit(cwd, rest);
+    case "sync":
+      return cmdSync(cwd, rest);
     case "ingest":
       return cmdIngest(cwd, rest);
     case "status":

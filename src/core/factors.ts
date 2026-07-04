@@ -35,7 +35,7 @@ export const INPUT_TOKEN_WEIGHT = 0.2;
 const SMALL_TOKENS = new Set([
   "haiku", "mini", "flash", "nano", "tiny", "lite", "micro", "gemma", "phi",
 ]);
-const FRONTIER_TOKENS = new Set(["opus", "ultra", "heavy"]);
+const FRONTIER_TOKENS = new Set(["opus", "ultra", "heavy", "fable", "mythos"]);
 
 function tokenize(model: string): string[] {
   return model.toLowerCase().split(/[^a-z0-9.]+/).filter(Boolean);

@@ -27,10 +27,13 @@ AI agents run thousands of LLM calls a day. Their operators currently have three
 
 ```bash
 npx carbon-md init          # detect your stack, write carbon.md, set up .carbon-md/
-npx carbon-md ingest usage.jsonl   # feed usage logs (or wire a capture hook)
+npx carbon-md sync claude-code     # pull usage straight from Claude Code transcripts
+npx carbon-md ingest usage.jsonl   # or feed any usage logs (LiteLLM, custom)
 npx carbon-md status        # footprint with uncertainty range + contribution due
 npx carbon-md contribute    # prepare the monthly contribution order
 ```
+
+See [docs/capture.md](docs/capture.md) for capture recipes (Claude Code, LiteLLM, generic JSONL).
 
 ## The file
 
