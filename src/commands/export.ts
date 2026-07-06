@@ -79,7 +79,7 @@ function ledgerHtml(opts: {
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${titleName} — ledger</title>
-<meta name="description" content="Public carbon ledger for ${esc(name)}: agent emissions estimated and matched by verified carbon-removal contributions.">
+<meta name="description" content="Public carbon ledger for ${esc(name)}: agent emissions estimated and matched by verified carbon credits.">
 <style>
 :root{--ink:${C.ink};--paper:${C.paper};--moss:${C.moss};--grey:${C.grey}}
 *{box-sizing:border-box}
@@ -133,9 +133,10 @@ ${met ? '<span class="met">✔ policy target met</span>' : '<span class="due">ou
 
 <p class="foot">
 Emissions are <b>estimated, not measured</b> — cloud inference is a black box and ranges are wide by design.
-Methodology <code>${esc(policy.methodology)}</code>. This project does not claim carbon neutrality; it measures
-its agents' emissions and matches them <span class="chk">${pos.toFixed(0)}%</span> with verified carbon-removal
-contributions. Cache-read tokens are recorded but excluded from estimates.<br><br>
+Methodology <code>${esc(policy.methodology)}</code>. Policy portfolio: <code>${esc(policy.policy.portfolio)}</code>.
+This project does not claim carbon neutrality; it measures its agents' emissions and matches them
+<span class="chk">${pos.toFixed(0)}%</span> with verified carbon credits (see each contribution's receipt for the
+project retired). Cache-read tokens are recorded but excluded from estimates.<br><br>
 Generated ${esc(generatedAt)} by <a href="https://github.com/carbon-md/carbon-md">carbon-md</a> ·
 data in <a href="./ledger.json">ledger.json</a> · stewarded by <a href="https://agentic-realism.com">Agentic Realism</a>.
 </p>
