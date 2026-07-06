@@ -44,6 +44,13 @@ function ledgerHtml(opts: {
   const { name, policy, all, month, contributions, bySource, targetTonnes, met, generatedAt } = opts;
   const pos = policy.policy.contribution_target * 100;
 
+  // If the project is itself carbon(-|.)md, don't render the redundant "carbon-md · carbon.md".
+  const redundant = /^carbon[-.]?md$/i.test(name.trim());
+  const heading = redundant
+    ? `carbon<span class="md">.md</span>`
+    : `${esc(name)} <span class="dim" style="font-weight:400">·</span> carbon<span class="md">.md</span>`;
+  const titleName = redundant ? "carbon.md" : `${esc(name)} — carbon.md`;
+
   const modelRows = [...all.byModel.entries()]
     .sort((a, b) => b[1].central - a[1].central)
     .map(
@@ -71,7 +78,7 @@ function ledgerHtml(opts: {
   return `<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(name)} — carbon.md ledger</title>
+<title>${titleName} — ledger</title>
 <meta name="description" content="Public carbon ledger for ${esc(name)}: agent emissions estimated and matched by verified carbon-removal contributions.">
 <style>
 :root{--ink:${C.ink};--paper:${C.paper};--moss:${C.moss};--grey:${C.grey}}
@@ -102,7 +109,7 @@ a{color:var(--moss)}
 </style></head>
 <body><div class="wrap">
 <div class="dashes">— — —</div>
-<h1>${esc(name)} <span class="dim" style="font-weight:400">·</span> carbon<span class="md">.md</span></h1>
+<h1>${heading}</h1>
 <p class="tag">measure → govern → contribute → prove</p>
 
 <h2>Emissions estimated</h2>
