@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { cmdContribute } from "./commands/contribute.js";
+import { cmdExport } from "./commands/export.js";
 import { cmdIngest } from "./commands/ingest.js";
 import { cmdInit } from "./commands/init.js";
 import { cmdStatus } from "./commands/status.js";
@@ -28,6 +29,7 @@ Usage:
   npx carbon-md contribute               Prepare the monthly contribution order
   npx carbon-md contribute --record --tonnes <t> --cost <amt> [--rail <r>] [--receipt <url>]
                                          Record an executed retirement
+  npx carbon-md export [--out <dir>]     Build a public ledger page + badge.svg + ledger.json
   npx carbon-md factors                  Show the emission-factor table
   npx carbon-md help                     This help
 
@@ -63,6 +65,8 @@ async function main(): Promise<number> {
       return cmdStatus(cwd);
     case "contribute":
       return cmdContribute(cwd, rest);
+    case "export":
+      return cmdExport(cwd, rest);
     case "factors":
       return cmdFactors();
     case "--version":

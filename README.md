@@ -31,7 +31,10 @@ npx carbon-md sync claude-code     # pull usage straight from Claude Code transc
 npx carbon-md ingest usage.jsonl   # or feed any usage logs (LiteLLM, custom)
 npx carbon-md status        # footprint with uncertainty range + contribution due
 npx carbon-md contribute    # prepare the monthly contribution order
+npx carbon-md export        # build a public ledger page + badge.svg + ledger.json
 ```
+
+`export` writes a self-contained `public/` you can host anywhere (Cloudflare Pages, GitHub Pages, Vercel) — a receipt, not a vibe.
 
 See [docs/capture.md](docs/capture.md) for capture recipes (Claude Code, LiteLLM, generic JSONL).
 
