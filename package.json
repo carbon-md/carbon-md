@@ -1,6 +1,6 @@
 {
   "name": "carbon-md",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "carbon.md — an open standard for carbon-governed AI agents. Reference CLI: measure agent emissions, govern them with a policy file, fund verified carbon removal, prove it.",
   "keywords": [
     "ai",
@@ -31,6 +31,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
+    "viem": "2.55.0",
     "yaml": "^2.5.0"
   },
   "devDependencies": {
