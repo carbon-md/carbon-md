@@ -63,7 +63,13 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
     raw.includes("r1") ||
     (has("mistral") && has("large")) ||
     has("405b") ||
-    has("command")
+    has("command") ||
+    has("kimi") ||
+    raw.includes("kimi") ||
+    has("deepseek") ||
+    raw.includes("deepseek") ||
+    has("k2") ||
+    has("k3")
   ) {
     return { cls: "large", guessed: false };
   }

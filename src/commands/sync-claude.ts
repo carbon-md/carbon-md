@@ -103,19 +103,13 @@ function parseTranscript(path: string): Map<string, ParsedMsg> {
   return msgs;
 }
 
-export async function cmdSync(cwd: string, argv: string[]): Promise<number> {
-  const target = argv[0];
-  if (target !== "claude-code") {
-    console.error("Usage: carbon-md sync claude-code [--all | --dir <path>] [--dry-run]");
-    console.error("(claude-code is the only built-in source so far — LiteLLM & co. use `carbon-md ingest`)");
-    return 1;
-  }
+export async function cmdSyncClaude(cwd: string, argv: string[]): Promise<number> {
   if (!findPolicyPath(cwd)) {
     console.error("✖ No carbon.md here. Run `npx carbon-md init` first.");
     return 1;
   }
 
-  const flags = argv.slice(1);
+  const flags = argv;
   const dryRun = flags.includes("--dry-run");
   const all = flags.includes("--all");
   const dirIdx = flags.indexOf("--dir");

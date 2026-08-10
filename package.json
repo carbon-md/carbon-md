@@ -27,6 +27,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "test": "npm run build && node --test dist/test/*.test.js",
     "dev": "tsc --watch",
     "prepublishOnly": "npm run build"
   },

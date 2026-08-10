@@ -4,7 +4,7 @@ import { cmdExport } from "./commands/export.js";
 import { cmdIngest } from "./commands/ingest.js";
 import { cmdInit } from "./commands/init.js";
 import { cmdStatus } from "./commands/status.js";
-import { cmdSync } from "./commands/sync-claude.js";
+import { cmdSync } from "./commands/sync.js";
 import { cmdWallet } from "./commands/wallet.js";
 import { readFileSync } from "node:fs";
 import { CLASS_FACTORS, FACTORS_VERSION, INPUT_TOKEN_WEIGHT } from "./core/factors.js";
@@ -24,6 +24,8 @@ Usage:
   npx carbon-md init [--yes] [--force]   Write carbon.md policy + local ledger
   npx carbon-md sync claude-code [--all | --dir <path>] [--dry-run]
                                          Sync usage from Claude Code transcripts
+  npx carbon-md sync hermes [--db <path>] [--dry-run]
+                                         Sync usage from Hermes Agent SQLite db (~/.hermes/state.db)
   npx carbon-md ingest <file|-> [--source <label>]
                                          Ingest usage reports (JSONL) or OTLP/JSON metrics
   npx carbon-md status                   Footprint + contribution position (with uncertainty)
