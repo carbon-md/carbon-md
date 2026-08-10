@@ -1,0 +1,145 @@
+{
+  "site": {
+    "title": "carbon.md docs",
+    "baseUrl": "https://docs.carbonmd.dev",
+    "siteUrl": "https://carbonmd.dev",
+    "repo": "https://github.com/carbon-md/carbon-md"
+  },
+  "sections": [
+    {
+      "title": "Start here",
+      "pages": [
+        {
+          "file": "index.md",
+          "slug": "",
+          "title": "Introduction"
+        },
+        {
+          "file": "quickstart.md",
+          "slug": "quickstart",
+          "title": "Quickstart"
+        },
+        {
+          "file": "concepts.md",
+          "slug": "concepts",
+          "title": "Concepts"
+        }
+      ]
+    },
+    {
+      "title": "The standard",
+      "pages": [
+        {
+          "file": "spec.md",
+          "slug": "spec",
+          "title": "The carbon.md file"
+        },
+        {
+          "file": "usage-report.md",
+          "slug": "usage-report",
+          "title": "Usage report format"
+        },
+        {
+          "file": "methodology.md",
+          "slug": "methodology",
+          "title": "Methodology & factors"
+        }
+      ]
+    },
+    {
+      "title": "CLI reference",
+      "pages": [
+        {
+          "file": "cli/index.md",
+          "slug": "cli",
+          "title": "Overview"
+        },
+        {
+          "file": "cli/init.md",
+          "slug": "cli/init",
+          "title": "init"
+        },
+        {
+          "file": "cli/sync.md",
+          "slug": "cli/sync",
+          "title": "sync"
+        },
+        {
+          "file": "cli/ingest.md",
+          "slug": "cli/ingest",
+          "title": "ingest"
+        },
+        {
+          "file": "cli/status.md",
+          "slug": "cli/status",
+          "title": "status"
+        },
+        {
+          "file": "cli/contribute.md",
+          "slug": "cli/contribute",
+          "title": "contribute"
+        },
+        {
+          "file": "cli/wallet.md",
+          "slug": "cli/wallet",
+          "title": "wallet"
+        },
+        {
+          "file": "cli/export.md",
+          "slug": "cli/export",
+          "title": "export"
+        },
+        {
+          "file": "cli/factors.md",
+          "slug": "cli/factors",
+          "title": "factors"
+        }
+      ]
+    },
+    {
+      "title": "Guides",
+      "pages": [
+        {
+          "file": "guides/capture.md",
+          "slug": "guides/capture",
+          "title": "Capture recipes"
+        },
+        {
+          "file": "guides/retirements.md",
+          "slug": "guides/retirements",
+          "title": "Retirements & receipts"
+        },
+        {
+          "file": "guides/publish-ledger.md",
+          "slug": "guides/publish-ledger",
+          "title": "Publish your ledger"
+        },
+        {
+          "file": "guides/for-agents.md",
+          "slug": "guides/for-agents",
+          "title": "For agents (self-install)"
+        },
+        {
+          "file": "guides/claims.md",
+          "slug": "guides/claims",
+          "title": "Claims & compliance"
+        }
+      ]
+    },
+    {
+      "title": "Project",
+      "pages": [
+        {
+          "file": "roadmap.md",
+          "slug": "roadmap",
+          "title": "What's coming"
+        },
+        {
+          "file": "docs-conventions.md",
+          "slug": "docs-conventions",
+          "title": "Docs conventions"
+        }
+      ]
+    }
+  ]
+}

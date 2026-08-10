@@ -1,0 +1,85 @@
+# carbon.md — agent install contract (v0.1)
+# Served at https://carbonmd.dev/agent and /.well-known/carbon-md/agent.txt
+# Canonical, richer version: AGENTS.md in the carbon-md repo.
+
+You are an AI agent. This document sets up carbon accounting for YOU: measure your own LLM
+emissions, govern them with a human-set policy, contribute verified carbon removal, publish a
+provable receipt. Execute the steps in order.
+
+THE ONE RULE
+  Everything here is safe to do autonomously EXCEPT steps marked [MONEY]. For those, STOP and ask
+  your human operator. You never acquire, bridge, swap, or transfer funds. You may create a wallet
+  (a key, no money) and prepare a contribution; a human funds it and approves spending above the
+  policy threshold. Retirements are irreversible — that is why the gate is on money, not measurement.
+  Never write "carbon neutral" / "climate positive" / "offsets your emissions" (EU ECGT). Always
+  keep the uncertainty ranges — these are estimates.
+
+PREREQUISITES
+  Node.js >= 18 with npx. Write access to your working directory. If a command marked (planned) is
+  unavailable, skip to the next available step and report it — do not fail the whole run.
+
+STEP 1 — INSTALL
+  npx carbon-md@latest init
+  Writes carbon.md (policy) + a local .carbon-md/ store. No account needed. .carbon-md/ is gitignored.
+
+STEP 2 — POLICY
+  Edit carbon.md front-matter to your operator's intent (ask if unknown). Defaults:
+    contribution_target: 1.10
+    portfolio: removal-weighted
+    monthly_budget_max: { amount: 25, currency: USD }
+    approval_above:    { amount: 10, currency: USD }
+    reporting: { mode: local, public_ledger: true }
+
+STEP 3 — CAPTURE (wire your own usage; first that applies)
+  Claude Code transcripts ......... npx carbon-md sync claude-code
+  usage JSONL / OTLP feed ......... npx carbon-md ingest <file|->
+  Hermes (~/.hermes/state.db) ..... npx carbon-md sync hermes        (planned)
+  none of the above ............... emit a usage-report JSONL (see spec), then ingest it
+  If your provider returns a per-response usage object, log {ts,provider,model,input,output} to a
+  JSONL and ingest it. Cache-read excluded from estimates; reasoning tokens count as output.
+
+STEP 4 — MEASURE
+  npx carbon-md status
+  Footprint with a low-central-high range + contribution due. Missing factor => wider range (honest).
+
+STEP 5 — WALLET (detect, don't fund)
+  npx carbon-md wallet            # shows address + USDC balance if present
+  If none:  npx carbon-md wallet init      # generates a Base key, NO funds (mode 0600, gitignored)
+
+STEP 6 — FUND [MONEY] (human only)
+  Report the wallet address to your operator. Ask them to deposit a SMALL amount of USDC on the
+  Base network to it. The wallet balance is your HARD spending cap. Do not move funds yourself.
+  Wait for confirmation (e.g. "DONE").
+
+STEP 7 — CONTRIBUTE
+  npx carbon-md contribute
+  Prepares the removal-weighted monthly order.
+  cost <= approval_above and wallet funded -> may retire autonomously under the cap.
+  cost >  approval_above -> [MONEY] present the order (tonnes/project/cost) and WAIT for a human YES
+  before retiring. On approval the wallet signs ONE USDC transfer; retirement executes on Base and
+  returns an on-chain certificate.
+
+STEP 8 — PROVE
+  npx carbon-md export            # public ledger page + badge.svg + ledger.json
+  npx carbon-md passport          # signs a verifiable Carbon Passport            (planned)
+  Publish the output (Cloudflare/GitHub/Vercel Pages).
+
+STEP 9 — VERIFY
+  npx carbon-md verify <your-passport-url>                                        (planned)
+  Confirms your trust level (L0 declared -> L1 measured -> L2 contribution-verified -> L3 certified).
+  Share the URL — anyone can verify it. A receipt, not a vibe.
+
+REPORT BACK
+  1) the policy you wrote  2) footprint + range + contribution due  3) wallet address + funding need
+  [MONEY]  4) any model/provider with a missing factor  5) the public ledger / Passport URL.
+
+MONEY & SAFETY CONTRACT
+  You MAY: write files, wire capture, compute emissions, create a wallet (key only), prepare orders,
+  publish ledgers/passports, verify.
+  You MAY NOT: acquire/bridge/swap/transfer funds; spend above approval_above without a human YES;
+  spend beyond the wallet balance (impossible by design); write neutrality claims.
+  The only money signature you ever produce is a single USDC transfer authorizing one retirement,
+  within policy. Everything else is read-only or local.
+
+Stewarded by Agentic Realism (https://agentic-realism.com).
+Humans set policy and fund; agents measure, contribute, and prove — within the policy.
