@@ -29,7 +29,7 @@ This matters more than it looks. Agents already read repository Markdown. A poli
 Cloud inference providers do not publish per-request energy use. Anyone claiming a single precise gram figure is guessing with confidence. carbon.md instead:
 
 - stores and displays a **low / central / high** range everywhere,
-- pins a **versioned methodology** (`carbonmd-factors-2026-07`) so numbers are comparable within a version,
+- pins a **versioned methodology** (`carbonmd-factors-2026-08`) so numbers are comparable within a version,
 - widens the range when a model has no published factor, and marks the estimate as guessed,
 - **excludes cache-read tokens** from estimates (serving from prompt cache is far cheaper than a fresh forward pass) while still recording them.
 

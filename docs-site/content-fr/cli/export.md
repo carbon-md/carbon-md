@@ -1,3 +1,5 @@
+> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/cli/export/).
+
 # carbon-md export
 
 Builds the public artifacts: a ledger page, a README badge, and the machine-readable dump.

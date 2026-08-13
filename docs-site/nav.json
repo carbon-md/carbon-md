@@ -43,6 +43,11 @@
           "file": "methodology.md",
           "slug": "methodology",
           "title": "Methodology & factors"
+        },
+        {
+          "file": "models.md",
+          "slug": "models",
+          "title": "Model catalog"
         }
       ]
     },

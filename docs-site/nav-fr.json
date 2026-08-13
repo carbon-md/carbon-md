@@ -1,0 +1,58 @@
+{
+  "site": {
+    "title": "carbon.md docs",
+    "baseUrl": "https://docs.carbonmd.dev/fr",
+    "siteUrl": "https://carbonmd.dev",
+    "repo": "https://github.com/carbon-md/carbon-md"
+  },
+  "sections": [
+    {
+      "title": "Commencer",
+      "pages": [
+        { "file": "index.md", "slug": "", "title": "Introduction" },
+        { "file": "quickstart.md", "slug": "quickstart", "title": "Démarrage rapide" },
+        { "file": "concepts.md", "slug": "concepts", "title": "Concepts" }
+      ]
+    },
+    {
+      "title": "Le standard",
+      "pages": [
+        { "file": "spec.md", "slug": "spec", "title": "Le fichier carbon.md" },
+        { "file": "usage-report.md", "slug": "usage-report", "title": "Format usage-report" },
+        { "file": "methodology.md", "slug": "methodology", "title": "Méthodologie & facteurs" },
+        { "file": "models.md", "slug": "models", "title": "Catalogue modèles" }
+      ]
+    },
+    {
+      "title": "Référence CLI",
+      "pages": [
+        { "file": "cli/index.md", "slug": "cli", "title": "Vue d'ensemble" },
+        { "file": "cli/init.md", "slug": "cli/init", "title": "init" },
+        { "file": "cli/sync.md", "slug": "cli/sync", "title": "sync" },
+        { "file": "cli/ingest.md", "slug": "cli/ingest", "title": "ingest" },
+        { "file": "cli/status.md", "slug": "cli/status", "title": "status" },
+        { "file": "cli/contribute.md", "slug": "cli/contribute", "title": "contribute" },
+        { "file": "cli/wallet.md", "slug": "cli/wallet", "title": "wallet" },
+        { "file": "cli/export.md", "slug": "cli/export", "title": "export" },
+        { "file": "cli/factors.md", "slug": "cli/factors", "title": "factors" }
+      ]
+    },
+    {
+      "title": "Guides",
+      "pages": [
+        { "file": "guides/capture.md", "slug": "guides/capture", "title": "Recettes de capture" },
+        { "file": "guides/retirements.md", "slug": "guides/retirements", "title": "Retirements & reçus" },
+        { "file": "guides/publish-ledger.md", "slug": "guides/publish-ledger", "title": "Publier votre ledger" },
+        { "file": "guides/for-agents.md", "slug": "guides/for-agents", "title": "Pour les agents" },
+        { "file": "guides/claims.md", "slug": "guides/claims", "title": "Claims & conformité" }
+      ]
+    },
+    {
+      "title": "Projet",
+      "pages": [
+        { "file": "roadmap.md", "slug": "roadmap", "title": "Feuille de route" },
+        { "file": "docs-conventions.md", "slug": "docs-conventions", "title": "Conventions docs" }
+      ]
+    }
+  ]
+}

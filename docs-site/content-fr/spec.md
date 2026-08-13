@@ -1,3 +1,5 @@
+> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/spec/).
+
 # The carbon.md file
 
 Spec **v0.1 (draft)**. The file lives at your repository root. It is Markdown with a YAML front-matter policy block — readable by humans, parseable by tools, and ingestible by the agents it governs.

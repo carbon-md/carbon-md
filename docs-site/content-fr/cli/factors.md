@@ -1,3 +1,5 @@
+> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/cli/factors/).
+
 # carbon-md factors
 
 Prints the active factor table — what the estimates are actually built on.
