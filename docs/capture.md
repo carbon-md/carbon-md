@@ -9,6 +9,7 @@ How to get your agents' token usage into the carbon-md ledger. Ordered from zero
 | Agent / tool | Self-tracks usage? | Capture path | Status |
 |---|---|---|---|
 | **Claude Code** | ✅ transcripts + OpenTelemetry | `carbon-md sync claude-code` (zero-config) or OTel → ingest (push) | ✅ works today |
+| **Hermes Agent** | ✅ `session_model_usage` in `~/.hermes/state.db` | `carbon-md sync hermes` (zero-config, read-only) | ✅ works today |
 | **Codex CLI** (OpenAI) | ✅ `token_count` events in `~/.codex/sessions/*.jsonl` (cumulative — needs delta math) | `sync codex` adapter | 🔜 planned; meanwhile [ccusage](https://ccusage.com/guide/codex/)-style exports can feed `ingest` |
 | **Antigravity CLI / agy** (Google) | Gemini CLI lineage shipped OTel telemetry with token metrics; agy expected to expose the same — verify per install | OTel collector → `ingest` (auto-detected) | ⚠️ should work via OTel; unconfirmed |
 | **LiteLLM / OpenRouter** | ✅ usage in every response | callback/log → `ingest` | ✅ works today (recipe below) |
@@ -84,6 +85,21 @@ npx carbon-md ingest otel-metrics.jsonl --source claude-code-otel
 - Use **delta** temporality (Claude Code's default). Cumulative sums would double-count; `ingest` warns if it sees them.
 - Token types map as: `input`/`cacheCreation`/`tool` → tokens_in · `output`/`thought` → tokens_out · `cacheRead`/`cache` → recorded, excluded from estimates.
 - Don't run OTel capture *and* `sync claude-code` on the same sessions — that double-counts. Pick one per machine.
+
+## 1c. Hermes Agent (built-in)
+
+Hermes Agent records session model usage in a SQLite database at `~/.hermes/state.db`. From a directory with a `carbon.md`:
+
+```bash
+npx carbon-md sync hermes              # read ~/.hermes/state.db
+npx carbon-md sync hermes --db /path   # custom DB path
+npx carbon-md sync hermes --dry-run   # see what would be ingested
+```
+
+- **Read-only access:** opens SQLite strictly in read-only mode (`mode=ro`).
+- **Delta ingestion:** `session_model_usage` stores cumulative token totals per session/model. Sync state is tracked in `.carbon-md/sources/hermes.json` and only ingests incremental usage deltas. Fully idempotent.
+- **Cache-read tokens:** recorded in `meta.cache_read_tokens` but excluded from emission estimates.
+- **Reasoning tokens:** counted in output tokens (`tokens_out`), as reasoning tokens are generated output tokens.
 
 ## 2. LiteLLM proxy (one integration, every provider)
 

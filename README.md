@@ -53,7 +53,7 @@ policy:
 reporting:
   mode: local
   public_ledger: true
-methodology: carbonmd-factors-2026-07
+methodology: carbonmd-factors-2026-08
 ---
 
 # Carbon Policy — my-project
@@ -107,7 +107,7 @@ Aliases accepted for zero-friction interop: `input_tokens`/`prompt_tokens`, `out
 
 ## Measurement methodology
 
-v0.1 ships `carbonmd-factors-2026-07`: per-model-class gCO₂e factors per 1k tokens (output-weighted; input tokens weighted 0.2×), derived from the [EcoLogits](https://ecologits.ai/) methodology (peer-reviewed, JOSS 2025) and public provider disclosures, using a world-average grid-intensity assumption. Model → class mapping is heuristic and overridable. Run `npx carbon-md factors` to see the exact table in your installed version.
+v0.1 ships `carbonmd-factors-2026-08`: per-model-class gCO₂e factors per 1k tokens (output-weighted; input tokens weighted 0.2×), derived from the [EcoLogits](https://ecologits.ai/) methodology (peer-reviewed, JOSS 2025) and public provider disclosures, using a world-average grid-intensity assumption. Model → class mapping is heuristic and overridable. Run `npx carbon-md factors` to see the exact table in your installed version.
 
 **These are estimates, not measurements.** Cloud inference is a black box; ranges are wide by design. Factor tables are versioned and updated in the open — corrections are welcome as PRs.
 

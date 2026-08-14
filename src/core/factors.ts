@@ -1,5 +1,5 @@
 /**
- * carbonmd-factors-2026-07
+ * carbonmd-factors-2026-08
  *
  * Per-model-class emission factors, gCO2e per 1k OUTPUT tokens.
  * Input tokens are weighted at 0.2x of the output-token factor.
@@ -10,9 +10,12 @@
  * intensity assumption (~400 gCO2e/kWh) and rounded to one significant
  * figure of honesty. Ranges are wide BY DESIGN: cloud inference is a
  * black box. Estimates are only comparable within a factors version.
+ *
+ * Classification catalog refreshed 2026-08-11 against live agent usage
+ * (Hermes) + public model releases through early August 2026.
  */
 
-export const FACTORS_VERSION = "carbonmd-factors-2026-07";
+export const FACTORS_VERSION = "carbonmd-factors-2026-08";
 
 export type ModelClass = "frontier" | "large" | "medium" | "small";
 
@@ -32,19 +35,35 @@ export const CLASS_FACTORS: Record<ModelClass, Range> = {
 
 export const INPUT_TOKEN_WEIGHT = 0.2;
 
+/**
+ * Whole-token small markers. Checked before frontier so
+ * `gpt-5.4-mini`, `gemini-3.6-flash`, `deepseek-v4-flash` land small.
+ */
 const SMALL_TOKENS = new Set([
-  "haiku", "mini", "flash", "nano", "tiny", "lite", "micro", "gemma", "phi",
+  "haiku",
+  "mini",
+  "flash",
+  "nano",
+  "tiny",
+  "lite",
+  "micro",
+  "gemma",
+  "phi",
+  "luna", // GPT-5.6 Luna — cheap/small tier
 ]);
-const FRONTIER_TOKENS = new Set(["opus", "ultra", "heavy", "fable", "mythos"]);
 
 function tokenize(model: string): string[] {
-  return model.toLowerCase().split(/[^a-z0-9.]+/).filter(Boolean);
+  return model
+    .toLowerCase()
+    .split(/[^a-z0-9.]+/)
+    .filter(Boolean);
 }
 
 /**
  * Heuristic model -> class mapping. Checked in order:
- * small markers first (so "gpt-5-mini" lands small, while "gemini"
- * stays untouched because we match whole tokens, not substrings).
+ * small markers first (so "gpt-5-mini" / "gpt-5.6-luna" land small),
+ * then frontier flagships, then known large families, and finally
+ * medium + guessed for anything unknown.
  */
 export function classify(model: string): { cls: ModelClass; guessed: boolean } {
   const raw = model.toLowerCase();
@@ -52,21 +71,73 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
   const has = (t: string) => tokens.includes(t);
   const smallB = tokens.some((t) => /^([1-9]|1[0-4])b$/.test(t)); // 1b..14b params
 
-  if (tokens.some((t) => SMALL_TOKENS.has(t)) || smallB) return { cls: "small", guessed: false };
-  if (tokens.some((t) => FRONTIER_TOKENS.has(t))) return { cls: "frontier", guessed: false };
-  if (raw.includes("gpt-5") || has("o3") || has("o4")) return { cls: "frontier", guessed: false };
+  // --- small / cheap tiers ---
+  // grok-composer-2.5-fast: fast/composer tier treated as small on purpose
+  // (2026-08 steer, documented in docs-site/content/models.md).
+  if (
+    tokens.some((t) => SMALL_TOKENS.has(t)) ||
+    smallB ||
+    (raw.includes("composer") && raw.includes("fast"))
+  ) {
+    return { cls: "small", guessed: false };
+  }
+
+  // --- frontier flagships ---
+  // Anthropic / Google / generic ultra-heavy markers
+  if (has("opus") || has("fable") || has("mythos") || has("ultra") || has("heavy")) {
+    return { cls: "frontier", guessed: false };
+  }
+  // OpenAI: gpt-5.x full tiers (mini/nano/luna already small; terra is large, see below)
+  if (
+    has("sol") || // GPT-5.6 Sol — frontier reasoning tier
+    has("o3") ||
+    has("o4") ||
+    raw.includes("gpt-5.5") ||
+    raw.includes("gpt-5.6-sol") ||
+    (raw.includes("gpt-5") &&
+      !raw.includes("mini") &&
+      !raw.includes("nano") &&
+      !raw.includes("luna") &&
+      !raw.includes("terra"))
+  ) {
+    return { cls: "frontier", guessed: false };
+  }
+  // Explicit frontier families
+  if (
+    raw.includes("claude-opus") ||
+    raw.includes("claude-fable") ||
+    (has("gemini") && (raw.includes("3.1-pro") || raw.includes("3-pro")))
+  ) {
+    return { cls: "frontier", guessed: false };
+  }
+
+  // --- large ---
   if (
     has("sonnet") ||
+    has("terra") || // GPT-5.6 Terra — mid-high tier, classified large
     raw.includes("gpt-4") ||
     (has("gemini") && has("pro")) ||
     has("grok") ||
     raw.includes("r1") ||
     (has("mistral") && has("large")) ||
     has("405b") ||
-    has("command")
+    has("command") ||
+    raw.includes("kimi") ||
+    raw.includes("deepseek") ||
+    has("k2") ||
+    has("k3") ||
+    raw.includes("qwen") ||
+    has("glm") ||
+    raw.includes("glm-") ||
+    has("muse") ||
+    has("seedream") ||
+    tokens.some((t) => t.startsWith("step")) ||
+    raw.includes("v4-pro") ||
+    raw.includes("codex")
   ) {
     return { cls: "large", guessed: false };
   }
+
   return { cls: "medium", guessed: true };
 }
 
