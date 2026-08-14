@@ -42,13 +42,30 @@ The generated copy never calls this "neutral" or "positive" — it is a contribu
 
 Which credits to buy.
 
-| Value | Meaning | Indicative price (USD/tCO₂e) |
+| Value | Meaning | Planning price (USD/tCO₂e) |
 |---|---|---|
-| `removal-weighted` | **default** — durable removal (biochar, DAC, OAE) | 35 – 60 – 120 |
-| `balanced` | mixed removal/avoidance | 15 – 28 – 45 |
+| `removal-only` | avoidance is **refused outright** — `contribute` hard-stops before quoting | 12 – 130 – 1400 |
+| `removal-weighted` | **default** — removal preferred; avoidance warns but proceeds | 20 – 130 – 1400 |
+| `balanced` | any verified credit | 8 – 30 – 200 |
 | `custom` | you choose the projects; no price assumption | — |
 
-Prices are assumptions used to estimate what you owe, not quotes. The real price comes from the rail at purchase time.
+A typo here silently downgrades what your project claims, so an unknown value is rejected loudly rather than defaulted.
+
+**These are planning figures, not quotes** (`carbonmd-prices-2026-07`). The spread on removal is genuinely enormous, so a narrow range would be a lie in both directions. Anchors observed live on the Klima rail in July 2026:
+
+| Class | Observed | Note |
+|---|---|---|
+| nature-based removal (forest) | ~$17/t | |
+| durable removal — biochar | ~$127/t | whole tonnes only |
+| durable removal — ocean alkalinity | ~$1,308/t | cheapest durable removal buyable *fractionally* today |
+
+`removal-weighted` centres on durable biochar because that is what the name promises; the high end is OAE, which is what a small agent footprint actually ends up buying, since sub-tonne durable removal has no cheaper option yet. `contribute --execute` never uses these numbers — it prices against a live quote and refuses to spend past your caps.
+
+### How removal is enforced, not just declared
+
+A `removal-weighted` policy is only meaningful if the ledger can tell a removed tonne from an avoided one. Every contribution therefore records a **method** — `removal`, `avoidance`, `mixed`, or `unspecified` — classified from what the rail says it is selling. Rows written before this field existed report `unspecified` and are **never silently counted as removal**.
+
+Under `removal-only`, only removal discharges the target: a mixed or unspecified tonne cannot settle a removal obligation, however real the purchase was. Those tonnes stay in the ledger and on the public page — they simply don't pay that debt. See [Retirements & receipts](/guides/retirements/).
 
 ### `policy.monthly_budget_max`
 

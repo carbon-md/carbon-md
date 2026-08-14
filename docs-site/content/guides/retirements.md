@@ -42,6 +42,24 @@ On-chain carbon markets make it easy to buy the *wrong* thing: cheap, old-vintag
 
 So: **filter by methodology at quote time**, prefer durable removal (biochar, DAC, ocean alkalinity), and always publish the registry serial and vintage on the receipt. A retirement you can't trace to a registry entry isn't proof.
 
+## How a credit is classified
+
+The rail names what it sells; carbon.md maps that to a **method** and stores it on the contribution:
+
+| Method | Meaning |
+|---|---|
+| `removal` | the tonne was taken out of the atmosphere (biochar, DAC, ocean alkalinity, forestry removal) |
+| `avoidance` | an emission was prevented, not removed |
+| `mixed` | a portfolio spanning both |
+| `unspecified` | the rail's description doesn't clearly say — **never counted as removal** |
+
+Two rules make this trustworthy:
+
+1. **Avoidance is tested first.** "Avoided deforestation" contains the word *forest* and must not read as a forestry removal. The ambiguous case resolves to the weaker claim, not the stronger one.
+2. **Unknown stays unknown.** An unrecognised class is filed `unspecified` rather than guessed into the removal column — because that column carries the project's entire claim.
+
+Under `portfolio: removal-only`, only `removal` discharges the target, and `contribute` refuses non-removal classes before quoting. See [contribute](/cli/contribute/).
+
 ## Safety model
 
 Three independent limits, from softest to hardest:

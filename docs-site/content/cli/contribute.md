@@ -39,7 +39,26 @@ Contribution order — my-project
 | `--currency <c>` | With `--record`: defaults to USD |
 | `--rail <name>` | With `--record`: where it was purchased |
 | `--receipt <url>` | With `--record`: the public receipt/certificate URL |
+| `--method <m>` | With `--record`: `removal` | `avoidance` | `mixed` — how the tonne is accounted |
+| `--class <name>` | Credit class to buy on the rail (e.g. `biochar`, `oae`) |
 | `--dry-run` | Price the order, change nothing |
+
+## Removal is enforced, not assumed
+
+Every contribution records **how the tonne is accounted for** — `removal`, `avoidance`, `mixed` or `unspecified` — classified from what the rail says it is selling. This is what makes a `removal-weighted` policy mean something.
+
+Under `portfolio: removal-only`, an avoidance credit is refused **before a quote is even requested** — there is no price at which it becomes acceptable:
+
+```
+✖ POLICY STOP: Avoided Deforestation is avoidance; carbon.md declares portfolio: removal-only.
+  Nothing quoted, nothing signed. Removal classes available on this rail:
+    --class "Biochar" — 127.00 USDC/t
+    --class "Ocean Alkalinity Enhancement" — 1308.00 USDC/t
+```
+
+Recording what actually happened is always allowed — hiding it is not. `--record --method avoidance` under a removal-only policy is accepted and filed, with a warning that it is reported separately and never counts as removal.
+
+> **Older ledgers stay readable.** Rows written before the method field existed report `unspecified` and are never silently promoted to removal.
 
 ## Policy enforcement
 
