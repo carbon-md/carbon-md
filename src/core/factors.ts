@@ -89,10 +89,33 @@ export function estimateGco2e(model: string, tokensIn: number, tokensOut: number
   };
 }
 
-/** Default price assumptions per portfolio, USD per tCO2e. */
+export const PRICES_VERSION = "carbonmd-prices-2026-07";
+
+/**
+ * Default price assumptions per portfolio, USD per tCO2e.
+ *
+ * PLANNING FIGURES, NOT QUOTES. The spread on removal is genuinely enormous, so
+ * a narrow range here would be a lie in both directions. Anchors observed live
+ * on the Klima x402 rail, July 2026:
+ *
+ *   nature-based removal (Regen City Forest)   ~$17/t
+ *   durable, biochar (Puro)                    ~$127/t   — whole tonnes only
+ *   durable, ocean alkalinity enhancement      ~$1,308/t — cheapest durable
+ *                                                          removal buyable
+ *                                                          fractionally today
+ *
+ * "removal-weighted" centres on durable biochar because that is what the
+ * portfolio name promises; the high end is OAE, which is what a small agent
+ * footprint actually ends up buying, since sub-tonne durable removal has no
+ * cheaper option yet. `contribute --execute` never uses these numbers — it
+ * prices against a live quote and refuses to spend past the policy caps.
+ */
 export const PORTFOLIO_PRICES: Record<string, Range | null> = {
-  "removal-weighted": { low: 35, central: 60, high: 120 },
-  balanced: { low: 15, central: 28, high: 45 },
+  // Same band as removal-weighted — both buy removal; only the enforcement
+  // differs. The low end is the cheapest removal actually on the rail.
+  "removal-only": { low: 12, central: 130, high: 1400 },
+  "removal-weighted": { low: 20, central: 130, high: 1400 },
+  balanced: { low: 8, central: 30, high: 200 },
   custom: null,
 };
 

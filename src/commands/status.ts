@@ -1,13 +1,14 @@
 import { formatG, PORTFOLIO_PRICES } from "../core/factors.js";
-import { aggregate, readLedger } from "../core/ledger.js";
+import { aggregate, creditedTonnes, readLedger } from "../core/ledger.js";
 import { findPolicyPath, parsePolicy } from "../core/policy.js";
+import { DEFAULT_CLASS, MIN_TONNES, priceFor } from "../rails/x402.js";
 
 const dim = (s: string) => `\x1b[2m${s}\x1b[0m`;
 const bold = (s: string) => `\x1b[1m${s}\x1b[0m`;
 const green = (s: string) => `\x1b[32m${s}\x1b[0m`;
 const yellow = (s: string) => `\x1b[33m${s}\x1b[0m`;
 
-export async function cmdStatus(cwd: string): Promise<number> {
+export async function cmdStatus(cwd: string, argv: string[] = []): Promise<number> {
   const policyPath = findPolicyPath(cwd);
   if (!policyPath) {
     console.error("✖ No carbon.md here. Run `npx carbon-md init` first.");
@@ -49,7 +50,8 @@ export async function cmdStatus(cwd: string): Promise<number> {
 
   // Contribution position (all-time)
   const targetTonnes = (all.usage.central / 1_000_000) * policy.policy.contribution_target;
-  const outstanding = Math.max(0, targetTonnes - all.contributedTonnes);
+  const credited = creditedTonnes(all, policy.policy.portfolio);
+  const outstanding = Math.max(0, targetTonnes - credited);
   const prices = PORTFOLIO_PRICES[policy.policy.portfolio] ?? null;
 
   console.log("");
@@ -58,15 +60,53 @@ export async function cmdStatus(cwd: string): Promise<number> {
     `  target      ${(policy.policy.contribution_target * 100).toFixed(0)}% of estimated emissions → ${targetTonnes.toFixed(4)} tCO2e`
   );
   console.log(`  contributed ${all.contributedTonnes.toFixed(4)} tCO2e`);
+
+  // Only silent when every tonne is removal — any other mix has to be visible,
+  // or "removal-weighted" is just a word in a file.
+  const byMethod = [...all.contributedByMethod.entries()].sort((a, b) => b[1] - a[1]);
+  if (byMethod.length && !(byMethod.length === 1 && byMethod[0][0] === "removal")) {
+    console.log(
+      dim(`              ${byMethod.map(([m, t]) => `${t.toFixed(4)} ${m}`).join(" · ")}`)
+    );
+  }
+  if (credited < all.contributedTonnes) {
+    console.log(
+      dim(`  credited    ${credited.toFixed(4)} tCO2e — only removal settles a ${policy.policy.portfolio} target`)
+    );
+  }
   if (outstanding > 0) {
-    let costNote = "";
-    if (prices) {
-      const est = outstanding * prices.central;
-      costNote = dim(
-        ` (~$${est.toFixed(2)} at ${policy.policy.portfolio} central price $${prices.central}/t)`
-      );
+    console.log(yellow(`  outstanding ${outstanding.toFixed(4)} tCO2e`));
+
+    // What it actually costs beats what a price table guesses — durable removal
+    // spans ~$20/t to ~$1,400/t, so the constants can only ever give a band.
+    // Read-only call, no wallet, no signature; falls back when there's no network.
+    const offline = argv.includes("--offline");
+    let priced = false;
+    if (!offline) {
+      try {
+        const p = await priceFor(DEFAULT_CLASS, outstanding);
+        console.log(
+          `  cost        ${bold("$" + p.totalUsdc.toFixed(2))} ` +
+            dim(`live · ${p.className} · $${Math.round(p.usdcPerTonne).toLocaleString()}/t via Klima x402`)
+        );
+        if (p.tonnes > outstanding) {
+          const reason =
+            outstanding < MIN_TONNES
+              ? `the rail can't retire below ${MIN_TONNES} t`
+              : "retirements are priced in whole kilos";
+          console.log(dim(`              quoted at ${p.tonnes} t — ${reason}`));
+        }
+        priced = true;
+      } catch {
+        /* no network, timeout, or the rail is down — the band still informs */
+      }
     }
-    console.log(yellow(`  outstanding ${outstanding.toFixed(4)} tCO2e${costNote}`));
+    if (!priced && prices) {
+      console.log(
+        `  cost        ${dim(`$${(outstanding * prices.low).toFixed(2)}–$${(outstanding * prices.high).toFixed(2)} planning band, ${policy.policy.portfolio} prices`)}`
+      );
+      console.log(dim(`              ${offline ? "--offline" : "no live quote"} — a real quote will land inside this band, not at its middle`));
+    }
     console.log(dim("  → run `npx carbon-md contribute` to prepare the order"));
   } else {
     console.log(green(`  ✔ policy target met — nothing outstanding`));

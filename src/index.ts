@@ -26,7 +26,9 @@ Usage:
                                          Sync usage from Claude Code transcripts
   npx carbon-md ingest <file|-> [--source <label>]
                                          Ingest usage reports (JSONL) or OTLP/JSON metrics
-  npx carbon-md status                   Footprint + contribution position (with uncertainty)
+  npx carbon-md status [--offline]       Footprint + contribution position (with uncertainty).
+                                         Prices the outstanding balance against a live
+                                         Klima x402 quote; --offline uses the price table.
   npx carbon-md contribute               Prepare the monthly contribution order
   npx carbon-md contribute --record --tonnes <t> --cost <amt> [--rail <r>] [--receipt <url>]
                                          Record an externally-executed retirement
@@ -67,7 +69,7 @@ async function main(): Promise<number> {
     case "ingest":
       return cmdIngest(cwd, rest);
     case "status":
-      return cmdStatus(cwd);
+      return cmdStatus(cwd, rest);
     case "contribute":
       return cmdContribute(cwd, rest);
     case "export":
@@ -93,10 +95,15 @@ async function main(): Promise<number> {
   }
 }
 
+// Set the code and let the loop drain rather than process.exit(): tearing down
+// mid-flight HTTP handles trips a libuv assertion on Windows. Networked commands
+// send `connection: close`, so there is no keep-alive socket holding us open.
 main().then(
-  (code) => process.exit(code),
+  (code) => {
+    process.exitCode = code;
+  },
   (err) => {
     console.error(`✖ ${err?.message ?? err}`);
-    process.exit(1);
+    process.exitCode = 1;
   }
 );

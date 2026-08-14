@@ -1,7 +1,14 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { formatG, PORTFOLIO_PRICES } from "../core/factors.js";
-import { aggregate, readLedger, type ContributionEvent, type LedgerEvent } from "../core/ledger.js";
+import { formatG } from "../core/factors.js";
+import {
+  aggregate,
+  creditedTonnes,
+  methodOf,
+  readLedger,
+  type ContributionEvent,
+  type LedgerEvent,
+} from "../core/ledger.js";
 import { findPolicyPath, parsePolicy, type CarbonPolicy } from "../core/policy.js";
 
 // Brand palette (see brand-prompts/00-brand-foundation.md)
@@ -38,10 +45,12 @@ function ledgerHtml(opts: {
   contributions: ContributionEvent[];
   bySource: Map<string, number>;
   targetTonnes: number;
+  credited: number;
   met: boolean;
   generatedAt: string;
 }): string {
-  const { name, policy, all, month, contributions, bySource, targetTonnes, met, generatedAt } = opts;
+  const { name, policy, all, month, contributions, bySource, targetTonnes, credited, met, generatedAt } =
+    opts;
   const pos = policy.policy.contribution_target * 100;
 
   // If the project is itself carbon(-|.)md, don't render the redundant "carbon-md · carbon.md".
@@ -68,12 +77,27 @@ function ledgerHtml(opts: {
     ? contributions
         .map(
           (c) =>
-            `<tr><td class="dim">${esc(c.ts.slice(0, 10))}</td><td class="n">${c.tonnes} tCO₂e</td><td class="n">${c.cost} ${esc(c.currency)}</td><td>${esc(c.rail)}</td><td>${
+            `<tr><td class="dim">${esc(c.ts.slice(0, 10))}</td><td class="n">${c.tonnes} tCO₂e</td><td class="n">${c.cost} ${esc(c.currency)}</td><td>${
+              c.credit_class ? esc(c.credit_class) : '<span class="dim">—</span>'
+            } <span class="dim">${esc(methodOf(c))}</span></td><td>${esc(c.rail)}</td><td>${
               c.receipt ? `<a href="${esc(c.receipt)}">receipt →</a>` : '<span class="dim">—</span>'
             }</td></tr>`
         )
         .join("")
-    : `<tr><td colspan="5" class="dim">No contributions recorded yet.</td></tr>`;
+    : `<tr><td colspan="6" class="dim">No contributions recorded yet.</td></tr>`;
+
+  // Removal and avoidance are different claims — never merge them into one number.
+  const byMethod = [...all.contributedByMethod.entries()].sort((a, b) => b[1] - a[1]);
+  const methodLine =
+    byMethod.length && !(byMethod.length === 1 && byMethod[0][0] === "removal")
+      ? `<br><span class="dim">of which ${byMethod
+          .map(([m, t]) => `${t.toFixed(4)} ${esc(m)}`)
+          .join(" · ")}</span>`
+      : "";
+  const creditedLine =
+    credited < all.contributedTonnes
+      ? `<br><span class="dim">Counting toward this <code>${esc(policy.policy.portfolio)}</code> target: <b>${credited.toFixed(4)} tCO₂e</b> — only removal settles it.</span>`
+      : "";
 
   return `<!doctype html>
 <html lang="en"><head>
@@ -123,7 +147,7 @@ a{color:var(--moss)}
 <h2>Contribution position</h2>
 <p>Target: <b>${pos.toFixed(0)}%</b> of estimated emissions → <b>${targetTonnes.toFixed(4)} tCO₂e</b><br>
 Contributed: <b>${all.contributedTonnes.toFixed(4)} tCO₂e</b> ·
-${met ? '<span class="met">✔ policy target met</span>' : '<span class="due">outstanding</span>'}</p>
+${met ? '<span class="met">✔ policy target met</span>' : '<span class="due">outstanding</span>'}${methodLine}${creditedLine}</p>
 <table><tbody>${contribRows}</tbody></table>
 
 <div class="grid">
@@ -165,7 +189,8 @@ export async function cmdExport(cwd: string, argv: string[]): Promise<number> {
   for (const e of events) if (e.type === "usage") bySource.set(e.source, (bySource.get(e.source) ?? 0) + e.gco2e.central);
 
   const targetTonnes = (all.usage.central / 1_000_000) * policy.policy.contribution_target;
-  const met = all.contributedTonnes >= targetTonnes;
+  const credited = creditedTonnes(all, policy.policy.portfolio);
+  const met = credited >= targetTonnes;
   const name = projectName(cwd);
   const generatedAt = new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC";
 
@@ -173,13 +198,13 @@ export async function cmdExport(cwd: string, argv: string[]): Promise<number> {
 
   writeFileSync(
     join(outDir, "index.html"),
-    ledgerHtml({ name, policy, all, month, contributions, bySource, targetTonnes, met, generatedAt }),
+    ledgerHtml({ name, policy, all, month, contributions, bySource, targetTonnes, credited, met, generatedAt }),
     "utf8"
   );
 
   // Static badge: "carbon.md" | "<contributed> matched ✔" (or "outstanding")
   const badgeVal = met
-    ? `${formatG(all.contributedTonnes * 1_000_000)} matched ✔`
+    ? `${formatG(credited * 1_000_000)} matched ✔`
     : `${formatG(all.usage.central)} tracked`;
   writeFileSync(join(outDir, "badge.svg"), badgeSvg("carbon.md", badgeVal), "utf8");
 
@@ -192,6 +217,8 @@ export async function cmdExport(cwd: string, argv: string[]): Promise<number> {
     totals: {
       estimated_gco2e: all.usage,
       contributed_tonnes: all.contributedTonnes,
+      contributed_tonnes_by_method: Object.fromEntries(all.contributedByMethod),
+      credited_tonnes: credited,
       target_tonnes: targetTonnes,
       met,
     },

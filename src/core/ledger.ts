@@ -20,6 +20,14 @@ export interface UsageEvent {
   meta?: Record<string, unknown>;
 }
 
+/**
+ * How a retired tonne is accounted for. A tonne avoided and a tonne removed are
+ * not the same claim, and a `removal-weighted` policy is only meaningful if the
+ * ledger can tell them apart. Rows written before this field existed report
+ * `unspecified` — never silently counted as removal.
+ */
+export type CreditMethod = "removal" | "avoidance" | "mixed" | "unspecified";
+
 export interface ContributionEvent {
   type: "contribution";
   ts: string;
@@ -28,6 +36,14 @@ export interface ContributionEvent {
   currency: string;
   rail: string;
   receipt: string;
+  /** Credit class as the rail names it, e.g. "Ocean Alkalinity Enhancement". */
+  credit_class?: string;
+  /** Optional so older ledgers stay readable — see CreditMethod. */
+  method?: CreditMethod;
+}
+
+export function methodOf(c: ContributionEvent): CreditMethod {
+  return c.method ?? "unspecified";
 }
 
 export type LedgerEvent = UsageEvent | ContributionEvent;
@@ -71,6 +87,22 @@ export interface Totals {
   byModel: Map<string, { central: number; calls: number }>;
   contributedTonnes: number;
   contributedCost: Map<string, number>; // currency -> amount
+  /** tonnes per accounting method — a removal-weighted policy is only honest
+   *  if this is dominated by `removal`. */
+  contributedByMethod: Map<CreditMethod, number>;
+}
+
+/**
+ * Tonnes that actually discharge the policy target.
+ *
+ * Under `removal-only`, only removal counts: a mixed or unspecified tonne
+ * cannot settle a removal obligation, however real the purchase was. Those
+ * tonnes stay in the ledger and on the page — they just don't pay this debt.
+ * Every other portfolio credits all verified contributions.
+ */
+export function creditedTonnes(t: Totals, portfolio: string): number {
+  if (portfolio !== "removal-only") return t.contributedTonnes;
+  return t.contributedByMethod.get("removal") ?? 0;
 }
 
 export function aggregate(events: LedgerEvent[], since?: Date): Totals {
@@ -79,6 +111,7 @@ export function aggregate(events: LedgerEvent[], since?: Date): Totals {
     byModel: new Map(),
     contributedTonnes: 0,
     contributedCost: new Map(),
+    contributedByMethod: new Map(),
   };
   for (const e of events) {
     if (since && new Date(e.ts) < since) continue;
@@ -95,6 +128,8 @@ export function aggregate(events: LedgerEvent[], since?: Date): Totals {
     } else if (e.type === "contribution") {
       t.contributedTonnes += e.tonnes;
       t.contributedCost.set(e.currency, (t.contributedCost.get(e.currency) ?? 0) + e.cost);
+      const m = methodOf(e);
+      t.contributedByMethod.set(m, (t.contributedByMethod.get(m) ?? 0) + e.tonnes);
     }
   }
   return t;

@@ -1,9 +1,23 @@
 import * as readline from "node:readline/promises";
 import { PORTFOLIO_PRICES } from "../core/factors.js";
-import { aggregate, appendEvents, readLedger, type ContributionEvent } from "../core/ledger.js";
+import {
+  aggregate,
+  appendEvents,
+  creditedTonnes,
+  readLedger,
+  type ContributionEvent,
+  type CreditMethod,
+} from "../core/ledger.js";
 import { findPolicyPath, parsePolicy, type CarbonPolicy } from "../core/policy.js";
 import { accountFor, loadWallet, usdcBalance } from "../core/wallet.js";
-import { certificate, quote as x402quote, resolveClass, retire } from "../rails/x402.js";
+import {
+  certificate,
+  classifyMethod,
+  quote as x402quote,
+  removalClasses,
+  resolveClass,
+  retire,
+} from "../rails/x402.js";
 
 const bold = (s: string) => `\x1b[1m${s}\x1b[0m`;
 const dim = (s: string) => `\x1b[2m${s}\x1b[0m`;
@@ -44,10 +58,18 @@ export async function cmdContribute(cwd: string, argv: string[]): Promise<number
     const cost = parseFloat(getFlag(argv, "--cost") ?? "");
     const rail = getFlag(argv, "--rail") ?? "manual";
     const receipt = getFlag(argv, "--receipt") ?? "";
+    const creditClass = getFlag(argv, "--class");
+    const methodArg = getFlag(argv, "--method");
+    const usage =
+      "Usage: carbon-md contribute --record --tonnes <t> --cost <amount> [--rail cnaught|carbonmark|manual]\n" +
+      "                            [--receipt <url>] [--class \"<credit class>\"] [--method removal|avoidance|mixed]";
     if (!Number.isFinite(tonnes) || tonnes <= 0 || !Number.isFinite(cost)) {
-      console.error(
-        "Usage: carbon-md contribute --record --tonnes <t> --cost <amount> [--rail cnaught|carbonmark|manual] [--receipt <url>]"
-      );
+      console.error(usage);
+      return 1;
+    }
+    const allowed: CreditMethod[] = ["removal", "avoidance", "mixed"];
+    if (methodArg && !allowed.includes(methodArg as CreditMethod)) {
+      console.error(`✖ --method must be one of: ${allowed.join(" | ")}\n${usage}`);
       return 1;
     }
     appendEvents(cwd, [
@@ -59,16 +81,28 @@ export async function cmdContribute(cwd: string, argv: string[]): Promise<number
         currency: policy.policy.monthly_budget_max.currency,
         rail,
         receipt,
+        ...(creditClass ? { credit_class: creditClass } : {}),
+        ...(methodArg ? { method: methodArg as CreditMethod } : {}),
       },
     ]);
     console.log(`✔ Recorded contribution: ${tonnes} tCO2e · ${cost} ${policy.policy.monthly_budget_max.currency} via ${rail}`);
     if (!receipt) console.log(dim("  tip: add --receipt <url> so the ledger stays provable."));
+    if (!methodArg) {
+      console.log(
+        dim("  tip: add --method removal|avoidance so this tonne isn't filed as unspecified.")
+      );
+    } else if (methodArg !== "removal" && policy.policy.portfolio === "removal-only") {
+      // Recording what actually happened is always allowed — hiding it is not.
+      console.log(
+        yellow(`  ⚠ filed as ${methodArg} under a removal-only policy: it is reported separately and never counts as removal.`)
+      );
+    }
     return 0;
   }
 
   const all = aggregate(readLedger(cwd));
   const targetTonnes = (all.usage.central / 1_000_000) * policy.policy.contribution_target;
-  const outstanding = Math.max(0, targetTonnes - all.contributedTonnes);
+  const outstanding = Math.max(0, targetTonnes - creditedTonnes(all, policy.policy.portfolio));
 
   console.log("");
   console.log(bold("Contribution order — summary"));
@@ -80,25 +114,27 @@ export async function cmdContribute(cwd: string, argv: string[]): Promise<number
   const prices = PORTFOLIO_PRICES[policy.policy.portfolio];
   console.log(`  outstanding   ${outstanding.toFixed(4)} tCO2e (${(policy.policy.contribution_target * 100).toFixed(0)}% of central estimate)`);
   console.log(`  portfolio     ${policy.policy.portfolio}`);
-  let central = NaN;
+  let worstCase = NaN;
   if (prices) {
-    central = outstanding * prices.central;
+    worstCase = outstanding * prices.high;
     console.log(
-      `  est. cost     $${(outstanding * prices.low).toFixed(2)} – $${(outstanding * prices.high).toFixed(2)} ` +
-        dim(`(central ~$${central.toFixed(2)})`)
+      `  est. cost     $${(outstanding * prices.low).toFixed(2)} – $${worstCase.toFixed(2)} ` +
+        dim(`(planning band, ~$${(outstanding * prices.central).toFixed(2)} mid — the live quote decides)`)
     );
   } else {
     console.log(`  est. cost     ${dim("custom portfolio — set your own price basis")}`);
   }
 
+  // Warn off the top of the band, not the middle: durable removal spans
+  // ~$20/t to ~$1,400/t, so a mid-price check would silently under-warn.
   const approval = policy.policy.approval_above;
   const budget = policy.policy.monthly_budget_max;
-  if (Number.isFinite(central) && central > budget.amount) {
-    console.log(yellow(`  ⚠ exceeds monthly_budget_max (${budget.amount} ${budget.currency}) — order capped by policy; carry the rest forward`));
-  } else if (Number.isFinite(central) && central > approval.amount) {
-    console.log(yellow(`  ⚠ above approval threshold (${approval.amount} ${approval.currency}) — human confirmation required (that's you)`));
+  if (Number.isFinite(worstCase) && worstCase > budget.amount) {
+    console.log(yellow(`  ⚠ could exceed monthly_budget_max (${budget.amount} ${budget.currency}) — --execute hard-stops and you carry the rest forward`));
+  } else if (Number.isFinite(worstCase) && worstCase > approval.amount) {
+    console.log(yellow(`  ⚠ could land above approval_above (${approval.amount} ${approval.currency}) — typed confirmation required at execution`));
   } else {
-    console.log(dim(`  below approval threshold (${approval.amount} ${approval.currency}) — eligible for auto-execution in v0.2`));
+    console.log(dim(`  under approval_above (${approval.amount} ${approval.currency}) across the whole band`));
   }
 
   console.log("");
@@ -121,7 +157,7 @@ async function executeX402(cwd: string, argv: string[], policy: CarbonPolicy): P
   const events = readLedger(cwd);
   const all = aggregate(events);
   const targetTonnes = (all.usage.central / 1_000_000) * policy.policy.contribution_target;
-  const outstanding = Math.max(0, targetTonnes - all.contributedTonnes);
+  const outstanding = Math.max(0, targetTonnes - creditedTonnes(all, policy.policy.portfolio));
 
   const tonnesArg = getFlag(argv, "--tonnes");
   const tonnes = tonnesArg ?? Math.max(0.001, Math.ceil(outstanding * 1000) / 1000).toFixed(3);
@@ -134,6 +170,20 @@ async function executeX402(cwd: string, argv: string[], policy: CarbonPolicy): P
 
   console.log(dim("\nresolving carbon class + live quote (read-only)…"));
   const cls = await resolveClass(classArg);
+  const method = classifyMethod(cls);
+
+  // Refused before the quote: under removal-only there is no price at which an
+  // avoidance credit becomes acceptable, so don't even ask for one.
+  if (policy.policy.portfolio === "removal-only" && method !== "removal") {
+    console.error(`\n✖ POLICY STOP: ${cls.name} is ${method}; carbon.md declares portfolio: removal-only.`);
+    console.error("  Nothing quoted, nothing signed. Removal classes available on this rail:");
+    for (const c of await removalClasses()) {
+      const price = c.priceUsdcPerTonneFormatted ? ` — ${c.priceUsdcPerTonneFormatted} USDC/t` : "";
+      console.error(`    --class "${c.name}"${price}`);
+    }
+    return 1;
+  }
+
   const q = await x402quote(cls.carbonClassId, tonnes);
   const total = parseFloat(q.totalFormatted);
 
@@ -148,12 +198,32 @@ async function executeX402(cwd: string, argv: string[], policy: CarbonPolicy): P
     .reduce((s, c) => s + c.cost, 0);
 
   console.log(`\n${bold("Retirement order — Klima x402 relay (Base)")}`);
-  console.log(`  class        ${cls.name}`);
+  console.log(`  class        ${cls.name} ${dim("(" + method + ")")}`);
   console.log(`  amount       ${q.tonnesFormatted} tCO₂e`);
   console.log(`  quote        ${q.humanSummary}`);
   console.log(`  beneficiary  ${beneficiary}${beneficiaryAddress ? dim(" · " + beneficiaryAddress) : ""}`);
   console.log(`  message      ${dim(message)}`);
   console.log(`  wallet       ${wallet.address}`);
+
+  // Before anything else can fail: say what this tonne will actually claim.
+  // A cheap avoidance credit under a removal-weighted policy is the exact
+  // mistake this ledger now refuses to hide.
+  if (policy.policy.portfolio === "removal-weighted" && method !== "removal") {
+    console.log("");
+    console.log(yellow(`⚠ ${cls.name} is ${method}, but carbon.md declares portfolio: removal-weighted.`));
+    console.log(yellow(`  It will be filed as ${method} and cannot be presented as removal.`));
+  }
+
+  // Policy before funds: what the file forbids is worth knowing before, not
+  // after, you top the wallet up for an order it was never going to allow.
+  if (spentThisMonth + total > budget.amount) {
+    console.error(
+      `\n✖ POLICY STOP: this order (${total.toFixed(2)}) + spent this month (${spentThisMonth.toFixed(2)}) exceeds monthly_budget_max (${budget.amount} ${budget.currency}).`
+    );
+    console.error("  Raise the cap in carbon.md (a human decision, in the file) or reduce the amount.");
+    return 1;
+  }
+
   try {
     const bal = await usdcBalance(wallet.address as `0x${string}`);
     const suggested = parseFloat(q.suggestedMaxInputFormatted);
@@ -166,14 +236,6 @@ async function executeX402(cwd: string, argv: string[], policy: CarbonPolicy): P
     }
   } catch {
     console.log(dim("  balance      (unavailable — proceeding on quote only)"));
-  }
-
-  if (spentThisMonth + total > budget.amount) {
-    console.error(
-      `\n✖ POLICY STOP: this order (${total.toFixed(2)}) + spent this month (${spentThisMonth.toFixed(2)}) exceeds monthly_budget_max (${budget.amount} ${budget.currency}).`
-    );
-    console.error("  Raise the cap in carbon.md (a human decision, in the file) or reduce the amount.");
-    return 1;
   }
 
   const needsApproval = total > approval.amount;
@@ -219,6 +281,8 @@ async function executeX402(cwd: string, argv: string[], policy: CarbonPolicy): P
       currency: "USDC",
       rail: "x402-klima",
       receipt,
+      credit_class: cls.name,
+      method,
     },
   ]);
 

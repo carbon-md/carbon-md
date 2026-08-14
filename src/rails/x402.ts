@@ -1,4 +1,5 @@
 import type { PrivateKeyAccount } from "viem/accounts";
+import type { CreditMethod } from "../core/ledger.js";
 import { USDC_BASE } from "../core/wallet.js";
 
 /**
@@ -14,14 +15,32 @@ import { USDC_BASE } from "../core/wallet.js";
  * (approval_above, monthly_budget_max) BEFORE invoking retire().
  */
 
-const API = "https://x402.klimalabs.com/api";
+/**
+ * Pinned to the v0 major version on Carbonmark engineering's advice (Peter
+ * Sparacino, 30 Jul 2026): the bare host `x402.klimalabs.com/api` always
+ * redirects to the LATEST major, so it will silently become v1 on release and
+ * break this client. Each major keeps a stable prefixed host, deprecated only
+ * with notice. Bump this deliberately, after testing against the new major.
+ */
+const API = "https://v0.x402.klimalabs.com/api";
 const CHAIN_ID = 8453;
 
-async function call(action: string, params: Record<string, unknown>): Promise<any> {
+/** Class used when the caller doesn't name one: the cheapest durable removal
+ *  purchasable in sub-tonne amounts today. */
+export const DEFAULT_CLASS = "oae";
+
+async function call(
+  action: string,
+  params: Record<string, unknown>,
+  timeoutMs?: number
+): Promise<any> {
   const res = await fetch(API, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    // No keep-alive: a pooled socket would outlive the command and keep the
+    // CLI's event loop open after the work is done.
+    headers: { "content-type": "application/json", connection: "close" },
     body: JSON.stringify({ action, ...params }),
+    signal: timeoutMs ? AbortSignal.timeout(timeoutMs) : undefined,
   });
   const body = await res.json().catch(() => ({}));
   if (!res.ok && res.status !== 402) {
@@ -39,15 +58,19 @@ export interface CarbonClass {
   minRetirementTonnesFormatted?: string;
 }
 
-export async function discover(): Promise<CarbonClass[]> {
-  const r = await call("discover", {});
-  return r.carbonClasses ?? r.classes ?? [];
+let discoverCache: CarbonClass[] | undefined;
+
+export async function discover(timeoutMs?: number): Promise<CarbonClass[]> {
+  if (discoverCache) return discoverCache;
+  const r = await call("discover", {}, timeoutMs);
+  discoverCache = r.carbonClasses ?? r.classes ?? [];
+  return discoverCache!;
 }
 
 /** Resolve a class by fuzzy name (e.g. "oae", "biochar", "forest") or exact 0x id. */
-export async function resolveClass(nameOrId: string): Promise<CarbonClass> {
+export async function resolveClass(nameOrId: string, timeoutMs?: number): Promise<CarbonClass> {
   if (nameOrId.startsWith("0x")) return { carbonClassId: nameOrId, name: nameOrId };
-  const classes = await discover();
+  const classes = await discover(timeoutMs);
   const q = nameOrId.toLowerCase();
   const aliases: Record<string, string> = {
     oae: "ocean alkalinity",
@@ -66,6 +89,35 @@ export async function resolveClass(nameOrId: string): Promise<CarbonClass> {
   return hit;
 }
 
+/**
+ * Removal or avoidance, from what the rail says it is selling.
+ *
+ * Deliberately conservative: anything unrecognised returns "unspecified" rather
+ * than being guessed into the removal column, because that column carries the
+ * project's entire claim. Avoidance is tested first on purpose — "avoided
+ * deforestation" contains "forest" and must not read as a forestry removal.
+ */
+export function classifyMethod(cls: CarbonClass): CreditMethod {
+  const hay = `${cls.category ?? ""} ${cls.name ?? ""}`.toLowerCase();
+  const avoidance = [
+    "avoided", "redd", "wind", "solar", "hydro", "geothermal", "efficiency",
+    "cookstove", "landfill", "methane", "fuel switch", "waste",
+  ];
+  const removal = [
+    "removal", "biochar", "blue carbon", "ocean", "alkalinity", "forest",
+    "afforest", "reforest", "mangrove", "soil", "direct air", "dac",
+    "enhanced weathering", "olivine",
+  ];
+  if (avoidance.some((k) => hay.includes(k))) return "avoidance";
+  if (removal.some((k) => hay.includes(k))) return "removal";
+  return "unspecified";
+}
+
+/** The classes a removal-only policy is allowed to buy. */
+export async function removalClasses(timeoutMs?: number): Promise<CarbonClass[]> {
+  return (await discover(timeoutMs)).filter((c) => classifyMethod(c) === "removal");
+}
+
 export interface Quote {
   tonnesFormatted: string;
   retirementPriceFormatted: string;
@@ -76,13 +128,55 @@ export interface Quote {
   resolvedCredit?: { creditToken: string; tokenId: number; vintage: number };
 }
 
-export async function quote(carbonClass: string, tonnes: string): Promise<Quote> {
-  return call("quote", {
-    chainId: CHAIN_ID,
-    inputToken: USDC_BASE,
-    carbonClass,
-    amount: tonnes,
-  });
+export async function quote(
+  carbonClass: string,
+  tonnes: string,
+  timeoutMs?: number
+): Promise<Quote> {
+  return call(
+    "quote",
+    {
+      chainId: CHAIN_ID,
+      inputToken: USDC_BASE,
+      carbonClass,
+      amount: tonnes,
+    },
+    timeoutMs
+  );
+}
+
+export interface LivePrice {
+  className: string;
+  /** The amount actually quoted — may exceed the request, see MIN_TONNES. */
+  tonnes: number;
+  totalUsdc: number;
+  usdcPerTonne: number;
+}
+
+/** Smallest retirement the rail accepts, anywhere: 1 kg. */
+export const MIN_TONNES = 0.001;
+
+/**
+ * What the outstanding balance really costs, right now — read-only, no wallet,
+ * no signature. Rounds up to the nearest kilo because the rail can't retire
+ * finer than that; callers should say so when the rounding bites.
+ */
+export async function priceFor(
+  nameOrId: string,
+  tonnes: number,
+  timeoutMs = 6000
+): Promise<LivePrice> {
+  const retirable = Math.max(MIN_TONNES, Math.ceil(tonnes * 1000) / 1000);
+  const cls = await resolveClass(nameOrId, timeoutMs);
+  const q = await quote(cls.carbonClassId, retirable.toFixed(3), timeoutMs);
+  const total = parseFloat(q.totalFormatted);
+  const quoted = parseFloat(q.tonnesFormatted);
+  return {
+    className: cls.name,
+    tonnes: quoted,
+    totalUsdc: total,
+    usdcPerTonne: total / quoted,
+  };
 }
 
 export interface RetirementDetails {

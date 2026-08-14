@@ -11,7 +11,14 @@ export interface CarbonPolicy {
   carbon_md: string;
   policy: {
     contribution_target: number;
-    portfolio: "removal-weighted" | "balanced" | "custom";
+    /**
+     * removal-only     — avoidance is refused outright; `contribute --execute`
+     *                    hard-stops on anything not classified as removal.
+     * removal-weighted — removal preferred; avoidance warns but proceeds.
+     * balanced         — any verified credit.
+     * custom           — you set your own price basis and rules.
+     */
+    portfolio: "removal-only" | "removal-weighted" | "balanced" | "custom";
     monthly_budget_max: Money;
     approval_above: Money;
   };
@@ -52,6 +59,10 @@ function validate(d: any, path: string): void {
   if (!p) fail("missing 'policy' block");
   if (typeof p.contribution_target !== "number" || p.contribution_target < 0)
     fail("'policy.contribution_target' must be a number >= 0 (e.g. 1.1)");
+  // A typo here silently downgrades what the project claims — reject it loudly.
+  const portfolios = ["removal-only", "removal-weighted", "balanced", "custom"];
+  if (typeof p.portfolio !== "string" || !portfolios.includes(p.portfolio))
+    fail(`'policy.portfolio' must be one of: ${portfolios.join(" | ")}`);
   for (const key of ["monthly_budget_max", "approval_above"]) {
     const v = p[key];
     if (!v || typeof v.amount !== "number" || typeof v.currency !== "string")

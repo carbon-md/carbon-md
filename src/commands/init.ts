@@ -147,7 +147,10 @@ export async function cmdInit(cwd: string, argv: string[]): Promise<number> {
       return a || def;
     };
     targetPct = parseFloat(await ask("Contribution target (1.0 = 100%, 1.1 = 110%)", "1.1"));
-    portfolio = await ask("Portfolio (removal-weighted / balanced / custom)", "removal-weighted");
+    portfolio = await ask(
+      "Portfolio (removal-only / removal-weighted / balanced / custom)",
+      "removal-weighted"
+    );
     budget = parseFloat(await ask("Monthly budget cap (USD)", "25"));
     approval = parseFloat(await ask("Human approval required above (USD)", "10"));
     publicLedger = (await ask("Publish a public ledger? (true/false)", "true")) === "true";
