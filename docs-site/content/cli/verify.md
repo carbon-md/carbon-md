@@ -1,0 +1,72 @@
+# carbon-md verify
+
+Checks a Carbon Passport — signature, ranges, and on-chain anchors — and reports the trust level **it can actually prove**.
+
+```bash
+npx carbon-md verify <passport.json | https://…/passport.json> [--offline] [--min L0|L1|L2] [--json]
+```
+
+## Output
+
+```
+carbon.md passport — ✔ VERIFIED L2
+  subject     hermes did:key:z6Mko2Bjf9Tn…
+  signature   valid
+  methodology carbonmd-factors-2026-08
+  emissions   285 gCO2e (93 – 930)
+  contribution 0.005 / 0.000314 tCO2e credited · target met
+  anchors     1 (resolved)
+```
+
+A tampered document is caught immediately:
+
+```
+carbon.md passport — ✖ INVALID L0
+  signature   signature does not match the document
+  ⚠ document claims L3; evidence supports L0
+  · signature invalid — nothing below can be trusted
+```
+
+## The trust ladder
+
+The level is **re-derived from evidence**, never read from the document:
+
+| Level | Requires |
+|---|---|
+| **L0** Declared | a passport exists (or the signature failed) |
+| **L1** Measured | valid signature · real usage · low ≤ central ≤ high · methodology pinned |
+| **L2** Contribution-verified | L1 + anchors resolved on-chain + target met + every counted anchor is removal (under a removal policy) |
+| **L3** Certified | a carbon.md certification entry — *not shipped yet*; a document claiming it is reported at the level its evidence supports |
+
+**Removal is checked, not taken on faith.** Under `removal-only` or `removal-weighted`, an anchor whose method is `avoidance` — or merely `unspecified` — does not count toward L2. That is the whole point: it turns the policy into a property a stranger can verify.
+
+## Options
+
+| Flag | Meaning |
+|---|---|
+| `--offline` | Skip the chain lookup. Signature, ranges, freshness and policy checks still run; anchors are reported as unverified, so the result caps at L1 |
+| `--min <level>` | Exit non-zero unless the derived level reaches this (default `L1`) |
+| `--json` | Machine-readable result |
+
+## Exit codes
+
+`0` when the signature is valid, the passport is fresh, and the derived level meets `--min`; `1` otherwise; `2` on usage or fetch errors. That makes it usable as a CI gate:
+
+```bash
+npx carbon-md verify https://your-ledger/passport.json --min L2
+```
+
+## What is checked
+
+1. **Signature** — Ed25519 over the canonicalized document. Any edit, anywhere, breaks it.
+2. **Freshness** — passports expire after 90 days; a stale one reports `⚠ STALE`.
+3. **Measurement** — usage present, uncertainty range well-formed, methodology version pinned.
+4. **Anchors** — each transaction is fetched from Base and must exist and not have reverted.
+5. **Policy** — credited tonnes ≥ target, and the removal rule above.
+
+The public key is embedded in the subject's `did:key`, so steps 1–3 work with **no network at all**.
+
+## Related
+
+- [passport](/cli/passport/) — issue one
+- [Retirements & receipts](/guides/retirements/) — where anchors come from

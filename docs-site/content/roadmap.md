@@ -13,14 +13,10 @@ What is designed but not yet shipped. Anything marked *planned* in these docs ap
 
 ## Carbon Passport + attestation API
 
-The `ledger.json` you already produce, **signed** and anchored to on-chain retirement receipts — so a third party can verify it programmatically instead of trusting a badge image.
+**Shipped (L0–L2):** [`carbon-md passport`](/cli/passport/) signs the ledger summary as a verifiable credential (Ed25519, `did:key`, canonicalized) with retirement **anchors**; [`carbon-md verify`](/cli/verify/) re-derives the trust level from evidence — checking the signature, the uncertainty ranges, on-chain transactions on Base, and whether counted anchors really are removal. Works offline for everything except the chain lookup, and exits non-zero as a CI gate.
 
-- **`carbon-md passport`** — signs a canonical credential (Ed25519, `did:key` locally) including retirement anchors: transaction hash, registry serial, vintage, certificate URL.
-- **`carbon-md verify <url>`** — re-derives the trust level from evidence. Works offline for signature and ledger checks.
-- **Trust ladder** — L0 declared → L1 measured → L2 contribution-verified → **L3 certified**. L0–L2 are free and machine-verifiable forever.
-- **Live badge** — re-verifies on request, so it can't drift from reality.
+**Still to come:** the hosted attestation API (`/v1/verify`, live badge, signed registry), the public passport page, and **L3 certification** — the human-audited, revocable tier that is the paid surface.
 
-Why it matters: it turns "trust the badge" into "check the receipt", and it's the first layer someone can reasonably pay for (L3 certification), while everything below stays free.
 
 ## Unified token accounting
 

@@ -5,6 +5,8 @@ import { cmdIngest } from "./commands/ingest.js";
 import { cmdInit } from "./commands/init.js";
 import { cmdStatus } from "./commands/status.js";
 import { cmdSync } from "./commands/sync.js";
+import { cmdPassport } from "./commands/passport.js";
+import { cmdVerify } from "./commands/verify.js";
 import { cmdWallet } from "./commands/wallet.js";
 import { readFileSync } from "node:fs";
 import { CLASS_FACTORS, FACTORS_VERSION, INPUT_TOKEN_WEIGHT } from "./core/factors.js";
@@ -39,6 +41,10 @@ Usage:
                                          Retire via Klima x402 relay (policy-checked, confirm-first)
   npx carbon-md wallet [init]            Agent wallet on Base (address + USDC balance)
   npx carbon-md export [--out <dir>]     Build a public ledger page + badge.svg + ledger.json
+  npx carbon-md passport [--out <dir>] [--kind agent|project|fleet]
+                                         Sign a verifiable Carbon Passport (public/passport.json)
+  npx carbon-md verify <file|url> [--offline] [--min L0|L1|L2] [--json]
+                                         Check a passport: signature, ranges, on-chain anchors
   npx carbon-md factors                  Show the emission-factor table
   npx carbon-md help                     This help
 
@@ -78,6 +84,10 @@ async function main(): Promise<number> {
       return cmdExport(cwd, rest);
     case "wallet":
       return cmdWallet(cwd, rest);
+    case "passport":
+      return cmdPassport(cwd, rest);
+    case "verify":
+      return cmdVerify(cwd, rest);
     case "factors":
       return cmdFactors();
     case "--version":

@@ -90,6 +90,16 @@
           "title": "wallet"
         },
         {
+          "file": "cli/passport.md",
+          "slug": "cli/passport",
+          "title": "passport"
+        },
+        {
+          "file": "cli/verify.md",
+          "slug": "cli/verify",
+          "title": "verify"
+        },
+        {
           "file": "cli/export.md",
           "slug": "cli/export",
           "title": "export"

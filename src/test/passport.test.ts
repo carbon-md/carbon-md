@@ -1,0 +1,95 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { createKey, publicKeyToDid, didToPublicKey, base58encode, base58decode } from "../core/keys.js";
+import { canonicalize, deriveTrustLevel, sign, verifySignature, type Passport } from "../core/passport.js";
+
+function tmp(): string {
+  return mkdtempSync(join(tmpdir(), "carbon-md-passport-"));
+}
+
+const basePassport = (over: Partial<Passport> = {}): Passport => ({
+  carbon_passport: "0.1",
+  subject: { id: "did:key:zTest", name: "demo", kind: "project" },
+  period: { from: "2026-08-01", to: "2026-08-31" },
+  methodology: "carbonmd-factors-2026-08",
+  policy: { contribution_target: 1.1, portfolio: "removal-weighted" },
+  estimated_gco2e: { low: 93, central: 285, high: 930, calls: 2, tokens: 306000 },
+  contribution: { target_tonnes: 0.0003, contributed_tonnes: 0, credited_tonnes: 0, met: false, anchors: [] },
+  trust_level: "L1",
+  issued_at: "2026-08-15T00:00:00Z",
+  expires_at: "2026-11-13T00:00:00Z",
+  issuer: "did:key:zTest",
+  ...over,
+});
+
+test("base58 round-trips and did:key encodes an Ed25519 key", () => {
+  const bytes = Uint8Array.from([0, 0, 1, 2, 250, 255]);
+  assert.deepEqual([...base58decode(base58encode(bytes))], [...bytes]);
+  const raw = Uint8Array.from({ length: 32 }, (_, i) => i);
+  const did = publicKeyToDid(raw);
+  assert.ok(did.startsWith("did:key:z6Mk"), `unexpected did prefix: ${did}`);
+  assert.deepEqual([...didToPublicKey(did)], [...raw]);
+});
+
+test("canonicalization sorts keys so signer and verifier agree byte-for-byte", () => {
+  assert.equal(canonicalize({ b: 1, a: 2 }), '{"a":2,"b":1}');
+  assert.equal(canonicalize({ a: [3, { d: 1, c: 2 }] }), '{"a":[3,{"c":2,"d":1}]}');
+  // undefined fields must not change the bytes
+  assert.equal(canonicalize({ a: 1, b: undefined }), '{"a":1}');
+});
+
+test("a signed passport verifies; any edit breaks the signature", () => {
+  const dir = tmp();
+  try {
+    const key = createKey(dir);
+    const signed = sign(basePassport({ subject: { id: key.did, name: "demo", kind: "project" } }), key);
+    assert.equal(verifySignature(signed).valid, true);
+
+    const tampered = { ...signed, contribution: { ...signed.contribution, credited_tonnes: 99, met: true } };
+    assert.equal(verifySignature(tampered).valid, false);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("trust level is re-derived from evidence, never read from the document", () => {
+  // claims L3, has nothing: an invalid signature collapses everything to L0
+  const bogus = basePassport({ trust_level: "L3" });
+  assert.equal(deriveTrustLevel(bogus, { signatureValid: false, anchorsResolved: true }).level, "L0");
+
+  // measured but never contributed -> L1
+  assert.equal(deriveTrustLevel(bogus, { signatureValid: true, anchorsResolved: false }).level, "L1");
+});
+
+test("L2 requires resolved anchors that satisfy the removal policy", () => {
+  const withRemoval = basePassport({
+    contribution: {
+      target_tonnes: 0.0003,
+      contributed_tonnes: 0.0005,
+      credited_tonnes: 0.0005,
+      met: true,
+      anchors: [{ rail: "x402:klima", tx_hash: "0xabc", tonnes: 0.0005, method: "removal" }],
+    },
+  });
+  assert.equal(deriveTrustLevel(withRemoval, { signatureValid: true, anchorsResolved: true }).level, "L2");
+
+  // same evidence, unresolved on-chain -> capped at L1
+  assert.equal(deriveTrustLevel(withRemoval, { signatureValid: true, anchorsResolved: false }).level, "L1");
+
+  // an avoidance anchor cannot satisfy a removal-weighted claim
+  const withAvoidance = basePassport({
+    contribution: {
+      target_tonnes: 0.0003,
+      contributed_tonnes: 0.0005,
+      credited_tonnes: 0.0005,
+      met: true,
+      anchors: [{ rail: "x402:klima", tx_hash: "0xabc", tonnes: 0.0005, method: "avoidance" }],
+    },
+  });
+  const r = deriveTrustLevel(withAvoidance, { signatureValid: true, anchorsResolved: true });
+  assert.equal(r.removalOk, false);
+  assert.equal(r.level, "L1");
+});
