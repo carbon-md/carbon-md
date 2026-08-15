@@ -11,12 +11,14 @@
  *   node build.mjs --out foo  # custom output dir
  */
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, statSync, existsSync, rmSync, copyFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const localeIdx = process.argv.indexOf("--locale");
 const LOCALE = localeIdx >= 0 ? process.argv[localeIdx + 1] : "en";
+const BUILD_BOTH = localeIdx < 0 && process.argv.indexOf("--out") < 0;
 const CONTENT = join(ROOT, LOCALE === "fr" ? "content-fr" : "content");
 const navFile = LOCALE === "fr" ? "nav-fr.json" : "nav.json";
 const outIdx = process.argv.indexOf("--out");
@@ -317,3 +319,13 @@ writeFileSync(
 writeFileSync(join(OUT, "_headers"), `/agent\n  Content-Type: text/plain; charset=utf-8\n/agent.txt\n  Content-Type: text/plain; charset=utf-8\n/.well-known/carbon-md/agent.txt\n  Content-Type: text/plain; charset=utf-8\n`, "utf8");
 
 console.log(`✔ built ${count} pages → ${OUT}`);
+
+// A bare `node build.mjs` should build the whole site, not half of it.
+// The FR pass writes dist/fr and the EN pass deliberately spares it, so
+// building only EN leaves French silently frozen at its last build — a page
+// added today would 404 in French and nothing would say so.
+if (BUILD_BOTH) {
+  const { status, error } = spawnSync(process.execPath, [fileURLToPath(import.meta.url), "--locale", "fr"], { stdio: "inherit" });
+  if (error) throw error;
+  if (status !== 0) process.exit(status);
+}

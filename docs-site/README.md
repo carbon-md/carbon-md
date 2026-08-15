@@ -3,24 +3,30 @@
 Source for the carbon.md documentation site. Zero-dependency static generator — builds anywhere, offline.
 
 ```bash
-node build.mjs                 # → dist/
+node build.mjs                 # → dist/ (EN) and dist/fr/ (FR)
 npx wrangler pages deploy dist --project-name carbonmd-docs
 ```
+
+A bare `node build.mjs` builds **both** locales. Passing `--locale` or `--out` builds only what you named — the EN pass spares `dist/fr`, so an EN-only build leaves French frozen at its previous state rather than deleting it. Silent, and worse than a failure: a page added today would 404 in French with nothing to say why.
 
 ## Layout
 
 | Path | Purpose |
 |---|---|
 | `nav.json` | sidebar structure + page registry (add pages here) |
+| `nav-fr.json` | the same, for French — pages must be registered in **both** |
 | `content/` | the docs, in Markdown |
+| `content-fr/` | the French translations |
+| `functions/` | Cloudflare Pages Functions: locale middleware + the `/v1` attestation API |
+| `static/` | copied verbatim into `dist/` (e.g. `examples/passport.json`) |
 | `build.mjs` | the generator (markdown subset + layout) |
 | `style.css` | design system — matches carbonmd.dev (dark, `#0A0C0B` / `#4ADE80`) |
 | `dist/` | build output (gitignored) |
 
 ## Adding a page
 
-1. `content/<section>/<page>.md`
-2. register it in `nav.json`
+1. `content/<section>/<page>.md` and `content-fr/<section>/<page>.md`
+2. register it in `nav.json` **and** `nav-fr.json`
 3. `node build.mjs`
 
 Nav, prev/next, sitemap and the on-page TOC update automatically.
@@ -32,4 +38,6 @@ Nav, prev/next, sitemap and the on-page TOC update automatically.
 ## Deploy notes
 
 - Cloudflare Pages project: `carbonmd-docs` → attach `docs.carbonmd.dev` (CNAME `docs` → `carbonmd-docs.pages.dev`, proxied).
+- `functions/` is picked up automatically by `wrangler pages deploy` when run from this directory; the deploy log should say `Uploading Functions bundle`.
+- Wrangler needs `NODE_OPTIONS=--dns-result-order=ipv4first` on hosts with IPv6 egress, or auth fails with a misleading error 10000.
 - The build copies `../repo/agent.txt` to `/agent`, `/agent.txt` and `/.well-known/carbon-md/agent.txt`, and writes `_headers` so they're served as `text/plain`.
