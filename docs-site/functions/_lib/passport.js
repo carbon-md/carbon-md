@@ -64,7 +64,39 @@ export async function verifySignature(p) {
   }
 }
 
-const BASE_RPC = "https://mainnet.base.org";
+/**
+ * Several endpoints, because one of them refusing us must not become a
+ * statement about somebody's retirement. mainnet.base.org does not answer
+ * reliably from Cloudflare's egress; the fallbacks cover that.
+ */
+const BASE_RPCS = ["https://mainnet.base.org", "https://base-rpc.publicnode.com", "https://base.llamarpc.com"];
+
+/**
+ * Ask one endpoint about one transaction.
+ *
+ * Returns "unknown" for anything that is not a clear answer. A JSON-RPC error
+ * body has no `result` either, so treating a missing result as "not found"
+ * would report a rate-limit as proof that a retirement never happened — an
+ * accusation, from a transport failure.
+ */
+async function receiptFrom(rpc, hash, timeoutMs) {
+  try {
+    const res = await fetch(rpc, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getTransactionReceipt", params: [hash] }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!res.ok) return { state: "unknown", why: "HTTP " + res.status };
+    const body = await res.json();
+    if (body && body.error) return { state: "unknown", why: "RPC error " + (body.error.message || body.error.code) };
+    if (!body || !("result" in body)) return { state: "unknown", why: "malformed RPC response" };
+    if (body.result === null) return { state: "absent" };
+    return { state: "found", receipt: body.result };
+  } catch (e) {
+    return { state: "unknown", why: e && e.name === "TimeoutError" ? "timeout" : (e && e.message) || String(e) };
+  }
+}
 
 /** Confirm each anchor's transaction exists on Base and did not revert. */
 export async function resolveAnchors(p, timeoutMs = 6000) {
@@ -73,26 +105,24 @@ export async function resolveAnchors(p, timeoutMs = 6000) {
   if (!hashes.length) return { resolved: false, notes: ["anchors carry no transaction hash"] };
   const notes = [];
   for (const hash of hashes) {
-    try {
-      const res = await fetch(BASE_RPC, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getTransactionReceipt", params: [hash] }),
-        signal: AbortSignal.timeout(timeoutMs),
-      });
-      const body = await res.json();
-      const receipt = body && body.result;
-      if (!receipt) {
-        notes.push(hash.slice(0, 10) + "… not found on chain");
-        return { resolved: false, notes };
-      }
-      if (receipt.status && receipt.status !== "0x1") {
-        notes.push(hash.slice(0, 10) + "… reverted on chain");
-        return { resolved: false, notes };
-      }
-    } catch (e) {
-      const why = e && e.name === "TimeoutError" ? "timeout" : (e && e.message) || String(e);
-      notes.push("could not reach the chain (" + why + ")");
+    let answer = null;
+    const whys = [];
+    for (const rpc of BASE_RPCS) {
+      const r = await receiptFrom(rpc, hash, timeoutMs);
+      if (r.state === "unknown") { whys.push(r.why); continue; }
+      answer = r;
+      break;
+    }
+    if (!answer) {
+      notes.push("could not reach the chain (" + whys.join("; ") + ") — anchors unconfirmed, not disproved");
+      return { resolved: false, notes };
+    }
+    if (answer.state === "absent") {
+      notes.push(hash.slice(0, 10) + "… not found on chain");
+      return { resolved: false, notes };
+    }
+    if (answer.receipt.status && answer.receipt.status !== "0x1") {
+      notes.push(hash.slice(0, 10) + "… reverted on chain");
       return { resolved: false, notes };
     }
   }

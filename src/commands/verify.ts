@@ -29,6 +29,44 @@ async function load(target: string): Promise<Passport> {
   return JSON.parse(readFileSync(p, "utf8"));
 }
 
+/** Several endpoints, so one refusing us never becomes a claim about a retirement. */
+const BASE_RPCS = [BASE_RPC, "https://base-rpc.publicnode.com", "https://base.llamarpc.com"];
+
+type Answer =
+  | { state: "found"; receipt: any }
+  | { state: "absent" }
+  | { state: "unknown"; why: string };
+
+/**
+ * Ask one endpoint about one transaction.
+ *
+ * A JSON-RPC error body carries no `result` either, so treating a missing
+ * result as "not found" would report a rate-limit as proof that a retirement
+ * never happened — an accusation produced by a transport failure. Anything
+ * that is not a clear answer is "unknown".
+ */
+async function receiptFrom(rpc: string, hash: string, timeoutMs: number): Promise<Answer> {
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
+    const res = await fetch(rpc, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getTransactionReceipt", params: [hash] }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(t);
+    if (!res.ok) return { state: "unknown", why: `HTTP ${res.status}` };
+    const body: any = await res.json();
+    if (body?.error) return { state: "unknown", why: `RPC error ${body.error.message ?? body.error.code}` };
+    if (!body || !("result" in body)) return { state: "unknown", why: "malformed RPC response" };
+    if (body.result === null) return { state: "absent" };
+    return { state: "found", receipt: body.result };
+  } catch (e: any) {
+    return { state: "unknown", why: e?.name === "AbortError" ? "timeout" : e?.message ?? String(e) };
+  }
+}
+
 /** Confirm each anchor's transaction actually exists on Base. */
 async function resolveAnchors(p: Passport, timeoutMs = 8000): Promise<{ resolved: boolean; notes: string[] }> {
   const notes: string[] = [];
@@ -36,28 +74,24 @@ async function resolveAnchors(p: Passport, timeoutMs = 8000): Promise<{ resolved
   if (!hashes.length) return { resolved: false, notes: ["anchors carry no transaction hash"] };
 
   for (const hash of hashes) {
-    try {
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), timeoutMs);
-      const res = await fetch(BASE_RPC, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getTransactionReceipt", params: [hash] }),
-        signal: ctrl.signal,
-      });
-      clearTimeout(t);
-      const body: any = await res.json();
-      const receipt = body?.result;
-      if (!receipt) {
-        notes.push(`${hash.slice(0, 10)}… not found on chain`);
-        return { resolved: false, notes };
-      }
-      if (receipt.status && receipt.status !== "0x1") {
-        notes.push(`${hash.slice(0, 10)}… reverted on chain`);
-        return { resolved: false, notes };
-      }
-    } catch (e: any) {
-      notes.push(`could not reach the chain (${e?.name === "AbortError" ? "timeout" : e?.message ?? e})`);
+    let answer: Answer | null = null;
+    const whys: string[] = [];
+    for (const rpc of BASE_RPCS) {
+      const r = await receiptFrom(rpc, hash, timeoutMs);
+      if (r.state === "unknown") { whys.push(r.why); continue; }
+      answer = r;
+      break;
+    }
+    if (!answer) {
+      notes.push(`could not reach the chain (${whys.join("; ")}) — anchors unconfirmed, not disproved`);
+      return { resolved: false, notes };
+    }
+    if (answer.state === "absent") {
+      notes.push(`${hash.slice(0, 10)}… not found on chain`);
+      return { resolved: false, notes };
+    }
+    if (answer.receipt.status && answer.receipt.status !== "0x1") {
+      notes.push(`${hash.slice(0, 10)}… reverted on chain`);
       return { resolved: false, notes };
     }
   }
