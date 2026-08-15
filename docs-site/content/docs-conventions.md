@@ -7,21 +7,28 @@ How these docs are built and extended. **Every feature ships with its documentat
 ```
 docs-site/
 ├── nav.json          # sidebar structure + page registry  ← add pages here
+├── nav-fr.json       # the same, for French — register in BOTH
 ├── build.mjs         # zero-dependency static generator
 ├── style.css         # the whole design system
 ├── content/          # the docs, in Markdown
 │   ├── index.md
 │   ├── cli/<command>.md
 │   └── guides/<topic>.md
-└── dist/             # build output (gitignored)
+├── content-fr/       # the French translations, mirroring content/
+├── functions/        # Cloudflare Pages Functions: locale middleware + /v1 API
+├── static/           # copied verbatim into dist/ (e.g. examples/passport.json)
+└── dist/             # build output (gitignored) — dist/fr/ is the French site
 ```
 
 ## Build
 
 ```bash
-node build.mjs              # → dist/
+node build.mjs              # → dist/ (EN) and dist/fr/ (FR)
+node build.mjs --locale fr  # French only
 node build.mjs --out public # custom output
 ```
+
+A bare `node build.mjs` builds **both** locales. Naming `--locale` or `--out` builds only what you named — and because the EN pass spares `dist/fr` rather than deleting it, an EN-only build leaves French silently frozen instead of failing.
 
 No dependencies, no install, no network. It builds on a laptop, in CI, or from an agent on a VPS with no npm access. The Markdown subset is deliberate: headings, lists, tables, fenced code, blockquotes, links, emphasis, rules.
 
@@ -37,8 +44,8 @@ The build also emits the agent install contract at `/agent`, `/agent.txt`, and `
 
 ## Adding a page
 
-1. Write `content/<section>/<page>.md`.
-2. Register it in `nav.json` under the right section:
+1. Write `content/<section>/<page>.md` **and** `content-fr/<section>/<page>.md`.
+2. Register it in `nav.json` **and** `nav-fr.json` under the right section:
 
 ```json
 { "file": "cli/passport.md", "slug": "cli/passport", "title": "passport" }
@@ -57,7 +64,17 @@ When a feature lands, the same change adds:
 | **New spec field** | a subsection in [The carbon.md file](/spec/) |
 | **New rail or money path** | a section in [Retirements & receipts](/guides/retirements/) + the safety model |
 | **Factor table revision** | a version bump in [Methodology](/methodology/), old events keep their stamp |
+| **New hosted endpoint** | a section in [Attestation API](/api/), with its error codes |
 | **Anything user-visible** | remove it from [What's coming](/roadmap/) once shipped |
+| **Every one of the above** | the French page, in the same change — see below |
+
+## Both languages, or neither
+
+A page that exists only in English is a page French readers cannot use; a French page that lags is worse, because it looks current and isn't. So a change lands in `content/` and `content-fr/` together, registered in both nav files.
+
+Translate prose and table headers. Leave commands, flags, JSON, YAML and CLI output exactly as they are — a reader retypes those. Internal links get the `/fr` prefix. Terms of art the ecosystem uses in English (`removal`, `avoidance`, x402, rail) stay English; use *registre*, *retrait*, *ancres*, *fourchettes* for the rest.
+
+If a translation genuinely cannot be finished in the same change, that is worth saying out loud on the page rather than shipping English under a banner and forgetting it.
 
 ## House style
 

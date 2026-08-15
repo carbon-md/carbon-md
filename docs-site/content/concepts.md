@@ -61,15 +61,15 @@ Retirements are irreversible. That asymmetry is why the human gate sits on fundi
 
 Everything works with no account: the ledger is a JSONL file in `.carbon-md/`, the policy is a file in your repo, and `export` produces static HTML you can host anywhere. Hosted services are optional conveniences, never a dependency for the standard.
 
-## The trust ladder (planned)
+## The trust ladder
 
-Verification is not binary. The forthcoming [Carbon Passport](/roadmap/) assigns a level that any third party can re-derive:
+Verification is not binary. The [Carbon Passport](/cli/passport/) assigns a level that any third party can re-derive:
 
 | Level | Means | Verified by |
 |---|---|---|
 | **L0** Declared | a policy file exists | anyone, automatically |
 | **L1** Measured | real usage recorded, ranges shown | automatically |
 | **L2** Contribution-verified | retirements match policy, on-chain resolvable | automatically |
-| **L3** Certified | methodology + claims audited | carbon.md (paid) |
+| **L3** Certified *(planned)* | methodology + claims audited | carbon.md (paid) |
 
-L0–L2 stay free and machine-verifiable forever. See [What's coming](/roadmap/).
+L0–L2 have shipped and stay free and machine-verifiable forever — locally with [`verify`](/cli/verify/), or through the hosted [attestation API](/api/). See [What's coming](/roadmap/).

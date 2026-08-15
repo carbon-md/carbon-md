@@ -9,13 +9,16 @@ What is designed but not yet shipped. Anything marked *planned* in these docs ap
 | spec v0.1 + reference CLI | `init` · `sync claude-code` · **`sync hermes`** · `ingest` · `status` · `contribute` · `wallet` · `export` · `factors` |
 | capture | Claude Code, Hermes, usage-report JSONL, OTLP/OpenTelemetry |
 | retirement rail | x402 / Klima on Base, prepaid agent wallet |
-| proof | public ledger page, badge, `ledger.json` |
+| proof | public ledger page, badge, `ledger.json`, signed passport + public page |
+| verification | `verify` locally, or the hosted [attestation API](/api/) — same checks either way |
 
 ## Carbon Passport + attestation API
 
 **Shipped (L0–L2):** [`carbon-md passport`](/cli/passport/) signs the ledger summary as a verifiable credential (Ed25519, `did:key`, canonicalized) with retirement **anchors**; [`carbon-md verify`](/cli/verify/) re-derives the trust level from evidence — checking the signature, the uncertainty ranges, on-chain transactions on Base, and whether counted anchors really are removal. Works offline for everything except the chain lookup, and exits non-zero as a CI gate.
 
-**Still to come:** the hosted attestation API (`/v1/verify`, live badge, signed registry), the public passport page, and **L3 certification** — the human-audited, revocable tier that is the paid surface.
+The **hosted attestation API** shipped too: [`/v1/verify` and `/v1/badge`](/api/) on `docs.carbonmd.dev` re-run those same checks at the edge, so a passport can be checked without installing anything. A parity test keeps the two implementations from drifting apart.
+
+**Still to come:** the signed certification registry at `/.well-known/carbon-md/registry.json`, and **L3 certification** — the human-audited, revocable tier that is the paid surface.
 
 
 ## Unified token accounting

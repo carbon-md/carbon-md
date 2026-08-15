@@ -1,49 +1,45 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/roadmap/).
+# Feuille de route
 
-# What's coming
+Ce qui est conçu mais pas encore livré. Tout ce qui est marqué *prévu* dans cette documentation figure ici. Nous documentons une fonctionnalité au moment où elle atterrit — voir [Conventions docs](/fr/docs-conventions/).
 
-What is designed but not yet shipped. Anything marked *planned* in these docs appears here. We document a feature when it lands — see [Docs conventions](/docs-conventions/).
-
-## Shipped today
+## Livré aujourd'hui
 
 | | |
 |---|---|
-| spec v0.1 + reference CLI | `init` · `sync claude-code` · **`sync hermes`** · `ingest` · `status` · `contribute` · `wallet` · `export` · `factors` |
-| capture | Claude Code, Hermes, usage-report JSONL, OTLP/OpenTelemetry |
-| retirement rail | x402 / Klima on Base, prepaid agent wallet |
-| proof | public ledger page, badge, `ledger.json` |
+| spéc. v0.1 + CLI de référence | `init` · `sync claude-code` · **`sync hermes`** · `ingest` · `status` · `contribute` · `wallet` · `export` · `factors` |
+| capture | Claude Code, Hermes, JSONL usage-report, OTLP/OpenTelemetry |
+| rail de retrait | x402 / Klima sur Base, wallet d'agent prépayé |
+| preuve | page de registre publique, badge, `ledger.json`, passeport signé + page publique |
+| vérification | `verify` en local, ou l'[API d'attestation](/fr/api/) hébergée — les mêmes contrôles dans les deux cas |
 
-## Carbon Passport + attestation API
+## Passeport Carbone + API d'attestation
 
-The `ledger.json` you already produce, **signed** and anchored to on-chain retirement receipts — so a third party can verify it programmatically instead of trusting a badge image.
+**Livré (L0–L2) :** [`carbon-md passport`](/fr/cli/passport/) signe le résumé du registre comme un credential vérifiable (Ed25519, `did:key`, canonicalisé) avec des **ancres** de retrait ; [`carbon-md verify`](/fr/cli/verify/) re-dérive le niveau de confiance à partir des preuves — en contrôlant la signature, les fourchettes d'incertitude, les transactions on-chain sur Base, et si les ancres comptées relèvent réellement du removal. Fonctionne hors ligne pour tout sauf la consultation de la chaîne, et sort avec un code non nul pour servir de garde-fou en CI.
 
-- **`carbon-md passport`** — signs a canonical credential (Ed25519, `did:key` locally) including retirement anchors: transaction hash, registry serial, vintage, certificate URL.
-- **`carbon-md verify <url>`** — re-derives the trust level from evidence. Works offline for signature and ledger checks.
-- **Trust ladder** — L0 declared → L1 measured → L2 contribution-verified → **L3 certified**. L0–L2 are free and machine-verifiable forever.
-- **Live badge** — re-verifies on request, so it can't drift from reality.
+L'**API d'attestation hébergée** est livrée elle aussi : [`/v1/verify` et `/v1/badge`](/fr/api/) sur `docs.carbonmd.dev` rejouent exactement les mêmes contrôles côté edge, de sorte qu'un passeport peut être vérifié sans rien installer. Un test de parité empêche les deux implémentations de diverger.
 
-Why it matters: it turns "trust the badge" into "check the receipt", and it's the first layer someone can reasonably pay for (L3 certification), while everything below stays free.
+**Encore à venir :** le registre de certification signé à `/.well-known/carbon-md/registry.json`, et la **certification L3** — le palier audité par des humains et révocable, qui constitue la surface payante.
 
-## Unified token accounting
+## Comptabilité unifiée des tokens
 
-Capture adapters don't yet treat `reasoning` and `cache_write` tokens identically — `sync hermes` records them without counting them, which under-reports on reasoning-heavy models. The raw counts are preserved in every ledger event's `meta`, so a future factors version can recompute historical footprints rather than losing them. See [Methodology](/methodology/).
+Les adaptateurs de capture ne traitent pas encore les tokens `reasoning` et `cache_write` de façon identique — `sync hermes` les enregistre sans les compter, ce qui sous-déclare sur les modèles à fort raisonnement. Les comptes bruts sont préservés dans le `meta` de chaque événement du registre : une future version des facteurs pourra donc recalculer les empreintes historiques au lieu de les perdre. Voir [Méthodologie](/fr/methodology/).
 
-## Python SDK + framework callbacks
+## SDK Python + callbacks de frameworks
 
-A thin `carbon-md` Python package: an EcoLogits wrapper and a LangGraph callback exporting to the same local ledger. CrewAI and AutoGen to follow.
+Un paquet Python `carbon-md` léger : un wrapper EcoLogits et un callback LangGraph exportant vers le même registre local. CrewAI et AutoGen suivront.
 
-## Local compute (CodeCarbon)
+## Calcul local (CodeCarbon)
 
-Tracking on-device inference and training. Cloud inference dominates most agent footprints, which is why this is a fast-follow rather than v0.1.
+Suivi de l'inférence et de l'entraînement sur l'appareil. L'inférence cloud domine la plupart des empreintes d'agents, d'où un traitement en suivi rapproché plutôt qu'en v0.1.
 
-## Organization rollup
+## Consolidation par organisation
 
-`organization_id` is already accepted in the policy file. Rolling several agents' ledgers into one organizational view — and a CSRD-oriented export of AI emissions — is the enterprise direction.
+`organization_id` est déjà accepté dans le fichier de politique. Consolider les registres de plusieurs agents en une vue organisationnelle — et un export des émissions IA orienté CSRD — constitue la direction entreprise.
 
-## The factor dataset
+## Le jeu de données de facteurs
 
-Real per-workload, per-model emission factors for *agentic* workloads don't exist publicly. Accumulating them — with provenance, versioning, and external review — is a long-term goal of the project and the reason ranges are published rather than hidden.
+Il n'existe pas publiquement de facteurs d'émission réels par charge de travail et par modèle pour les charges *agentiques*. Les accumuler — avec provenance, versionnage et revue externe — est un objectif de long terme du projet, et la raison pour laquelle les fourchettes sont publiées plutôt que dissimulées.
 
 ---
 
-Want to influence what lands next? [Open an issue](https://github.com/carbon-md/carbon-md/issues) — especially with a real workload we should be able to measure and can't.
+Envie d'influencer ce qui atterrira ensuite ? [Ouvrez une issue](https://github.com/carbon-md/carbon-md/issues) — surtout avec une charge de travail réelle que nous devrions savoir mesurer et que nous ne mesurons pas.

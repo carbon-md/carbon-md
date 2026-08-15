@@ -1,10 +1,8 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/spec/).
+# Le fichier carbon.md
 
-# The carbon.md file
+Spécification **v0.1 (brouillon)**. Le fichier se place à la racine de votre dépôt. C'est du Markdown avec un bloc de politique en front-matter YAML — lisible par des humains, analysable par des outils, et ingérable par les agents qu'il gouverne.
 
-Spec **v0.1 (draft)**. The file lives at your repository root. It is Markdown with a YAML front-matter policy block — readable by humans, parseable by tools, and ingestible by the agents it governs.
-
-## Minimal example
+## Exemple minimal
 
 ```markdown
 ---
@@ -26,72 +24,89 @@ This project's agents measure their inference emissions and fund
 verified carbon removal per the policy above. Ledger: <link>
 ```
 
-Everything below the front matter is free-form Markdown for humans (and for agents reading the repo). Everything inside it is the machine contract.
+Tout ce qui suit le front matter est du Markdown libre, destiné aux humains (et aux agents qui lisent le dépôt). Tout ce qui s'y trouve à l'intérieur est le contrat machine.
 
-## Field reference
+## Référence des champs
 
 ### `carbon_md`
 
-Spec version string. Currently `"0.1"`. Tools refuse files whose major version they don't understand rather than guessing.
+Chaîne de version de la spécification. Actuellement `"0.1"`. Les outils refusent les fichiers dont ils ne comprennent pas la version majeure, plutôt que de deviner.
 
 ### `policy.contribution_target`
 
-Number. The fraction of estimated emissions to match. `1.0` matches 100%; `1.10` matches 110%.
+Nombre. La fraction des émissions estimées à compenser. `1.0` compense 100 % ; `1.10` compense 110 %.
 
-The generated copy never calls this "neutral" or "positive" — it is a contribution ratio. See [Claims & compliance](/guides/claims/).
+Le texte généré n'appelle jamais cela « neutre » ni « positif » — c'est un ratio de contribution. Voir [Claims & conformité](/fr/guides/claims/).
 
 ### `policy.portfolio`
 
-Which credits to buy.
+Quels crédits acheter.
 
-| Value | Meaning | Indicative price (USD/tCO₂e) |
+| Valeur | Signification | Prix de planification (USD/tCO₂e) |
 |---|---|---|
-| `removal-weighted` | **default** — durable removal (biochar, DAC, OAE) | 35 – 60 – 120 |
-| `balanced` | mixed removal/avoidance | 15 – 28 – 45 |
-| `custom` | you choose the projects; no price assumption | — |
+| `removal-only` | l'évitement est **refusé net** — `contribute` s'arrête avant même de demander un devis | 12 – 130 – 1400 |
+| `removal-weighted` | **défaut** — removal privilégié ; l'évitement déclenche un avertissement mais passe | 20 – 130 – 1400 |
+| `balanced` | n'importe quel crédit vérifié | 8 – 30 – 200 |
+| `custom` | vous choisissez les projets ; aucune hypothèse de prix | — |
 
-Prices are assumptions used to estimate what you owe, not quotes. The real price comes from the rail at purchase time.
+Une faute de frappe ici dégraderait en silence ce que votre projet revendique : une valeur inconnue est donc rejetée bruyamment plutôt que remplacée par un défaut.
+
+**Ce sont des chiffres de planification, pas des devis** (`carbonmd-prices-2026-07`). L'écart sur le removal est réellement énorme ; une fourchette étroite serait un mensonge dans les deux sens. Points de repère observés en direct sur le rail Klima en juillet 2026 :
+
+| Classe | Observé | Note |
+|---|---|---|
+| removal fondé sur la nature (forêt) | ~17 $/t | |
+| removal durable — biochar | ~127 $/t | tonnes entières uniquement |
+| removal durable — alcalinité océanique | ~1 308 $/t | le removal durable le moins cher achetable *fractionnellement* aujourd'hui |
+
+`removal-weighted` se centre sur le biochar durable, car c'est ce que le nom promet ; le haut de fourchette est l'OAE, c'est-à-dire ce qu'une petite empreinte d'agent finit réellement par acheter, faute d'option moins chère pour du removal durable sous la tonne. `contribute --execute` n'utilise jamais ces chiffres — il se base sur un devis en direct et refuse de dépasser vos plafonds.
+
+### Comment le removal est imposé, et pas seulement déclaré
+
+Une politique `removal-weighted` n'a de sens que si le registre sait distinguer une tonne retirée d'une tonne évitée. Chaque contribution enregistre donc une **méthode** — `removal`, `avoidance`, `mixed` ou `unspecified` — classée d'après ce que le rail déclare vendre. Les lignes écrites avant l'existence de ce champ sont déclarées `unspecified` et ne sont **jamais silencieusement comptées comme du removal**.
+
+Sous `removal-only`, seul le removal acquitte la cible : une tonne mixte ou non spécifiée ne peut pas solder une obligation de removal, aussi réel qu'ait été l'achat. Ces tonnes restent dans le registre et sur la page publique — elles ne paient simplement pas cette dette. Voir [Retirements & reçus](/fr/guides/retirements/).
 
 ### `policy.monthly_budget_max`
 
-`{ amount, currency }`. A hard ceiling on contributions per calendar month. The CLI refuses an order that would push month-to-date spending past it.
+`{ amount, currency }`. Un plafond strict sur les contributions par mois calendaire. La CLI refuse un ordre qui ferait dépasser ce plafond au cumul du mois.
 
 ### `policy.approval_above`
 
-`{ amount, currency }`. The human-in-the-loop threshold. Orders costing more than this require explicit confirmation; below it, an agent with a funded wallet may settle autonomously.
+`{ amount, currency }`. Le seuil de l'humain dans la boucle. Les ordres plus coûteux exigent une confirmation explicite ; en dessous, un agent doté d'un wallet approvisionné peut régler de façon autonome.
 
-> **Two caps, on purpose.** `monthly_budget_max` is a *policy* cap the tooling enforces. The prepaid wallet balance is a *physical* cap nothing can exceed. See [Retirements & receipts](/guides/retirements/).
+> **Deux plafonds, volontairement.** `monthly_budget_max` est un plafond *de politique*, appliqué par l'outillage. Le solde du wallet prépayé est un plafond *physique* que rien ne peut dépasser. Voir [Retirements & reçus](/fr/guides/retirements/).
 
 ### `reporting.mode`
 
-`local` (default) or `hosted`. Local means the ledger never leaves your machine; `export` still produces a publishable static site.
+`local` (défaut) ou `hosted`. Local signifie que le registre ne quitte jamais votre machine ; `export` produit malgré tout un site statique publiable.
 
 ### `reporting.public_ledger`
 
-Boolean. Whether you intend to publish. `export` warns if you publish while this is `false`.
+Booléen. Indique si vous avez l'intention de publier. `export` vous avertit si vous publiez alors que ce champ vaut `false`.
 
 ### `methodology`
 
-The pinned factor-table version, e.g. `carbonmd-factors-2026-08`. Estimates are only comparable within a methodology version. See [Methodology & factors](/methodology/).
+La version épinglée de la table de facteurs, par ex. `carbonmd-factors-2026-08`. Les estimations ne sont comparables qu'au sein d'une même version de méthodologie. Voir [Méthodologie & facteurs](/fr/methodology/).
 
-## Optional fields
+## Champs optionnels
 
 ### `organization_id`
 
-An opaque organization identifier (WorkOS-compatible) used to roll several agents' ledgers up to one org. Enterprise/CSRD rollup builds on this. Currently accepted and carried through; hosted rollup is [planned](/roadmap/).
+Un identifiant d'organisation opaque (compatible WorkOS) permettant de consolider les registres de plusieurs agents au niveau d'une organisation. La consolidation entreprise/CSRD s'appuiera dessus. Actuellement accepté et transmis ; la consolidation hébergée est [prévue](/fr/roadmap/).
 
-## Design rules
+## Règles de conception
 
-The spec is deliberately small. When considering an addition, we ask:
+La spécification est délibérément petite. Face à un ajout envisagé, nous demandons :
 
-- **Agent-readable?** Agents already ingest repo Markdown; the file must stay parseable without a schema fetch.
-- **Human-auditable?** Someone must be able to read the file and know exactly what their agents may do.
-- **Honest by construction?** No field should make it easy to state something unprovable.
-- **Local-first?** Nothing may require an account to function.
+- **Lisible par un agent ?** Les agents ingèrent déjà le Markdown des dépôts ; le fichier doit rester analysable sans aller chercher un schéma.
+- **Auditable par un humain ?** Quelqu'un doit pouvoir lire le fichier et savoir exactement ce que ses agents ont le droit de faire.
+- **Honnête par construction ?** Aucun champ ne doit rendre facile l'affirmation de quelque chose d'invérifiable.
+- **Local d'abord ?** Rien ne doit exiger un compte pour fonctionner.
 
-## The ledger
+## Le registre
 
-Alongside the policy file, `.carbon-md/` holds the append-only ledger at `.carbon-md/ledger.jsonl` — one JSON object per line, two event types:
+À côté du fichier de politique, `.carbon-md/` contient le registre en append-only à `.carbon-md/ledger.jsonl` — un objet JSON par ligne, deux types d'événements :
 
 ```jsonc
 // usage
@@ -107,9 +122,9 @@ Alongside the policy file, `.carbon-md/` holds the append-only ledger at `.carbo
   "receipt":"https://…/certificate" }
 ```
 
-Append-only and plain text on purpose: it is inspectable with `cat`, diffable in git if you choose to commit it, and impossible to silently rewrite through the tool.
+Append-only et en texte brut, délibérément : il s'inspecte avec `cat`, se compare dans git si vous choisissez de le committer, et ne peut pas être réécrit en silence par l'outil.
 
-## Related
+## Voir aussi
 
-- [Usage report format](/usage-report/) — how to push usage in from any agent.
-- [CLI reference](/cli/) — the commands that read and write this file.
+- [Format usage-report](/fr/usage-report/) — comment y pousser l'usage depuis n'importe quel agent.
+- [Référence CLI](/fr/cli/) — les commandes qui lisent et écrivent ce fichier.
