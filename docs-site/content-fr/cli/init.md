@@ -1,22 +1,20 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/cli/init/).
-
 # carbon-md init
 
-Sets up carbon accounting in the current directory.
+Met en place la comptabilité carbone dans le répertoire courant.
 
 ```bash
 npx carbon-md init
 ```
 
-## What it does
+## Ce qu'il fait
 
-1. **Detects your stack** — Claude Code, LiteLLM/OpenRouter configs, LangGraph projects — to suggest the right capture path.
-2. **Writes `carbon.md`** at the current directory root, with a starter policy (110% contribution, removal-weighted, $25/month cap, $10 approval threshold).
-3. **Creates `.carbon-md/`** — the local store — and adds it to `.gitignore`.
+1. **Détecte votre stack** — Claude Code, configurations LiteLLM/OpenRouter, projets LangGraph — afin de suggérer le bon chemin de capture.
+2. **Écrit `carbon.md`** à la racine du répertoire courant, avec une politique de départ (contribution à 110 %, removal-weighted, plafond de 25 $/mois, seuil d'approbation à 10 $).
+3. **Crée `.carbon-md/`** — le stockage local — et l'ajoute au `.gitignore`.
 
-Nothing is uploaded. No account is created.
+Rien n'est envoyé. Aucun compte n'est créé.
 
-## Output
+## Sortie
 
 ```
 ✔ Wrote carbon.md
@@ -29,12 +27,12 @@ Nothing is uploaded. No account is created.
          npx carbon-md status
 ```
 
-## After running
+## Après l'exécution
 
-Edit `carbon.md` to match your intent — see [the file reference](/spec/) for every field. Then wire capture: [Capture recipes](/guides/capture/).
+Modifiez `carbon.md` pour qu'il corresponde à votre intention — voir [la référence du fichier](/fr/spec/) pour chaque champ. Puis branchez la capture : [Recettes de capture](/fr/guides/capture/).
 
 ## Notes
 
-- **Safe to re-run?** `init` refuses to overwrite an existing `carbon.md`. Delete or edit the file instead.
-- **Where should it live?** At the root of the thing you're accounting for: a repo root for a project, or an agent's home directory (e.g. `~/.hermes/`) for a persistent agent.
-- **Monorepos.** One `carbon.md` per accounting unit. Commands search upward from the working directory for the nearest policy file.
+- **Peut-on le relancer sans risque ?** `init` refuse d'écraser un `carbon.md` existant. Supprimez ou modifiez le fichier à la place.
+- **Où doit-il vivre ?** À la racine de ce dont vous rendez compte : la racine d'un dépôt pour un projet, ou le répertoire personnel d'un agent (par ex. `~/.hermes/`) pour un agent persistant.
+- **Monorepos.** Un `carbon.md` par unité de comptabilité. Les commandes remontent l'arborescence depuis le répertoire de travail jusqu'au fichier de politique le plus proche.

@@ -1,14 +1,12 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/cli/factors/).
-
 # carbon-md factors
 
-Prints the active factor table — what the estimates are actually built on.
+Affiche la table de facteurs active — ce sur quoi les estimations reposent réellement.
 
 ```bash
 npx carbon-md factors
 ```
 
-## Output
+## Sortie
 
 ```
 carbonmd-factors-2026-08
@@ -24,24 +22,24 @@ gCO2e per 1k output tokens · input weighted 0.2x
   ~400 gCO2e/kWh world-average grid. Estimates, not measurements.
 ```
 
-Model → class examples (living catalog): see [Model catalog](/models/).
+Exemples de correspondance modèle → classe (catalogue vivant) : voir [Catalogue modèles](/fr/models/).
 
-## Why this is a command
+## Pourquoi c'est une commande
 
-Because the numbers should be inspectable without reading source code. If someone challenges a figure on your ledger, this is the answer — the version, the bands, and the derivation, on demand.
+Parce que les chiffres doivent être inspectables sans lire le code source. Si quelqu'un conteste une valeur de votre registre, voici la réponse — la version, les bandes et la dérivation, à la demande.
 
-## Using it to audit your own ledger
+## S'en servir pour auditer son propre registre
 
-Every ledger event stamps the factors version it was computed with. Compare:
+Chaque événement du registre porte la version des facteurs avec laquelle il a été calculé. Comparez :
 
 ```bash
 npx carbon-md factors
 grep -o '"factors":"[^"]*"' .carbon-md/ledger.jsonl | sort | uniq -c
 ```
 
-If you see more than one version, your ledger spans a methodology revision — expected over time, and precisely why the stamp exists. Old events are never retroactively recomputed.
+Si plusieurs versions apparaissent, votre registre couvre une révision de méthodologie — c'est attendu avec le temps, et c'est précisément la raison d'être de cette empreinte. Les anciens événements ne sont jamais recalculés rétroactivement.
 
-## Related
+## Voir aussi
 
-- [Methodology & factors](/methodology/) — the full derivation, token rules, and limitations
-- [Contributing factors](https://github.com/carbon-md/carbon-md) — new models and better sources are welcome
+- [Méthodologie & facteurs](/fr/methodology/) — la dérivation complète, les règles de comptage des tokens et les limites
+- [Contribuer aux facteurs](https://github.com/carbon-md/carbon-md) — nouveaux modèles et meilleures sources bienvenus

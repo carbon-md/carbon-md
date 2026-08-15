@@ -31,8 +31,8 @@ An agent must never acquire, bridge, swap, or transfer funds. The only money-rel
 6 FUND    💳  report the address; ask the operator to deposit USDC on Base; wait
 7 CONTRIBUTE  npx carbon-md contribute
           💳  if cost > approval_above → present the order, wait for an explicit YES
-8 PROVE       npx carbon-md export && npx carbon-md passport   (passport: planned)
-9 VERIFY      npx carbon-md verify <passport-url>               (planned)
+8 PROVE       npx carbon-md export && npx carbon-md passport
+9 VERIFY      npx carbon-md verify <passport-url>
 ```
 
 ## What an agent should report back

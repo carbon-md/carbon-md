@@ -1,22 +1,20 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/cli/export/).
-
 # carbon-md export
 
-Builds the public artifacts: a ledger page, a README badge, and the machine-readable dump.
+Construit les artefacts publics : une page de registre, un badge pour le README, et l'export exploitable par machine.
 
 ```bash
 npx carbon-md export [--out <dir>]
 ```
 
-Default output directory is `public/`.
+Le répertoire de sortie par défaut est `public/`.
 
-## What it writes
+## Ce qu'il écrit
 
-| File | Purpose |
+| Fichier | Rôle |
 |---|---|
-| `index.html` | self-contained ledger page (no JS, no external assets) |
-| `badge.svg` | static badge for your README |
-| `ledger.json` | the verifiable data dump |
+| `index.html` | page de registre autonome (aucun JS, aucune ressource externe) |
+| `badge.svg` | badge statique pour votre README |
+| `ledger.json` | l'export de données vérifiable |
 
 ```
 ✔ Exported public ledger to /path/public
@@ -28,13 +26,13 @@ Publish it:
   Badge in README:   ![carbon.md](https://YOUR-LEDGER-URL/badge.svg)
 ```
 
-## The page
+## La page
 
-Shows emissions this month and all time (with ranges), contribution position against policy, a breakdown by model and by source, and every contribution with a link to its receipt. It states plainly that emissions are **estimated, not measured**, names the methodology version, and makes no neutrality claim. See [Claims & compliance](/guides/claims/).
+Elle affiche les émissions du mois et depuis toujours (avec les fourchettes), la position de contribution vis-à-vis de la politique, une ventilation par modèle et par source, et chaque contribution avec un lien vers son reçu. Elle indique clairement que les émissions sont **estimées, et non mesurées**, nomme la version de la méthodologie, et ne formule aucune revendication de neutralité. Voir [Claims & conformité](/fr/guides/claims/).
 
 ## `ledger.json`
 
-The machine-readable summary — the thing a third party can check:
+Le résumé exploitable par machine — ce qu'un tiers peut contrôler :
 
 ```jsonc
 {
@@ -53,20 +51,20 @@ The machine-readable summary — the thing a third party can check:
 }
 ```
 
-> This file is the seed of the forthcoming **Carbon Passport** — the same summary, signed and anchored to on-chain receipts, so a stranger can verify it programmatically. See [What's coming](/roadmap/).
+> Ce fichier est le germe du **Passeport Carbone** : le même résumé, signé et ancré à des reçus on-chain, pour qu'un inconnu puisse le vérifier par programme. Voir [`passport`](/fr/cli/passport/) et [Feuille de route](/fr/roadmap/).
 
 ## Badge
 
 ```markdown
-![carbon.md](https://your-ledger-url/badge.svg)
+![carbon.md](https://votre-url-de-registre/badge.svg)
 ```
 
-The badge reflects reality: `X matched ✔` once the policy target is met, otherwise `X tracked`.
+Le badge reflète la réalité : `X matched ✔` une fois la cible de contribution atteinte, sinon `X tracked`.
 
 ## Notes
 
-- **Regenerate after every contribution** — the page is a static snapshot.
-- If `reporting.public_ledger` is `false` in your policy, `export` warns before you publish.
-- Everything is self-contained: no analytics, no fonts, no third-party requests.
+- **Régénérez après chaque contribution** — la page est un instantané statique.
+- Si `reporting.public_ledger` vaut `false` dans votre politique, `export` vous avertit avant publication.
+- Tout est autonome : aucune analytique, aucune police externe, aucune requête tierce.
 
-See [Publish your ledger](/guides/publish-ledger/) for hosting.
+Voir [Publier votre ledger](/fr/guides/publish-ledger/) pour l'hébergement.

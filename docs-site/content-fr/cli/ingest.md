@@ -1,59 +1,57 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/cli/ingest/).
-
 # carbon-md ingest
 
-Loads usage from a file or stdin. The universal path — if your stack can write JSON, it can be accounted for.
+Charge l'usage depuis un fichier ou stdin. Le chemin universel — si votre stack sait écrire du JSON, elle peut être comptabilisée.
 
 ```bash
-npx carbon-md ingest <file>
-npx carbon-md ingest -          # read stdin
+npx carbon-md ingest <fichier>
+npx carbon-md ingest -          # lire stdin
 ```
 
-## Accepted inputs
+## Entrées acceptées
 
-Format is auto-detected:
+Le format est détecté automatiquement :
 
-| Input | Detection |
+| Entrée | Détection |
 |---|---|
-| **Usage-report JSONL** | one JSON object per line with token fields |
-| **JSON array** | an array of the same objects |
-| **OTLP / OpenTelemetry JSON** | flattens `*.token.usage` and `gen_ai.client.token.usage` |
+| **JSONL usage-report** | un objet JSON par ligne, avec des champs de tokens |
+| **Tableau JSON** | un tableau des mêmes objets |
+| **JSON OTLP / OpenTelemetry** | aplatit `*.token.usage` et `gen_ai.client.token.usage` |
 
-Field names and aliases are documented in [Usage report format](/usage-report/).
+Les noms de champs et leurs alias sont documentés dans [Format usage-report](/fr/usage-report/).
 
-## Examples
+## Exemples
 
 ```bash
-# a usage log your agent writes
+# un journal d'usage écrit par votre agent
 npx carbon-md ingest usage.jsonl
 
-# an OpenTelemetry export — any OTel-instrumented agent works
+# un export OpenTelemetry — n'importe quel agent instrumenté OTel convient
 npx carbon-md ingest otel-export.json
 
-# straight from a pipeline
+# directement depuis un pipeline
 my-agent --emit-usage | npx carbon-md ingest -
 ```
 
-## Idempotency
+## Idempotence
 
-Ingested batches are tracked in `.carbon-md/sources/`. Re-ingesting the same file does not double-count. When in doubt, `--dry-run` first:
+Les lots ingérés sont suivis dans `.carbon-md/sources/`. Ré-ingérer le même fichier ne compte pas deux fois. Dans le doute, `--dry-run` d'abord :
 
 ```bash
 npx carbon-md ingest usage.jsonl --dry-run
 ```
 
-## Output
+## Sortie
 
 ```
 ✔ Ingested 412 events → ~1.2 kg CO2e central estimate, 2,910,004 tokens
   3 models were classified by guess — see `npx carbon-md factors`
 ```
 
-## Troubleshooting
+## Dépannage
 
-| Symptom | Cause | Fix |
+| Symptôme | Cause | Correctif |
 |---|---|---|
-| `0 events ingested` | fields not recognised | check names against [usage-report](/usage-report/) |
-| Everything is `medium (guessed)` | model strings unknown to the classifier | fine — ranges widen; consider a PR to the factor table |
-| Numbers look too high | cache reads counted as input | send them as `cache_read_tokens`; they're then excluded |
-| Duplicate-looking totals | ingesting the same data through two paths | use one source per stream (`sync` **or** `ingest`) |
+| `0 events ingested` | champs non reconnus | vérifiez les noms dans [usage-report](/fr/usage-report/) |
+| Tout est en `medium (guessed)` | chaînes de modèles inconnues du classifieur | ce n'est pas grave — les fourchettes s'élargissent ; envisagez une PR sur la table de facteurs |
+| Les chiffres semblent trop élevés | lectures de cache comptées comme entrée | envoyez-les en `cache_read_tokens` ; elles sont alors exclues |
+| Des totaux qui semblent dupliqués | mêmes données ingérées par deux chemins | une seule source par flux (`sync` **ou** `ingest`) |

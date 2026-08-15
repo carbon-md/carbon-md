@@ -1,14 +1,12 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/cli/status/).
-
 # carbon-md status
 
-Your footprint and your position against the policy.
+Votre empreinte et votre position par rapport à la politique.
 
 ```bash
 npx carbon-md status
 ```
 
-## Output
+## Sortie
 
 ```
 carbon.md — my-project
@@ -29,16 +27,16 @@ carbon.md — my-project
   Next: npx carbon-md contribute
 ```
 
-## Reading it
+## Comment le lire
 
-- **Ranges everywhere.** The central figure is a point estimate inside a wide honest band. See [Methodology](/methodology/).
-- **`(guessed)`** means the model string didn't match a known class — the estimate still counts, with a wider range.
-- **Target** = all-time estimated emissions × `contribution_target`.
-- **Outstanding** = target − already contributed. The dollar figure is an *assumption* from your portfolio's price band, not a quote.
-- **Calls vs tokens** — calls count ledger events; tokens are input + output (cache reads excluded).
+- **Des fourchettes partout.** Le chiffre central est une estimation ponctuelle à l'intérieur d'une bande large et honnête. Voir [Méthodologie](/fr/methodology/).
+- **`(guessed)`** signifie que la chaîne du modèle ne correspond à aucune classe connue — l'estimation compte quand même, avec une fourchette plus large.
+- **Target** = émissions estimées depuis toujours × `contribution_target`.
+- **Outstanding** = cible − déjà contribué. Le montant en dollars est une *hypothèse* tirée de la bande de prix de votre portefeuille, pas un devis.
+- **Calls vs tokens** — les *calls* comptent les événements du registre ; les *tokens* sont entrée + sortie (lectures de cache exclues).
 
 ## Notes
 
-- `status` is read-only. It never writes to the ledger or contacts the network.
-- If it reports nothing, you haven't captured usage yet — see [`sync`](/cli/sync/) or [`ingest`](/cli/ingest/).
-- Monthly figures follow calendar months in local time; contributions are prepared monthly by default.
+- `status` est en lecture seule. Il n'écrit jamais dans le registre et ne contacte pas le réseau.
+- S'il n'affiche rien, c'est qu'aucun usage n'a encore été capturé — voir [`sync`](/fr/cli/sync/) ou [`ingest`](/fr/cli/ingest/).
+- Les chiffres mensuels suivent les mois calendaires en heure locale ; les contributions sont préparées mensuellement par défaut.

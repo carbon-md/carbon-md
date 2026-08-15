@@ -1,8 +1,6 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/guides/publish-ledger/).
+# Publier votre ledger
 
-# Publish your ledger
-
-`export` produces a self-contained static folder. Host it anywhere — the point is that a stranger can check your claim without trusting you.
+`export` produit un dossier statique autonome. Hébergez-le où vous voulez — l'important est qu'un inconnu puisse contrôler votre affirmation sans avoir à vous faire confiance.
 
 ```bash
 npx carbon-md export
@@ -14,50 +12,50 @@ npx carbon-md export
 npx wrangler pages deploy public --project-name my-carbon-ledger
 ```
 
-Attach a custom domain in the Pages project settings. If you use a subdomain like `carbon.example.com`, add a **CNAME** record pointing at `<project>.pages.dev` (proxied).
+Attachez un domaine personnalisé dans les réglages du projet Pages. Si vous utilisez un sous-domaine du type `carbon.example.com`, ajoutez un enregistrement **CNAME** pointant vers `<projet>.pages.dev` (proxifié).
 
 ## GitHub Pages
 
-Commit the output folder and enable Pages on that directory:
+Committez le dossier de sortie et activez Pages sur ce répertoire :
 
 ```bash
 npx carbon-md export --out docs
 git add docs && git commit -m "Publish carbon ledger" && git push
-# then: Settings → Pages → Deploy from branch → /docs
+# puis : Settings → Pages → Deploy from branch → /docs
 ```
 
-## Vercel / Netlify / any static host
+## Vercel / Netlify / tout hébergeur statique
 
-Point the host at the output directory. There is no build step, no framework, and no runtime — just HTML, an SVG, and a JSON file.
+Pointez l'hébergeur sur le répertoire de sortie. Il n'y a aucune étape de build, aucun framework et aucun runtime — juste du HTML, un SVG et un fichier JSON.
 
-## The badge
+## Le badge
 
 ```markdown
-![carbon.md](https://your-ledger-url/badge.svg)
+![carbon.md](https://votre-url-de-registre/badge.svg)
 ```
 
-Link it to the ledger page so the badge is a door, not a decoration:
+Liez-le à la page du registre, pour que le badge soit une porte et non une décoration :
 
 ```markdown
-[![carbon.md](https://your-ledger-url/badge.svg)](https://your-ledger-url/)
+[![carbon.md](https://votre-url-de-registre/badge.svg)](https://votre-url-de-registre/)
 ```
 
-## Keeping it fresh
+## Le garder à jour
 
-The page is a snapshot. Regenerate after syncing usage or recording a contribution — a stale ledger is worse than none, because it silently overstates how current your proof is.
+La page est un instantané. Régénérez-la après avoir synchronisé l'usage ou enregistré une contribution — un registre périmé est pire que pas de registre, car il exagère en silence l'actualité de votre preuve.
 
 ```bash
 npx carbon-md sync claude-code && npx carbon-md export
 ```
 
-Automate it alongside your capture cron:
+Automatisez-le à côté de votre cron de capture :
 
 ```bash
-0 3 * * * cd /path/to/project && npx carbon-md sync claude-code && npx carbon-md export && npx wrangler pages deploy public --project-name my-carbon-ledger
+0 3 * * * cd /chemin/vers/projet && npx carbon-md sync claude-code && npx carbon-md export && npx wrangler pages deploy public --project-name my-carbon-ledger
 ```
 
-## Before you publish
+## Avant de publier
 
-- Check `reporting.public_ledger: true` in your policy — `export` warns otherwise.
-- Confirm nothing sensitive is in your project name or source labels (they appear on the page).
-- Read the generated copy once. It should say *measured and contributed*, never *neutral*. See [Claims & compliance](/guides/claims/).
+- Vérifiez `reporting.public_ledger: true` dans votre politique — `export` vous avertit sinon.
+- Assurez-vous qu'aucune information sensible ne figure dans le nom du projet ni dans les libellés de sources (ils apparaissent sur la page).
+- Relisez une fois le texte généré. Il doit dire *mesuré et contribué*, jamais *neutre*. Voir [Claims & conformité](/fr/guides/claims/).

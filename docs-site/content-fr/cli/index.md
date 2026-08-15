@@ -1,55 +1,53 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/cli/index/).
+# Référence CLI
 
-# CLI reference
-
-The reference implementation, published on npm as [`carbon-md`](https://www.npmjs.com/package/carbon-md). TypeScript/ESM, MIT.
+L'implémentation de référence, publiée sur npm sous le nom [`carbon-md`](https://www.npmjs.com/package/carbon-md). TypeScript/ESM, MIT.
 
 ```bash
-npx carbon-md <command> [options]
+npx carbon-md <commande> [options]
 ```
 
-No install needed — `npx` fetches it. To pin a version: `npx carbon-md@0.1.4 …`.
+Aucune installation nécessaire — `npx` s'en charge. Pour épingler une version : `npx carbon-md@0.1.9 …`.
 
-## Commands
+## Commandes
 
-| Command | What it does |
+| Commande | Ce qu'elle fait |
 |---|---|
-| [`init`](/cli/init/) | Detect the stack, write `carbon.md` + `.carbon-md/` |
-| [`sync`](/cli/sync/) | Pull usage from a known source (Claude Code today) |
-| [`ingest`](/cli/ingest/) | Load usage from JSONL / OTLP / stdin |
-| [`status`](/cli/status/) | Footprint with ranges + contribution position |
-| [`contribute`](/cli/contribute/) | Prepare (or execute) the contribution order |
-| [`wallet`](/cli/wallet/) | Create/inspect the prepaid agent wallet |
-| [`export`](/cli/export/) | Build the public ledger page, badge, and JSON |
-| [`factors`](/cli/factors/) | Show the active factor table |
+| [`init`](/fr/cli/init/) | Détecte la stack, écrit `carbon.md` + `.carbon-md/` |
+| [`sync`](/fr/cli/sync/) | Récupère l'usage depuis une source connue (Claude Code aujourd'hui) |
+| [`ingest`](/fr/cli/ingest/) | Charge l'usage depuis JSONL / OTLP / stdin |
+| [`status`](/fr/cli/status/) | Empreinte avec fourchettes + position de contribution |
+| [`contribute`](/fr/cli/contribute/) | Prépare (ou exécute) l'ordre de contribution |
+| [`wallet`](/fr/cli/wallet/) | Crée/inspecte le wallet prépayé de l'agent |
+| [`export`](/fr/cli/export/) | Construit la page publique du registre, le badge et le JSON |
+| [`factors`](/fr/cli/factors/) | Affiche la table de facteurs active |
 
-## Global behaviour
+## Comportement global
 
-- **Local-first.** Every command works offline except retirement rails and balance lookups. No account, ever.
-- **Policy-aware.** Commands that touch money read `carbon.md` and refuse to exceed `approval_above` or `monthly_budget_max`.
-- **Idempotent ingestion.** `sync` and `ingest` keep per-source state in `.carbon-md/sources/` — re-running never double-counts.
-- **Exit codes.** `0` success, `1` user/config error. Errors go to stderr; machine-readable output where documented.
+- **Local d'abord.** Chaque commande fonctionne hors ligne, sauf les rails de retrait et la consultation de solde. Jamais de compte.
+- **Consciente de la politique.** Les commandes qui touchent à l'argent lisent `carbon.md` et refusent de dépasser `approval_above` ou `monthly_budget_max`.
+- **Ingestion idempotente.** `sync` et `ingest` conservent un état par source dans `.carbon-md/sources/` — relancer ne compte jamais deux fois.
+- **Codes de sortie.** `0` succès, `1` erreur d'usage ou de configuration. Les erreurs vont sur stderr ; sortie exploitable par machine là où c'est documenté.
 
-## Typical session
+## Session typique
 
 ```bash
-npx carbon-md init                # once
-npx carbon-md sync claude-code    # regularly (cron-friendly)
-npx carbon-md status              # anytime
-npx carbon-md contribute          # monthly
-npx carbon-md export              # publish the proof
+npx carbon-md init                # une fois
+npx carbon-md sync claude-code    # régulièrement (compatible cron)
+npx carbon-md status              # quand vous voulez
+npx carbon-md contribute          # tous les mois
+npx carbon-md export              # publier la preuve
 ```
 
-## File layout
+## Arborescence
 
 ```
-your-project/
-├── carbon.md                 # the policy (commit this)
-└── .carbon-md/               # local store (gitignored)
-    ├── ledger.jsonl          # append-only events
-    ├── sources/              # per-source sync state
+votre-projet/
+├── carbon.md                 # la politique (à committer)
+└── .carbon-md/               # stockage local (gitignoré)
+    ├── ledger.jsonl          # événements en append-only
+    ├── sources/              # état de synchronisation par source
     │   └── claude-code.json
-    └── agent-wallet.json     # created only by `wallet init` (mode 0600)
+    └── agent-wallet.json     # créé uniquement par `wallet init` (mode 0600)
 ```
 
-> **Never commit `.carbon-md/`.** `init` adds it to `.gitignore`. It can contain a wallet private key.
+> **Ne committez jamais `.carbon-md/`.** `init` l'ajoute au `.gitignore`. Ce dossier peut contenir une clé privée de wallet.

@@ -1,22 +1,20 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/guides/capture/).
+# Recettes de capture
 
-# Capture recipes
-
-Getting token usage into the ledger, per stack. The principle: **capture at chokepoints**, not per application. One integration at a provider boundary covers everything behind it.
+Faire entrer la consommation de tokens dans le registre, stack par stack. Le principe : **capturer aux goulots d'étranglement**, pas application par application. Une intégration à la frontière d'un fournisseur couvre tout ce qui se trouve derrière.
 
 ## Claude Code
 
-Built in — nothing to configure.
+Intégré — rien à configurer.
 
 ```bash
 npx carbon-md sync claude-code
 ```
 
-Reads local transcripts, dedupes by message id, keeps state so re-runs are safe. See [`sync`](/cli/sync/).
+Lit les transcriptions locales, déduplique par id de message, conserve un état pour que les relances soient sans danger. Voir [`sync`](/fr/cli/sync/).
 
 ## LiteLLM
 
-LiteLLM sees every provider you route through it. Add a callback that appends a usage line:
+LiteLLM voit chaque fournisseur que vous routez à travers lui. Ajoutez un callback qui écrit une ligne d'usage :
 
 ```python
 import json, datetime, litellm
@@ -39,9 +37,9 @@ litellm.success_callback = [log_usage]
 npx carbon-md ingest usage.jsonl
 ```
 
-## OpenRouter / any OpenAI-compatible API
+## OpenRouter / toute API compatible OpenAI
 
-Every response carries a `usage` object. One line per call is the whole integration:
+Chaque réponse porte un objet `usage`. Une ligne par appel, et l'intégration est faite :
 
 ```js
 const res = await client.chat.completions.create({ model, messages });
@@ -54,12 +52,12 @@ appendFileSync("usage.jsonl", JSON.stringify({
 }) + "\n");
 ```
 
-## OpenTelemetry (any instrumented agent)
+## OpenTelemetry (tout agent instrumenté)
 
-If your agent exports OTel metrics, you're already done — `ingest` flattens `*.token.usage` and `gen_ai.client.token.usage`.
+Si votre agent exporte des métriques OTel, c'est déjà fait — `ingest` aplatit `*.token.usage` et `gen_ai.client.token.usage`.
 
 ```yaml
-# collector config — write metrics to a file carbon-md can read
+# configuration du collector — écrire les métriques dans un fichier lisible par carbon-md
 exporters:
   file:
     path: /var/log/otel/usage.json
@@ -74,41 +72,41 @@ service:
 npx carbon-md ingest /var/log/otel/usage.json
 ```
 
-## Hermes (self-hosted persistent agent)
+## Hermes (agent persistant auto-hébergé)
 
-Built in. Hermes already records its own token usage per session, model and billing provider — `sync hermes` reads that database **read-only** and ingests only what's new.
+Intégré. Hermes enregistre déjà sa propre consommation de tokens par session, modèle et fournisseur de facturation — `sync hermes` lit cette base en **lecture seule** et n'ingère que ce qui est nouveau.
 
 ```bash
-npx carbon-md sync hermes              # default ~/.hermes/state.db
-npx carbon-md sync hermes --db /path/to/state.db --dry-run
+npx carbon-md sync hermes              # par défaut ~/.hermes/state.db
+npx carbon-md sync hermes --db /chemin/vers/state.db --dry-run
 ```
 
-Because the agent's counters are running totals rather than append-only events, ingestion is **delta-based**: safe to run hourly from Hermes' own cron, mid-session, without double counting. Multi-provider setups (Nous Research, OpenAI/Codex, Kimi, OpenRouter…) are attributed per provider automatically. See [`sync`](/cli/sync/) for what is and isn't counted.
+Comme les compteurs de l'agent sont des totaux cumulés et non des événements en append-only, l'ingestion se fait **par delta** : sans danger à lancer toutes les heures depuis le cron de Hermes, en cours de session, sans double comptage. Les configurations multi-fournisseurs (Nous Research, OpenAI/Codex, Kimi, OpenRouter…) sont attribuées automatiquement par fournisseur. Voir [`sync`](/fr/cli/sync/) pour ce qui compte et ce qui ne compte pas.
 
-## Your own agent
+## Votre propre agent
 
-Emit the [usage report format](/usage-report/) and ingest it. Four fields — `ts`, `model`, `input_tokens`, `output_tokens` — are enough.
+Émettez le [format usage-report](/fr/usage-report/) et ingérez-le. Quatre champs — `ts`, `model`, `input_tokens`, `output_tokens` — suffisent.
 
-This is also the path for an agent that wants to account for **itself**: write a line per call, ingest on a schedule. See [For agents](/guides/for-agents/).
+C'est aussi le chemin pour un agent qui veut rendre compte de **lui-même** : écrire une ligne par appel, ingérer périodiquement. Voir [Pour les agents](/fr/guides/for-agents/).
 
-## Agent compatibility
+## Compatibilité des agents
 
-| Agent / tool | Capture path | Notes |
+| Agent / outil | Chemin de capture | Notes |
 |---|---|---|
-| Claude Code | `sync claude-code` | native, shipped |
-| LiteLLM | callback → `ingest` | covers every provider behind it |
-| OpenRouter | response `usage` → `ingest` | |
-| LangGraph / CrewAI | callback → `ingest` | Python SDK callback planned |
-| Any OTel agent | OTLP → `ingest` | zero custom code |
-| Codex CLI | `ingest` from session logs | logs `token_count` events in `~/.codex/sessions` |
-| Hermes | `sync hermes` | native — reads its own usage database, read-only, delta-based |
-| Cursor | Admin API only | no local usage log |
-| Closed assistants | not capturable | no usage exposed |
+| Claude Code | `sync claude-code` | natif, livré |
+| LiteLLM | callback → `ingest` | couvre tous les fournisseurs derrière lui |
+| OpenRouter | `usage` de la réponse → `ingest` | |
+| LangGraph / CrewAI | callback → `ingest` | callback SDK Python prévu |
+| Tout agent OTel | OTLP → `ingest` | aucun code spécifique |
+| Codex CLI | `ingest` depuis les logs de session | journalise des événements `token_count` dans `~/.codex/sessions` |
+| Hermes | `sync hermes` | natif — lit sa propre base d'usage, en lecture seule, par delta |
+| Cursor | Admin API uniquement | pas de journal d'usage local |
+| Assistants fermés | non capturable | aucun usage exposé |
 
-## Choosing a granularity
+## Choisir une granularité
 
-Per-call events give the richest breakdowns. Aggregated rows (per session, per model, per day) are fine too — the ledger doesn't care, and `status` will simply report fewer, larger events.
+Les événements par appel donnent les ventilations les plus riches. Des lignes agrégées (par session, par modèle, par jour) conviennent aussi — le registre s'en moque, et `status` rapportera simplement moins d'événements, plus gros.
 
-## Avoid double counting
+## Éviter le double comptage
 
-Use **one** path per stream of traffic. If LiteLLM already logs a call, don't also ingest the provider's own export of the same call. Sources are tracked separately in `.carbon-md/sources/`, but two different sources describing the same traffic will both count.
+Utilisez **un seul** chemin par flux de trafic. Si LiteLLM journalise déjà un appel, n'ingérez pas en plus l'export du même appel par le fournisseur. Les sources sont suivies séparément dans `.carbon-md/sources/`, mais deux sources différentes décrivant le même trafic compteront toutes les deux.

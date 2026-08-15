@@ -1,51 +1,49 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/guides/claims/).
+# Claims & conformité
 
-# Claims & compliance
+Ce que vous pouvez dire d'un registre carbon.md — et ce que vous ne devez pas dire. C'est une contrainte de conception du standard, pas un avertissement juridique ajouté après coup.
 
-What you may say about a carbon.md ledger — and what you must not. This is a design constraint of the standard, not a legal disclaimer bolted on afterwards.
+> **Ceci n'est pas un conseil juridique.** Si vous formulez des allégations environnementales à titre commercial dans l'UE, faites-les relire.
 
-> **Not legal advice.** If you make environmental claims commercially in the EU, get them reviewed.
+## La règle
 
-## The rule
+**Ne revendiquez jamais la neutralité.** Dites ce qui s'est réellement passé :
 
-**Never claim neutrality.** Say what actually happened:
-
-| ✅ Say | ❌ Never say |
+| ✅ À dire | ❌ À ne jamais dire |
 |---|---|
-| "measures its agents' emissions and contributes 110% via verified carbon removal" | "carbon neutral" |
-| "matched by verified carbon credits" | "climate positive" |
-| "estimated emissions, with uncertainty ranges" | "offsets your emissions" |
-| "funded the removal of X tCO₂e" | "zero-emission AI" |
+| « mesure les émissions de ses agents et contribue à hauteur de 110 % via du removal carbone vérifié » | « neutre en carbone » |
+| « compensé par des crédits carbone vérifiés » | « climate positive » |
+| « émissions estimées, avec fourchettes d'incertitude » | « compense vos émissions » |
+| « a financé le retrait de X tCO₂e » | « IA zéro émission » |
 
-## Why
+## Pourquoi
 
-**Legally** — the EU's Empowering Consumers for the Green Transition directive (ECGT) bans environmental claims on consumer-facing products that rely on offsetting, applying from **27 September 2026**. "Carbon neutral thanks to offsets" becomes prohibited, not merely frowned upon.
+**Juridiquement** — la directive européenne *Empowering Consumers for the Green Transition* (ECGT) interdit les allégations environnementales, sur les produits destinés aux consommateurs, qui reposent sur la compensation ; elle s'applique à partir du **27 septembre 2026**. « Neutre en carbone grâce à la compensation » devient interdit, et pas seulement mal vu.
 
-**Substantively** — matching emissions with a removal purchase is a *contribution*. The CO₂ was still emitted. Removal takes time and carries its own uncertainty. Calling that "neutral" overstates what happened, and the whole value of this project rests on not overstating.
+**Sur le fond** — compenser des émissions par un achat de removal est une *contribution*. Le CO₂ a tout de même été émis. Le removal prend du temps et porte sa propre incertitude. Appeler cela « neutre » exagère ce qui s'est produit — or toute la valeur de ce projet repose sur le fait de ne pas exagérer.
 
-## What the tooling does for you
+## Ce que l'outillage fait pour vous
 
-carbon.md is built so the honest phrasing is the default and the dishonest one is hard to produce:
+carbon.md est construit pour que la formulation honnête soit celle par défaut et la malhonnête difficile à produire :
 
-- Generated pages and badges use contribution language only.
-- Every figure ships with a **low–central–high range** — no false precision.
-- Pages state **"estimated, not measured"** and name the methodology version.
-- Receipts link to registry serials and, on the on-chain rail, to a transaction.
-- Nothing in the spec lets you declare an outcome you can't evidence.
+- Les pages et badges générés n'emploient qu'un langage de contribution.
+- Chaque valeur est livrée avec une **fourchette bas–central–haut** — aucune fausse précision.
+- Les pages indiquent **« estimé, non mesuré »** et nomment la version de la méthodologie.
+- Les reçus renvoient aux numéros de série des registres et, sur le rail on-chain, à une transaction.
+- Rien dans la spécification ne vous permet de déclarer un résultat que vous ne pouvez pas prouver.
 
-## Writing your own copy
+## Rédiger votre propre texte
 
-A safe template:
+Un gabarit sûr :
 
-> *`<project>` measures the inference emissions of its AI agents using `<methodology version>` (estimates with uncertainty ranges) and contributes `<X>`% of them via verified carbon removal. Ledger and retirement receipts: `<link>`.*
+> *`<projet>` mesure les émissions d'inférence de ses agents IA selon `<version de méthodologie>` (estimations avec fourchettes d'incertitude) et en contribue `<X>` % via du removal carbone vérifié. Registre et reçus de retrait : `<lien>`.*
 
-Keep it specific: name the methodology, show the ranges, link the receipts.
+Restez précis : nommez la méthodologie, montrez les fourchettes, liez les reçus.
 
-## For enterprise reporting
+## Pour le reporting d'entreprise
 
-Ledger data supports scope-3 style reporting for AI workloads, but describe it accurately: **estimated** emissions from a **versioned open methodology**, with contributions recorded separately from the emissions themselves. Contributions never subtract from your reported emissions — they are disclosed alongside them. Deeper CSRD-oriented export is [planned](/roadmap/).
+Les données du registre alimentent un reporting de type scope 3 pour les charges de travail IA, mais décrivez-les fidèlement : émissions **estimées** issues d'une **méthodologie ouverte et versionnée**, avec des contributions enregistrées séparément des émissions elles-mêmes. Les contributions ne se soustraient jamais de vos émissions déclarées — elles sont communiquées à côté. Un export orienté CSRD plus poussé est [prévu](/fr/roadmap/).
 
-## Related
+## Voir aussi
 
-- [Concepts — contribution, not neutrality](/concepts/)
-- [Methodology & factors](/methodology/) — the uncertainty you must communicate
+- [Concepts — contribution, pas neutralité](/fr/concepts/)
+- [Méthodologie & facteurs](/fr/methodology/) — l'incertitude que vous devez communiquer

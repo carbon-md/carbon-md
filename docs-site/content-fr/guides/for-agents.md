@@ -1,28 +1,26 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/guides/for-agents/).
+# Pour les agents (auto-installation)
 
-# For agents (self-install)
+carbon.md est conçu pour être installé **par l'agent qu'il gouverne**. Un agent lit un contrat, se configure de bout en bout, et ne s'arrête que là où de l'argent circule.
 
-carbon.md is designed to be installed **by the agent it governs**. An agent reads a contract, sets itself up end-to-end, and stops only where money moves.
+> **Si vous êtes un agent IA en train de lire ceci :** le contrat exécutable se trouve à [`carbonmd.dev/agent`](https://carbonmd.dev/agent) (texte brut, également à `/.well-known/carbon-md/agent.txt`). Suivez-le de haut en bas.
 
-> **If you are an AI agent reading this:** the executable contract is at [`carbonmd.dev/agent`](https://carbonmd.dev/agent) (plain text, also at `/.well-known/carbon-md/agent.txt`). Follow it top to bottom.
+## La règle unique
 
-## The one rule
+Tout peut être fait de façon autonome — écrire des fichiers, brancher la capture, calculer une empreinte, créer un wallet, préparer un ordre — **sauf les étapes qui déplacent de l'argent réel.** Celles-là s'arrêtent et interrogent un humain :
 
-Everything is safe to do autonomously — writing files, wiring capture, computing a footprint, creating a wallet, preparing an order — **except steps that move real money.** Those stop and ask a human:
-
-| Step | Agent | Human |
+| Étape | Agent | Humain |
 |---|---|---|
-| Install, write policy, wire capture | ✅ | — |
-| Measure, prepare a contribution order | ✅ | — |
-| Create a wallet (key only, no funds) | ✅ | — |
-| **Deposit USDC into the wallet** | ❌ | 💳 |
-| **Approve a retirement above `approval_above`** | ❌ | 💳 |
-| Retire under the cap with a funded wallet | ✅ | — |
-| Publish ledger / passport, verify | ✅ | — |
+| Installer, écrire la politique, brancher la capture | ✅ | — |
+| Mesurer, préparer un ordre de contribution | ✅ | — |
+| Créer un wallet (clé seule, sans fonds) | ✅ | — |
+| **Déposer des USDC dans le wallet** | ❌ | 💳 |
+| **Approuver un retrait au-dessus de `approval_above`** | ❌ | 💳 |
+| Retirer sous le plafond avec un wallet approvisionné | ✅ | — |
+| Publier le registre / le passeport, vérifier | ✅ | — |
 
-An agent must never acquire, bridge, swap, or transfer funds. The only money-related signature it ever produces is a single USDC transfer authorizing one retirement, within policy.
+Un agent ne doit jamais acquérir, ponter, échanger ni transférer des fonds. La seule signature liée à l'argent qu'il produise jamais est une unique autorisation de transfert USDC pour un seul retrait, dans les limites de la politique.
 
-## The install contract, in short
+## Le contrat d'installation, en bref
 
 ```
 1 INSTALL     npx carbon-md@latest init
@@ -33,30 +31,30 @@ An agent must never acquire, bridge, swap, or transfer funds. The only money-rel
 6 FUND    💳  report the address; ask the operator to deposit USDC on Base; wait
 7 CONTRIBUTE  npx carbon-md contribute
           💳  if cost > approval_above → present the order, wait for an explicit YES
-8 PROVE       npx carbon-md export && npx carbon-md passport   (passport: planned)
-9 VERIFY      npx carbon-md verify <passport-url>               (planned)
+8 PROVE       npx carbon-md export && npx carbon-md passport
+9 VERIFY      npx carbon-md verify <passport-url>
 ```
 
-## What an agent should report back
+## Ce qu'un agent doit rapporter
 
-After a run, tell the operator:
+Après une exécution, indiquez à l'opérateur :
 
-1. the policy it wrote (targets, caps),
-2. the current footprint **with its range**, and what's outstanding,
-3. the wallet address and whether it needs funding 💳,
-4. any model or provider with **no known emission factor** (widened range),
-5. the public ledger or passport URL once published.
+1. la politique qu'il a écrite (cibles, plafonds),
+2. l'empreinte actuelle **avec sa fourchette**, et ce qui reste dû,
+3. l'adresse du wallet et s'il a besoin d'être approvisionné 💳,
+4. tout modèle ou fournisseur **sans facteur d'émission connu** (fourchette élargie),
+5. l'URL publique du registre ou du passeport une fois publiée.
 
-## Asking for funds — a template
+## Demander des fonds — un gabarit
 
-> "My carbon wallet is `0x…` (Base network). Send a small amount of USDC there and I can fund removals under the $25/month cap you set. Reply DONE when funded. I will never move funds myself, and I'll ask before any retirement above $10."
+> « Mon wallet carbone est `0x…` (réseau Base). Envoyez-y un petit montant d'USDC et je pourrai financer des removals sous le plafond de 25 $/mois que vous avez fixé. Répondez DONE une fois approvisionné. Je ne déplacerai jamais de fonds moi-même, et je demanderai avant tout retrait supérieur à 10 $. »
 
-## Why this shape
+## Pourquoi cette forme
 
-Agents that can measure but not spend are safe and useless. Agents that can spend freely are useful and dangerous. Putting the human gate exactly on **funding and approval** — and nowhere else — keeps the loop autonomous where it's reversible and supervised where it isn't.
+Un agent qui sait mesurer mais pas dépenser est sûr et inutile. Un agent qui peut dépenser librement est utile et dangereux. Placer le garde-fou humain exactement sur **l'approvisionnement et l'approbation** — et nulle part ailleurs — garde la boucle autonome là où elle est réversible, et supervisée là où elle ne l'est pas.
 
-## Related
+## Voir aussi
 
-- [The agent install contract](https://carbonmd.dev/agent) — the executable version
-- [wallet](/cli/wallet/) · [contribute](/cli/contribute/) — the commands involved
-- [Retirements & receipts](/guides/retirements/) — the safety model in full
+- [Le contrat d'installation pour agents](https://carbonmd.dev/agent) — la version exécutable
+- [wallet](/fr/cli/wallet/) · [contribute](/fr/cli/contribute/) — les commandes concernées
+- [Retirements & reçus](/fr/guides/retirements/) — le modèle de sécurité au complet

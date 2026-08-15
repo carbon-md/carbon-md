@@ -1,8 +1,6 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/cli/sync/).
-
 # carbon-md sync
 
-Pulls usage from a known source into the ledger. Idempotent — safe to run on a schedule.
+Récupère l'usage depuis une source connue et l'écrit dans le registre. Idempotent — sans danger à lancer périodiquement.
 
 ```bash
 npx carbon-md sync <source> [options]
@@ -10,32 +8,32 @@ npx carbon-md sync <source> [options]
 
 ## Sources
 
-| Source | Reads |
+| Source | Lit |
 |---|---|
-| `claude-code` | local Claude Code transcripts |
-| `hermes` | a Hermes agent's own usage database |
+| `claude-code` | les transcriptions locales de Claude Code |
+| `hermes` | la base d'usage d'un agent Hermes |
 
-Anything else goes through [`ingest`](/cli/ingest/) — see [Capture recipes](/guides/capture/).
+Tout le reste passe par [`ingest`](/fr/cli/ingest/) — voir [Recettes de capture](/fr/guides/capture/).
 
 ## sync claude-code
 
 ```bash
-npx carbon-md sync claude-code              # this project's transcripts
-npx carbon-md sync claude-code --all        # every project
-npx carbon-md sync claude-code --dir <path> # a specific transcript directory
-npx carbon-md sync claude-code --dry-run    # show what would be ingested
+npx carbon-md sync claude-code              # les transcriptions de ce projet
+npx carbon-md sync claude-code --all        # tous les projets
+npx carbon-md sync claude-code --dir <chemin> # un répertoire de transcriptions précis
+npx carbon-md sync claude-code --dry-run    # montrer ce qui serait ingéré
 ```
 
-Reads `~/.claude/projects/…/*.jsonl`. Every assistant message carries `message.usage` (token counts) and `message.model`.
+Lit `~/.claude/projects/…/*.jsonl`. Chaque message de l'assistant porte `message.usage` (comptes de tokens) et `message.model`.
 
-**How it stays honest:**
+**Comment il reste honnête :**
 
-- **Dedupe by message id.** Streamed responses write several entries per message; the one with the highest `output_tokens` wins.
-- **Per-file state** in `.carbon-md/sources/claude-code.json` — re-running never double-counts.
-- **Cache tokens**: `cache_creation` is folded into input (real compute); `cache_read` is recorded in `meta` but excluded from the estimate.
-- Synthetic models (`<synthetic>` etc.) are skipped.
+- **Déduplication par id de message.** Les réponses en streaming écrivent plusieurs entrées par message ; celle dont `output_tokens` est le plus élevé l'emporte.
+- **État par fichier** dans `.carbon-md/sources/claude-code.json` — relancer ne compte jamais deux fois.
+- **Tokens de cache** : `cache_creation` est intégré à l'entrée (c'est du vrai calcul) ; `cache_read` est enregistré dans `meta` mais exclu de l'estimation.
+- Les modèles synthétiques (`<synthetic>`, etc.) sont ignorés.
 
-### Output
+### Sortie
 
 ```
 ✔ Synced 128 Claude Code messages (14 files) → ~412 g CO2e central estimate, 873,412 tokens
@@ -44,44 +42,44 @@ Reads `~/.claude/projects/…/*.jsonl`. Every assistant message carries `message
 
 ## sync hermes
 
-For [Hermes](https://github.com/carbon-md/carbon-md)-style persistent agents that already record their own token usage. Reads the agent's database **read-only** — no callback, no patched inference path.
+Pour les agents persistants de type [Hermes](https://github.com/carbon-md/carbon-md) qui enregistrent déjà leur propre consommation de tokens. Lit la base de l'agent en **lecture seule** — aucun callback, aucun chemin d'inférence modifié.
 
 ```bash
-npx carbon-md sync hermes                    # default ~/.hermes/state.db
-npx carbon-md sync hermes --db /path/state.db
+npx carbon-md sync hermes                    # par défaut ~/.hermes/state.db
+npx carbon-md sync hermes --db /chemin/state.db
 npx carbon-md sync hermes --dry-run
 ```
 
-### How it works
+### Fonctionnement
 
-Reads the `session_model_usage` table — one row per session × model × billing provider, holding `input_tokens`, `output_tokens`, `reasoning_tokens`, `cache_read_tokens`, `cache_write_tokens`.
+Lit la table `session_model_usage` — une ligne par session × modèle × fournisseur de facturation, contenant `input_tokens`, `output_tokens`, `reasoning_tokens`, `cache_read_tokens`, `cache_write_tokens`.
 
-**Delta ingestion.** Unlike transcripts, these rows are *mutable running totals*: an active session's counters keep growing. So each run ingests only the **increment** since the last sync, tracked per `session:model:provider` in `.carbon-md/sources/hermes.json`. A session synced mid-flight and again later is counted once, correctly.
+**Ingestion par delta.** Contrairement aux transcriptions, ces lignes sont des *totaux cumulés mutables* : les compteurs d'une session active continuent de croître. Chaque exécution n'ingère donc que l'**incrément** depuis la dernière synchronisation, suivi par `session:model:provider` dans `.carbon-md/sources/hermes.json`. Une session synchronisée en cours de route puis à nouveau plus tard est comptée une seule fois, correctement.
 
-**Multi-provider.** `billing_provider` is preserved on every event, so a Hermes routing across several providers (Nous Research, OpenAI/Codex, Kimi/Moonshot, OpenRouter, Gemini, xAI) is attributed per provider.
+**Multi-fournisseurs.** `billing_provider` est conservé sur chaque événement : un Hermes qui route vers plusieurs fournisseurs (Nous Research, OpenAI/Codex, Kimi/Moonshot, OpenRouter, Gemini, xAI) est attribué fournisseur par fournisseur.
 
-**Database access.** Uses `node:sqlite` when available (Node ≥ 22.5), falling back to the `sqlite3` CLI. Always opened read-only — carbon.md never writes to the agent's database.
+**Accès à la base.** Utilise `node:sqlite` quand il est disponible (Node ≥ 22.5), avec repli sur la CLI `sqlite3`. Toujours ouverte en lecture seule — carbon.md n'écrit jamais dans la base de l'agent.
 
-### What counts toward the estimate
+### Ce qui compte dans l'estimation
 
-| Token type | Counted? | Where |
+| Type de token | Compté ? | Où |
 |---|---|---|
-| `input_tokens` | ✅ at 0.2× weight | estimate |
-| `output_tokens` | ✅ full weight | estimate |
-| `reasoning_tokens` | ❌ **not counted** | recorded in `meta` |
-| `cache_write_tokens` | ❌ **not counted** | recorded in `meta` |
-| `cache_read_tokens` | ❌ not counted | recorded in `meta` |
+| `input_tokens` | ✅ pondéré à 0,2× | estimation |
+| `output_tokens` | ✅ pleine pondération | estimation |
+| `reasoning_tokens` | ❌ **non compté** | enregistré dans `meta` |
+| `cache_write_tokens` | ❌ **non compté** | enregistré dans `meta` |
+| `cache_read_tokens` | ❌ non compté | enregistré dans `meta` |
 
-> **This is deliberately conservative — and it under-reports.** Reasoning tokens *are* generated (they cost a full forward pass), and cache writes are real compute. On reasoning-heavy models they can be 20–30% of output volume. They are captured in `meta` so the ledger can be recomputed when the accounting is revised. See [Methodology](/methodology/).
+> **C'est délibérément conservateur — et cela sous-déclare.** Les tokens de raisonnement *sont* bel et bien générés (ils coûtent une passe avant complète), et les écritures de cache sont du calcul réel. Sur les modèles à fort raisonnement, ils peuvent représenter 20 à 30 % du volume de sortie. Ils sont capturés dans `meta` afin que le registre puisse être recalculé lorsque la comptabilité sera révisée. Voir [Méthodologie](/fr/methodology/).
 
-### Output
+### Sortie
 
 ```
 ✔ Synced 47 Hermes usage delta entries (1235 records checked) → ~2.10 kg CO2e central estimate, 4,102,883 tokens
   run `npx carbon-md status` to see your position
 ```
 
-Nothing new:
+Rien de nouveau :
 
 ```
 ✔ Up to date — no new Hermes usage (1235 session-model records checked).
@@ -89,17 +87,17 @@ Nothing new:
 
 ## Options
 
-| Flag | Applies to | Meaning |
+| Flag | S'applique à | Signification |
 |---|---|---|
-| `--all` | `claude-code` | Scan every project directory |
-| `--dir <path>` | `claude-code` | Point at a specific transcript directory |
-| `--db <path>` | `hermes` | Database path (default `~/.hermes/state.db`) |
-| `--dry-run` | both | Report what would be ingested; write nothing |
+| `--all` | `claude-code` | Parcourir tous les répertoires de projets |
+| `--dir <chemin>` | `claude-code` | Cibler un répertoire de transcriptions précis |
+| `--db <chemin>` | `hermes` | Chemin de la base (par défaut `~/.hermes/state.db`) |
+| `--dry-run` | les deux | Indiquer ce qui serait ingéré ; n'écrire rien |
 
-## Automating
+## Automatisation
 
-`sync` is designed for cron. Hourly is fine — it does nothing when there's nothing new.
+`sync` est conçu pour cron. Toutes les heures convient très bien — il ne fait rien quand il n'y a rien de nouveau.
 
 ```bash
-0 * * * * cd /path/to/project && npx carbon-md sync hermes >/dev/null 2>&1
+0 * * * * cd /chemin/vers/projet && npx carbon-md sync hermes >/dev/null 2>&1
 ```

@@ -51,7 +51,7 @@ The machine-readable summary — the thing a third party can check:
 }
 ```
 
-> This file is the seed of the forthcoming **Carbon Passport** — the same summary, signed and anchored to on-chain receipts, so a stranger can verify it programmatically. See [What's coming](/roadmap/).
+> This file is the seed of the **Carbon Passport** — the same summary, signed and anchored to on-chain receipts, so a stranger can verify it programmatically. See [`passport`](/cli/passport/) and [What's coming](/roadmap/).
 
 ## Badge
 

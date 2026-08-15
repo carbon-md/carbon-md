@@ -1,60 +1,76 @@
-> **Traduction FR en cours.** Version anglaise ci-dessous — [EN](/guides/retirements/).
+# Retirements & reçus
 
-# Retirements & receipts
+Comment des émissions deviennent du removal carbone financé et retiré — et comment n'importe qui peut vérifier que cela a bien eu lieu.
 
-How emissions become funded, retired carbon removal — and how anyone can check that it happened.
+> **Un retrait est irréversible.** Un crédit retiré est définitivement sorti de la circulation, en votre nom. Toutes les propriétés de sécurité de carbon.md découlent de ce fait.
 
-> **Retirement is irreversible.** A retired credit is permanently removed from circulation, in your name. Every safety property in carbon.md follows from that.
-
-## Two rails
+## Deux rails
 
 | | **On-chain (x402 / Klima, Base)** | **Fiat (Carbonmark, CNaught…)** |
 |---|---|---|
-| Autonomy | full — an agent can settle under a cap | human buys, agent records |
-| Speed | seconds | minutes to days |
-| Receipt | on-chain tx + certificate URL | dashboard certificate |
-| Credit quality | **filter by methodology** — on-chain pools skew to old-vintage avoidance | curated, removal-grade |
-| Setup | prepaid USDC wallet | a card and an account |
+| Autonomie | totale — un agent peut régler sous plafond | l'humain achète, l'agent enregistre |
+| Rapidité | quelques secondes | de quelques minutes à quelques jours |
+| Reçu | transaction on-chain + URL de certificat | certificat depuis le tableau de bord |
+| Qualité des crédits | **filtrer par méthodologie** — les pools on-chain penchent vers de l'évitement de millésime ancien | sélectionnés, de qualité removal |
+| Mise en place | wallet USDC prépayé | une carte et un compte |
 
-Most first retirements are fiat. That's fine and honest — record it with `contribute --record` and the ledger stays truthful.
+La plupart des premiers retraits se font en fiat. C'est très bien et c'est honnête — enregistrez-le avec `contribute --record` et le registre reste véridique.
 
-## The on-chain rail
+## Le rail on-chain
 
-carbon.md's reference rail is Klima's **x402** endpoint on Base (chain 8453).
+Le rail de référence de carbon.md est l'endpoint **x402** de Klima sur Base (chaîne 8453).
 
 ```
 discover → quote (methodology-filtered) → prepare-auth → sign → retire → certificate
 ```
 
-What makes it usable by an agent:
+Ce qui le rend utilisable par un agent :
 
-- **One signature.** The wallet signs a single EIP-712 USDC `TransferWithAuthorization`. A Klima executor submits the retirement and covers gas.
-- **USDC only.** No ETH, no prior approval, no smart-account setup.
-- **Immediate public proof.** You get a transaction hash and a certificate URL.
+- **Une seule signature.** Le wallet signe un unique `TransferWithAuthorization` USDC en EIP-712. Un exécuteur Klima soumet le retrait et prend le gas à sa charge.
+- **USDC uniquement.** Pas d'ETH, pas d'approbation préalable, pas de smart account à configurer.
+- **Preuve publique immédiate.** Vous obtenez un hash de transaction et une URL de certificat.
 
 ```bash
-npx carbon-md wallet init     # create the key (no funds)
-# → fund it with a small USDC amount on Base (human step)
+npx carbon-md wallet init     # créer la clé (sans fonds)
+# → l'approvisionner d'un petit montant d'USDC sur Base (étape humaine)
 npx carbon-md contribute --auto
 ```
 
-## Credit quality — the part that matters
+## La qualité des crédits — la partie qui compte
 
-On-chain carbon markets make it easy to buy the *wrong* thing: cheap, old-vintage avoidance credits. If your policy says `removal-weighted`, autonomy without a quality filter would quietly betray it.
+Les marchés carbone on-chain rendent facile l'achat de la *mauvaise* chose : des crédits d'évitement bon marché, de millésime ancien. Si votre politique dit `removal-weighted`, l'autonomie sans filtre de qualité la trahirait en silence.
 
-So: **filter by methodology at quote time**, prefer durable removal (biochar, DAC, ocean alkalinity), and always publish the registry serial and vintage on the receipt. A retirement you can't trace to a registry entry isn't proof.
+Donc : **filtrer par méthodologie au moment du devis**, privilégier le removal durable (biochar, DAC, alcalinité océanique), et toujours publier le numéro de série au registre et le millésime sur le reçu. Un retrait que vous ne pouvez pas relier à une entrée de registre n'est pas une preuve.
 
-## Safety model
+## Comment un crédit est classé
 
-Three independent limits, from softest to hardest:
+Le rail nomme ce qu'il vend ; carbon.md fait correspondre cela à une **méthode** et la stocke sur la contribution :
 
-1. **Policy** — `approval_above` blocks unattended spend above your threshold; `monthly_budget_max` caps the month.
-2. **Prepaid balance** — the wallet holds only what you deposited. This is physics, not a promise.
-3. **Human confirmation** — above the threshold, an explicit yes is required, always.
+| Méthode | Signification |
+|---|---|
+| `removal` | la tonne a été retirée de l'atmosphère (biochar, DAC, alcalinité océanique, removal forestier) |
+| `avoidance` | une émission a été évitée, pas retirée |
+| `mixed` | un portefeuille couvrant les deux |
+| `unspecified` | la description du rail ne le dit pas clairement — **jamais comptée comme removal** |
 
-An agent may create a wallet, prepare an order, and report what it needs. It must never acquire, bridge, or transfer funds. See [For agents](/guides/for-agents/).
+Deux règles rendent cela digne de confiance :
 
-## Recording a purchase you made yourself
+1. **L'évitement est testé en premier.** « Déforestation évitée » contient le mot *forêt* et ne doit pas se lire comme un removal forestier. Le cas ambigu se résout vers la revendication la plus faible, pas la plus forte.
+2. **L'inconnu reste inconnu.** Une classe non reconnue est classée `unspecified` plutôt que devinée dans la colonne removal — car cette colonne porte toute la revendication du projet.
+
+Sous `portfolio: removal-only`, seul `removal` acquitte la cible, et `contribute` refuse les classes non-removal avant même de demander un devis. Voir [contribute](/fr/cli/contribute/).
+
+## Modèle de sécurité
+
+Trois limites indépendantes, de la plus souple à la plus dure :
+
+1. **Politique** — `approval_above` bloque toute dépense non surveillée au-dessus de votre seuil ; `monthly_budget_max` plafonne le mois.
+2. **Solde prépayé** — le wallet ne contient que ce que vous y avez déposé. C'est de la physique, pas une promesse.
+3. **Confirmation humaine** — au-dessus du seuil, un oui explicite est exigé, toujours.
+
+Un agent peut créer un wallet, préparer un ordre et signaler ce dont il a besoin. Il ne doit jamais acquérir, ponter ni transférer des fonds. Voir [Pour les agents](/fr/guides/for-agents/).
+
+## Enregistrer un achat effectué vous-même
 
 ```bash
 npx carbon-md contribute --record \
@@ -63,22 +79,22 @@ npx carbon-md contribute --record \
   --receipt "https://www.carbonmark.com/retirements/…"
 ```
 
-Then regenerate the public artifacts:
+Puis régénérez les artefacts publics :
 
 ```bash
 npx carbon-md export
 ```
 
-## What a good receipt shows
+## Ce que montre un bon reçu
 
-- the **tonnage** retired and the **beneficiary** (you or your agent),
-- the **project** and its **registry serial**, plus the **vintage** year,
-- a **link anyone can open** — an on-chain certificate or a registry page,
-- the **methodology version** used to size the purchase.
+- le **tonnage** retiré et le **bénéficiaire** (vous ou votre agent),
+- le **projet** et son **numéro de série au registre**, ainsi que l'année de **millésime**,
+- un **lien que n'importe qui peut ouvrir** — un certificat on-chain ou une page de registre,
+- la **version de méthodologie** utilisée pour dimensionner l'achat.
 
-Anything less is a claim, not a receipt.
+Moins que cela, c'est une affirmation, pas un reçu.
 
-## Related
+## Voir aussi
 
-- [contribute](/cli/contribute/) · [wallet](/cli/wallet/) — command reference
-- [Claims & compliance](/guides/claims/) — how to describe this without breaking the law
+- [contribute](/fr/cli/contribute/) · [wallet](/fr/cli/wallet/) — référence des commandes
+- [Claims & conformité](/fr/guides/claims/) — comment décrire tout ceci sans enfreindre la loi
