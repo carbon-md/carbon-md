@@ -19,6 +19,8 @@ Aucune installation nécessaire — `npx` s'en charge. Pour épingler une versio
 | [`contribute`](/fr/cli/contribute/) | Prépare (ou exécute) l'ordre de contribution |
 | [`wallet`](/fr/cli/wallet/) | Crée/inspecte le wallet prépayé de l'agent |
 | [`export`](/fr/cli/export/) | Construit la page publique du registre, le badge et le JSON |
+| [`verify`](/fr/cli/verify/) | Re-dérive le niveau de confiance d'un passeport à partir des preuves |
+| [`registry`](/fr/cli/registry/) | Maintient le registre de certification signé (émetteurs) |
 | [`factors`](/fr/cli/factors/) | Affiche la table de facteurs active |
 
 ## Comportement global

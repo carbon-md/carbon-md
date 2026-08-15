@@ -70,6 +70,6 @@ La vérification n'est pas binaire. Le [Passeport Carbone](/fr/cli/passport/) at
 | **L0** Déclaré | un fichier de politique existe | n'importe qui, automatiquement |
 | **L1** Mesuré | usage réel enregistré, fourchettes affichées | automatiquement |
 | **L2** Contribution vérifiée | les retraits respectent la politique, résolubles on-chain | automatiquement |
-| **L3** Certifié *(prévu)* | méthodologie + allégations auditées | carbon.md (payant) |
+| **L3** Certifié | méthodologie + allégations auditées | carbon.md, via un [registre signé](/fr/certification/) |
 
 L0 à L2 sont livrés et restent gratuits et vérifiables par machine, pour toujours — en local avec [`verify`](/fr/cli/verify/), ou via l'[API d'attestation](/fr/api/). Voir [Feuille de route](/fr/roadmap/).

@@ -100,6 +100,11 @@
           "title": "verify"
         },
         {
+          "file": "cli/registry.md",
+          "slug": "cli/registry",
+          "title": "registry"
+        },
+        {
           "file": "cli/export.md",
           "slug": "cli/export",
           "title": "export"
@@ -112,12 +117,17 @@
       ]
     },
     {
-      "title": "Hosted API",
+      "title": "Hosted API & certification",
       "pages": [
         {
           "file": "api.md",
           "slug": "api",
           "title": "Attestation API"
+        },
+        {
+          "file": "certification.md",
+          "slug": "certification",
+          "title": "Certification & registry"
         }
       ]
     },

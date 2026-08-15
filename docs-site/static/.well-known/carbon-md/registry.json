@@ -1,0 +1,13 @@
+{
+  "carbon_md_registry": "0.1",
+  "issuer": "did:key:z6MkukXzcgxRqkhfFLf6nWcqQ47qRQd4ZR3tGQC36UqK97vd",
+  "issued_at": "2026-08-15T12:22:17.492Z",
+  "expires_at": "2026-09-14T12:22:17.492Z",
+  "entries": [],
+  "proof": {
+    "type": "eddsa-jcs-2022",
+    "verification_method": "did:key:z6MkukXzcgxRqkhfFLf6nWcqQ47qRQd4ZR3tGQC36UqK97vd#z6MkukXzcgxRqkhfFLf6nWcqQ47qRQd4ZR3tGQC36UqK97vd",
+    "created": "2026-08-15T12:22:17.492Z",
+    "signature": "z27GH3rsSf3fihUd9QkDms7tMaxT2iKpMwSeFrpbwbQRepvfKnK9epWQi8KyUokidatDi2Ja4XvpbcNwEgmXsjsPD"
+  }
+}

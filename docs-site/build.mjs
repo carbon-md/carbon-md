@@ -298,8 +298,16 @@ function copyTree(from, to) {
 copyTree(join(ROOT, "static"), OUT);
 
 // static extras: /agent (the agent install contract), robots, sitemap
-const agentTxt = join(ROOT, "..", "repo", "agent.txt");
-if (existsSync(agentTxt)) {
+// docs-site/ lives inside the repo, so the contract is one level up — not
+// two. When this path was wrong the copy was skipped in silence while the
+// _headers rule below still declared text/plain, so /agent.txt answered with
+// the site's fallback HTML under a content type promising otherwise. An agent
+// following the install contract would have parsed a web page. Fail loudly.
+const agentTxt = join(ROOT, "..", "agent.txt");
+if (!existsSync(agentTxt)) {
+  throw new Error("agent.txt not found at " + agentTxt + " — /agent would serve fallback HTML labelled text/plain");
+}
+{
   mkdirSync(join(OUT, "agent"), { recursive: true });
   copyFileSync(agentTxt, join(OUT, "agent", "index.txt"));
   copyFileSync(agentTxt, join(OUT, "agent.txt"));

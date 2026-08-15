@@ -2,6 +2,13 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { BASE_RPC } from "../core/wallet.js";
 import { deriveTrustLevel, verifySignature, type Passport, type VerifyResult } from "../core/passport.js";
+import {
+  CERTIFICATION_ISSUER_DID,
+  CERTIFICATION_REGISTRY_URL,
+  lookupCertification,
+  type CertificationResult,
+  type Registry,
+} from "../core/registry.js";
 
 const bold = (s: string) => `\x1b[1m${s}\x1b[0m`;
 const dim = (s: string) => `\x1b[2m${s}\x1b[0m`;
@@ -57,10 +64,38 @@ async function resolveAnchors(p: Passport, timeoutMs = 8000): Promise<{ resolved
   return { resolved: true, notes };
 }
 
+/**
+ * Look the subject up in the signed certification registry.
+ *
+ * The URL and issuer are pinned, never taken from the passport: a document
+ * that could name its own certifier would be certifying itself. Any failure
+ * here yields "unchecked", which caps the result at L2 — an unreachable
+ * registry must never read as an absent certification, nor grant one.
+ */
+async function checkCertification(
+  subject: string,
+  url: string,
+  issuer: string,
+  timeoutMs = 8000
+): Promise<CertificationResult> {
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), timeoutMs);
+    const res = await fetch(url, { signal: ctrl.signal, headers: { accept: "application/json" } });
+    clearTimeout(t);
+    if (!res.ok) return { status: "unchecked", warnings: [`certification registry unreachable (HTTP ${res.status})`] };
+    const registry = (await res.json()) as Registry;
+    return lookupCertification(registry, subject, { expectedIssuer: issuer });
+  } catch (e: any) {
+    const why = e?.name === "AbortError" ? "timeout" : e?.message ?? String(e);
+    return { status: "unchecked", warnings: [`certification registry unreachable (${why})`] };
+  }
+}
+
 export async function cmdVerify(cwd: string, argv: string[]): Promise<number> {
   const target = argv.find((a) => !a.startsWith("--"));
   if (!target) {
-    console.error("Usage: carbon-md verify <passport.json | https://…/passport.json> [--offline] [--min L0|L1|L2] [--json]");
+    console.error("Usage: carbon-md verify <passport.json | https://…/passport.json> [--offline] [--min L0|L1|L2|L3] [--json] [--registry <url>]");
     return 2;
   }
   const offline = argv.includes("--offline");
@@ -89,7 +124,24 @@ export async function cmdVerify(cwd: string, argv: string[]): Promise<number> {
     notes.push("offline: anchors not checked against the chain");
   }
 
-  const derived = deriveTrustLevel(p, { signatureValid: sig.valid, anchorsResolved });
+
+  const registryUrl = argv.includes("--registry") ? argv[argv.indexOf("--registry") + 1] : CERTIFICATION_REGISTRY_URL;
+  const registryIssuer = argv.includes("--registry-issuer")
+    ? argv[argv.indexOf("--registry-issuer") + 1]
+    : CERTIFICATION_ISSUER_DID;
+  if (registryUrl !== CERTIFICATION_REGISTRY_URL || registryIssuer !== CERTIFICATION_ISSUER_DID) {
+    notes.push("certification checked against a non-canonical registry — this is not a carbon.md certification");
+  }
+
+  let certification: CertificationResult = {
+    status: "unchecked",
+    warnings: offline ? ["offline: certification not checked — L3 needs the registry"] : [],
+  };
+  if (!offline && sig.valid) {
+    certification = await checkCertification(p.subject?.id ?? "", registryUrl, registryIssuer);
+  }
+
+  const derived = deriveTrustLevel(p, { signatureValid: sig.valid, anchorsResolved, certification });
   const warnings = [...derived.warnings, ...notes];
   if (stale) warnings.push(`expired on ${p.expires_at.slice(0, 10)} — re-issue with \`carbon-md passport\``);
 
@@ -101,7 +153,15 @@ export async function cmdVerify(cwd: string, argv: string[]): Promise<number> {
     policy_target_met: derived.policyMet,
     removal_ok: derived.removalOk,
     anchors: p.contribution?.anchors?.length ?? 0,
-    anchors_resolved: offline ? "offline" : anchorsResolved ? "resolved" : p.contribution?.anchors?.length ? "none" : "none",
+    anchors_resolved: offline ? "offline" : anchorsResolved ? "resolved" : "none",
+    certification: {
+      status: certification.status,
+      tier: certification.tier,
+      valid_until: certification.valid_until,
+      certificate_url: certification.certificate_url,
+      revoked_at: certification.revoked_at,
+      reason: certification.reason,
+    },
     warnings,
     verified_at: new Date().toISOString(),
   };
@@ -122,6 +182,13 @@ export async function cmdVerify(cwd: string, argv: string[]): Promise<number> {
       }`
     );
     console.log(`  anchors     ${result.anchors} ${dim(`(${result.anchors_resolved})`)}`);
+    const certLine =
+      certification.status === "active"
+        ? green(`certified · ${certification.tier}${certification.valid_until ? ` · until ${certification.valid_until.slice(0, 10)}` : ""}`)
+        : certification.status === "revoked"
+          ? red("revoked")
+          : dim(certification.status);
+    console.log(`  certification ${certLine}`);
     if (p.trust_level && p.trust_level !== derived.level) {
       console.log(yellow(`  ⚠ document claims ${p.trust_level}; evidence supports ${derived.level}`));
     }

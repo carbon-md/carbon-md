@@ -43,6 +43,9 @@ curl -X POST https://docs.carbonmd.dev/v1/verify \
   "removal_ok": true,
   "anchors": 1,
   "anchors_resolved": "resolved", // resolved | none | offline
+  "certification": {              // voir /fr/certification/
+    "status": "none"              // active | none | revoked | expired | unchecked
+  },
   "methodology": "carbonmd-factors-2026-08",
   "warnings": [],
   "verified_at": "2026-08-15T10:00:00Z"
@@ -80,6 +83,8 @@ Un badge qui **se re-vérifie à chaque requête** : un passeport altéré ou p�
 | Déclaré / sans preuve | `L0 verified` | ambre |
 | Signature invalide | `unverified` | rouge |
 | Expiré | `L1 stale` | ambre |
+| Certifié | `L3 certified` | mousse foncée |
+| Certification révoquée | `L2 revoked` | rouge |
 | Inaccessible | `unreachable` | gris |
 
 Liez-le à votre page passeport, pour que le badge soit une porte et non une décoration :
@@ -109,10 +114,19 @@ C’est un **exemple** : usage synthétique, clé jetable, aucun retirement — 
 3. **Mesure** — usage présent, fourchettes bien formées, méthodologie épinglée.
 4. **Ancres** — chaque transaction est récupérée sur Base ; elle doit exister et ne pas avoir échoué.
 5. **Politique** — tonnes créditées ≥ cible, et sous une politique removal chaque ancre comptée doit réellement être du removal.
+6. **Certification** — le sujet est recherché dans le [registre signé](/fr/certification/) ; seule une entrée active atteint le L3.
 
-## Pas encore disponible
+Tout échec de certification — inaccessible, non signé, mauvais émetteur, expiré, altéré — se résout en `unchecked` et plafonne le résultat à L2. Un registre illisible ne se lit jamais « non certifié », et n'accorde jamais un niveau.
 
-Le **registre de certification signé** (`/.well-known/carbon-md/registry.json`), et donc le **L3**, ne sont pas livrés. D'ici là, un document revendiquant L3 est rapporté au niveau que ses preuves soutiennent. Voir [Feuille de route](/fr/roadmap/).
+## Le registre
+
+Le registre de certification signé est servi depuis la même origine ; c'est lui que `/v1/verify` consulte pour le L3 :
+
+```bash
+curl https://docs.carbonmd.dev/.well-known/carbon-md/registry.json
+```
+
+Il ne certifie personne à ce jour. Un document revendiquant L3 est donc rapporté au niveau que ses preuves soutiennent — voir [Certification & registre](/fr/certification/).
 
 ## Voir aussi
 

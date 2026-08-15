@@ -137,8 +137,18 @@ export function deriveTrustLevel(p, opts) {
   }
   if (!policyMet) warnings.push("contribution target not met");
 
-  const level = policyMet && removalOk && opts.anchorsResolved ? "L2" : "L1";
-  return { level, warnings, policyMet, removalOk };
+  const level2 = policyMet && removalOk && opts.anchorsResolved;
+  if (!level2) return { level: "L1", warnings, policyMet, removalOk };
+
+  // L3 sits on top of a genuine L2: certification attests to the process
+  // behind the evidence, it never substitutes for the evidence.
+  const cert = opts.certification;
+  if (cert && cert.status !== "none") warnings.push(...(cert.warnings || []));
+  if (cert && cert.status === "active") return { level: "L3", warnings, policyMet, removalOk };
+  if (p.trust_level === "L3" && cert && cert.status === "none") {
+    warnings.push("document claims L3 but the certification registry has no entry for this subject");
+  }
+  return { level: "L2", warnings, policyMet, removalOk };
 }
 
 /** Verify a passport document. Shared by /v1/verify and /v1/badge. */
@@ -158,7 +168,16 @@ export async function verifyPassport(passport, options) {
     notes = ["offline: anchors not checked against the chain"];
   }
 
-  const derived = deriveTrustLevel(passport, { signatureValid: sig.valid, anchorsResolved });
+  let certification = {
+    status: "unchecked",
+    warnings: offline ? ["offline: certification not checked — L3 needs the registry"] : [],
+  };
+  if (!offline && sig.valid) {
+    const { checkCertification } = await import("./registry.js");
+    certification = await checkCertification((passport.subject && passport.subject.id) || "");
+  }
+
+  const derived = deriveTrustLevel(passport, { signatureValid: sig.valid, anchorsResolved, certification });
   const warnings = derived.warnings.concat(notes);
   if (stale) warnings.push("expired on " + String(passport.expires_at).slice(0, 10) + " — re-issue with carbon-md passport");
 
@@ -176,6 +195,14 @@ export async function verifyPassport(passport, options) {
     removal_ok: derived.removalOk,
     anchors: anchorCount,
     anchors_resolved: offline ? "offline" : anchorsResolved ? "resolved" : "none",
+    certification: {
+      status: certification.status,
+      tier: certification.tier,
+      valid_until: certification.valid_until,
+      certificate_url: certification.certificate_url,
+      revoked_at: certification.revoked_at,
+      reason: certification.reason,
+    },
     methodology: (passport && passport.methodology) || null,
     warnings,
     verified_at: new Date().toISOString(),

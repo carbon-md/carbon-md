@@ -70,6 +70,6 @@ Verification is not binary. The [Carbon Passport](/cli/passport/) assigns a leve
 | **L0** Declared | a policy file exists | anyone, automatically |
 | **L1** Measured | real usage recorded, ranges shown | automatically |
 | **L2** Contribution-verified | retirements match policy, on-chain resolvable | automatically |
-| **L3** Certified *(planned)* | methodology + claims audited | carbon.md (paid) |
+| **L3** Certified | methodology + claims audited | carbon.md, via a [signed registry](/certification/) |
 
 L0–L2 have shipped and stay free and machine-verifiable forever — locally with [`verify`](/cli/verify/), or through the hosted [attestation API](/api/). See [What's coming](/roadmap/).

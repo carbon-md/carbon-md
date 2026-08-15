@@ -11,6 +11,7 @@ What is designed but not yet shipped. Anything marked *planned* in these docs ap
 | retirement rail | x402 / Klima on Base, prepaid agent wallet |
 | proof | public ledger page, badge, `ledger.json`, signed passport + public page |
 | verification | `verify` locally, or the hosted [attestation API](/api/) — same checks either way |
+| certification | signed, revocable [registry](/certification/) + `registry` command · L0–L2 free, L3 reviewed |
 
 ## Carbon Passport + attestation API
 
@@ -18,7 +19,9 @@ What is designed but not yet shipped. Anything marked *planned* in these docs ap
 
 The **hosted attestation API** shipped too: [`/v1/verify` and `/v1/badge`](/api/) on `docs.carbonmd.dev` re-run those same checks at the edge, so a passport can be checked without installing anything. A parity test keeps the two implementations from drifting apart.
 
-**Still to come:** the signed certification registry at `/.well-known/carbon-md/registry.json`, and **L3 certification** — the human-audited, revocable tier that is the paid surface.
+The **signed certification registry** and **L3** shipped with 0.1.10: the registry is served at [`/.well-known/carbon-md/registry.json`](/certification/), `verify` and `/v1/verify` consult it, and `carbon-md registry` maintains it. It certifies nobody yet — the machinery exists, the first review has not happened.
+
+**Still to come:** the public application flow for certification, and the hosted compliance tier the Enterprise price ties to.
 
 
 ## Unified token accounting

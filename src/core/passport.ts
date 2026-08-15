@@ -1,5 +1,6 @@
 import { base58encode, base58decode, signBytes, verifyBytes, type KeyFile } from "./keys.js";
 import type { CreditMethod } from "./ledger.js";
+import type { CertificationResult, CertificationTier } from "./registry.js";
 
 /**
  * The Carbon Passport: the ledger summary you already publish, made
@@ -108,6 +109,14 @@ export interface VerifyResult {
   removal_ok: boolean;
   anchors: number;
   anchors_resolved: "offline" | "resolved" | "none";
+  certification: {
+    status: CertificationResult["status"];
+    tier?: CertificationTier;
+    valid_until?: string;
+    certificate_url?: string;
+    revoked_at?: string;
+    reason?: string;
+  };
   warnings: string[];
   verified_at: string;
 }
@@ -115,11 +124,16 @@ export interface VerifyResult {
 /**
  * Re-derive the trust level from evidence. Never reads p.trust_level.
  *
- * L0 declared → L1 measured → L2 contribution-verified. L3 requires a
- * certification registry entry, which is not shipped yet, so a document
- * claiming L3 is reported at the level its evidence actually supports.
+ * L0 declared → L1 measured → L2 contribution-verified → L3 certified.
+ *
+ * L3 is the only level that is not self-derivable: it needs an active entry
+ * in the signed certification registry, so a document claiming L3 without one
+ * is reported at the level its evidence actually supports.
  */
-export function deriveTrustLevel(p: Passport, opts: { signatureValid: boolean; anchorsResolved: boolean }): {
+export function deriveTrustLevel(
+  p: Passport,
+  opts: { signatureValid: boolean; anchorsResolved: boolean; certification?: CertificationResult }
+): {
   level: TrustLevel;
   warnings: string[];
   policyMet: boolean;
@@ -157,5 +171,15 @@ export function deriveTrustLevel(p: Passport, opts: { signatureValid: boolean; a
   if (!policyMet) warnings.push("contribution target not met");
 
   const level2 = policyMet && removalOk && opts.anchorsResolved;
-  return { level: level2 ? "L2" : "L1", warnings, policyMet, removalOk };
+  if (!level2) return { level: "L1", warnings, policyMet, removalOk };
+
+  // L3 sits on top of a genuine L2: certification attests to the process
+  // behind the evidence, it never substitutes for the evidence.
+  const cert = opts.certification;
+  if (cert && cert.status !== "none") warnings.push(...cert.warnings);
+  if (cert?.status === "active") return { level: "L3", warnings, policyMet, removalOk };
+  if (p.trust_level === "L3" && cert?.status === "none") {
+    warnings.push("document claims L3 but the certification registry has no entry for this subject");
+  }
+  return { level: "L2", warnings, policyMet, removalOk };
 }

@@ -19,6 +19,8 @@ No install needed â€” `npx` fetches it. To pin a version: `npx carbon-md@0.1.9 â
 | [`contribute`](/cli/contribute/) | Prepare (or execute) the contribution order |
 | [`wallet`](/cli/wallet/) | Create/inspect the prepaid agent wallet |
 | [`export`](/cli/export/) | Build the public ledger page, badge, and JSON |
+| [`verify`](/cli/verify/) | Re-derive a passport's trust level from evidence |
+| [`registry`](/cli/registry/) | Maintain the signed certification registry (issuers) |
 | [`factors`](/cli/factors/) | Show the active factor table |
 
 ## Global behaviour

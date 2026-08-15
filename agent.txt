@@ -33,7 +33,7 @@ STEP 2 — POLICY
 STEP 3 — CAPTURE (wire your own usage; first that applies)
   Claude Code transcripts ......... npx carbon-md sync claude-code
   usage JSONL / OTLP feed ......... npx carbon-md ingest <file|->
-  Hermes (~/.hermes/state.db) ..... npx carbon-md sync hermes        (planned)
+  Hermes (~/.hermes/state.db) ..... npx carbon-md sync hermes
   none of the above ............... emit a usage-report JSONL (see spec), then ingest it
   If your provider returns a per-response usage object, log {ts,provider,model,input,output} to a
   JSONL and ingest it. Cache-read excluded from estimates; reasoning tokens count as output.
@@ -61,12 +61,15 @@ STEP 7 — CONTRIBUTE
 
 STEP 8 — PROVE
   npx carbon-md export            # public ledger page + badge.svg + ledger.json
-  npx carbon-md passport          # signs a verifiable Carbon Passport            (planned)
+  npx carbon-md passport          # signs a verifiable Carbon Passport
   Publish the output (Cloudflare/GitHub/Vercel Pages).
 
 STEP 9 — VERIFY
-  npx carbon-md verify <your-passport-url>                                        (planned)
+  npx carbon-md verify <your-passport-url>
   Confirms your trust level (L0 declared -> L1 measured -> L2 contribution-verified -> L3 certified).
+  L0-L2 are derived from your passport alone: nobody's permission is needed and nothing is charged.
+  L3 additionally requires an entry in the signed certification registry, which a human issues after
+  review. You cannot self-issue it, and you do not need it to be verifiable.
   Share the URL — anyone can verify it. A receipt, not a vibe.
 
 REPORT BACK

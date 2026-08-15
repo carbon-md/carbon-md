@@ -43,6 +43,9 @@ curl -X POST https://docs.carbonmd.dev/v1/verify \
   "removal_ok": true,
   "anchors": 1,
   "anchors_resolved": "resolved", // resolved | none | offline
+  "certification": {              // see /certification/
+    "status": "none"              // active | none | revoked | expired | unchecked
+  },
   "methodology": "carbonmd-factors-2026-08",
   "warnings": [],
   "verified_at": "2026-08-15T10:00:00Z"
@@ -80,6 +83,8 @@ A badge that **re-verifies on every request**, so a tampered or lapsed passport 
 | Declared / no evidence | `L0 verified` | amber |
 | Signature failed | `unverified` | red |
 | Expired | `L1 stale` | amber |
+| Certified | `L3 certified` | deep moss |
+| Certification revoked | `L2 revoked` | red |
 | Unreachable | `unreachable` | grey |
 
 Link it to your passport page so the badge is a door, not a decoration:
@@ -109,10 +114,19 @@ Identical to the CLI:
 3. **Measurement** — usage present, ranges well-formed, methodology pinned.
 4. **Anchors** — each transaction is fetched from Base; it must exist and not have reverted.
 5. **Policy** — credited tonnes ≥ target, and under a removal policy every counted anchor must actually be removal.
+6. **Certification** — the subject is looked up in the [signed registry](/certification/); only an active entry reaches L3.
 
-## Not yet available
+Every certification failure — unreachable, unsigned, wrong issuer, expired, tampered — resolves to `unchecked` and caps the result at L2. A registry we could not read never reads as "not certified", and never grants a level.
 
-The **signed certification registry** (`/.well-known/carbon-md/registry.json`) and therefore **L3** are not shipped. Until they are, a document claiming L3 is reported at the level its evidence supports. See [What's coming](/roadmap/).
+## The registry
+
+The signed certification registry is served from the same origin and is what `/v1/verify` consults for L3:
+
+```bash
+curl https://docs.carbonmd.dev/.well-known/carbon-md/registry.json
+```
+
+It currently certifies nobody. A document claiming L3 is therefore reported at the level its evidence supports — see [Certification & the registry](/certification/).
 
 ## Related
 

@@ -11,6 +11,7 @@ Ce qui est conçu mais pas encore livré. Tout ce qui est marqué *prévu* dans 
 | rail de retrait | x402 / Klima sur Base, wallet d'agent prépayé |
 | preuve | page de registre publique, badge, `ledger.json`, passeport signé + page publique |
 | vérification | `verify` en local, ou l'[API d'attestation](/fr/api/) hébergée — les mêmes contrôles dans les deux cas |
+| certification | [registre](/fr/certification/) signé et révocable + commande `registry` · L0–L2 gratuits, L3 sur revue |
 
 ## Passeport Carbone + API d'attestation
 
@@ -18,7 +19,9 @@ Ce qui est conçu mais pas encore livré. Tout ce qui est marqué *prévu* dans 
 
 L'**API d'attestation hébergée** est livrée elle aussi : [`/v1/verify` et `/v1/badge`](/fr/api/) sur `docs.carbonmd.dev` rejouent exactement les mêmes contrôles côté edge, de sorte qu'un passeport peut être vérifié sans rien installer. Un test de parité empêche les deux implémentations de diverger.
 
-**Encore à venir :** le registre de certification signé à `/.well-known/carbon-md/registry.json`, et la **certification L3** — le palier audité par des humains et révocable, qui constitue la surface payante.
+Le **registre de certification signé** et le **L3** sont livrés avec la 0.1.10 : le registre est servi à [`/.well-known/carbon-md/registry.json`](/fr/certification/), `verify` et `/v1/verify` le consultent, et `carbon-md registry` le maintient. Il ne certifie encore personne — la mécanique existe, la première revue n'a pas eu lieu.
+
+**Encore à venir :** le parcours public de demande de certification, et le palier de conformité hébergé auquel se rattache le prix Enterprise.
 
 ## Comptabilité unifiée des tokens
 

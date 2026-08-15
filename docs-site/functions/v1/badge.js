@@ -9,10 +9,12 @@ import { CORS, fetchPassport, verifyPassport } from "../_lib/passport.js";
 
 const INK = "#131414";
 const COLOURS = {
+  L3: "#1F4D2C", // deep moss — certified
   L2: "#2F5D3A", // moss — contribution verified
   L1: "#4a5c50", // muted green — measured only
   L0: "#8a5a00", // amber — declared / unverified
   invalid: "#9b2c2c",
+  revoked: "#9b2c2c",
   stale: "#8a5a00",
   error: "#71757C",
 };
@@ -72,12 +74,21 @@ export async function onRequest(context) {
 
   let value;
   let accent;
+  const certStatus = (result.certification && result.certification.status) || "unchecked";
   if (result.verdict === "invalid") {
     value = "unverified";
     accent = COLOURS.invalid;
+  } else if (certStatus === "revoked") {
+    // A withdrawn certification has to be visible. Quietly falling back to
+    // "L2 verified" would let a revoked subject keep a reassuring badge.
+    value = result.trust_level + " revoked";
+    accent = COLOURS.revoked;
   } else if (result.verdict === "stale") {
     value = result.trust_level + " stale";
     accent = COLOURS.stale;
+  } else if (result.trust_level === "L3") {
+    value = "L3 certified";
+    accent = COLOURS.L3;
   } else {
     value = result.trust_level + " verified";
     accent = COLOURS[result.trust_level] || COLOURS.L0;

@@ -3,7 +3,7 @@
 Checks a Carbon Passport — signature, ranges, and on-chain anchors — and reports the trust level **it can actually prove**.
 
 ```bash
-npx carbon-md verify <passport.json | https://…/passport.json> [--offline] [--min L0|L1|L2] [--json]
+npx carbon-md verify <passport.json | https://…/passport.json> [--offline] [--min L0|L1|L2|L3] [--json]
 ```
 
 ## Output
@@ -16,6 +16,7 @@ carbon.md passport — ✔ VERIFIED L2
   emissions   285 gCO2e (93 – 930)
   contribution 0.005 / 0.000314 tCO2e credited · target met
   anchors     1 (resolved)
+  certification none
 ```
 
 A tampered document is caught immediately:
@@ -36,7 +37,7 @@ The level is **re-derived from evidence**, never read from the document:
 | **L0** Declared | a passport exists (or the signature failed) |
 | **L1** Measured | valid signature · real usage · low ≤ central ≤ high · methodology pinned |
 | **L2** Contribution-verified | L1 + anchors resolved on-chain + target met + every counted anchor is removal (under a removal policy) |
-| **L3** Certified | a carbon.md certification entry — *not shipped yet*; a document claiming it is reported at the level its evidence supports |
+| **L3** Certified | L2 + an active entry in the [signed certification registry](/certification/). The only level you cannot issue yourself |
 
 **Removal is checked, not taken on faith.** Under `removal-only` or `removal-weighted`, an anchor whose method is `avoidance` — or merely `unspecified` — does not count toward L2. That is the whole point: it turns the policy into a property a stranger can verify.
 
@@ -47,6 +48,10 @@ The level is **re-derived from evidence**, never read from the document:
 | `--offline` | Skip the chain lookup. Signature, ranges, freshness and policy checks still run; anchors are reported as unverified, so the result caps at L1 |
 | `--min <level>` | Exit non-zero unless the derived level reaches this (default `L1`) |
 | `--json` | Machine-readable result |
+| `--registry <url>` | Check certification against a different registry — testing only |
+| `--registry-issuer <did>` | Trust a different issuer — testing only |
+
+The last two exist for self-hosted and test registries. Use either and `verify` says so in its output, because the result is then no longer a carbon.md certification.
 
 ## Exit codes
 
@@ -63,8 +68,9 @@ npx carbon-md verify https://your-ledger/passport.json --min L2
 3. **Measurement** — usage present, uncertainty range well-formed, methodology version pinned.
 4. **Anchors** — each transaction is fetched from Base and must exist and not have reverted.
 5. **Policy** — credited tonnes ≥ target, and the removal rule above.
+6. **Certification** — the subject is looked up in the signed registry; only an active entry reaches L3, and any failure to read the registry caps the result at L2 rather than granting or denying anything.
 
-The public key is embedded in the subject's `did:key`, so steps 1–3 work with **no network at all**.
+The public key is embedded in the subject's `did:key`, so steps 1–3 work with **no network at all**. `--offline` therefore still verifies a passport; it simply cannot confirm anchors or certification.
 
 ## Related
 
