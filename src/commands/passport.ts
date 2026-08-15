@@ -4,7 +4,9 @@ import { formatG } from "../core/factors.js";
 import { aggregate, creditedTonnes, methodOf, readLedger, type ContributionEvent } from "../core/ledger.js";
 import { findPolicyPath, parsePolicy } from "../core/policy.js";
 import { createKey, loadKey } from "../core/keys.js";
-import { sign, PASSPORT_VERSION, type Passport, type PassportAnchor } from "../core/passport.js";
+import { deriveTrustLevel, sign, PASSPORT_VERSION, type Passport, type PassportAnchor } from "../core/passport.js";
+import { passportHtml } from "../core/passport-page.js";
+import { badgeSvg } from "./export.js";
 
 const bold = (s: string) => `\x1b[1m${s}\x1b[0m`;
 const dim = (s: string) => `\x1b[2m${s}\x1b[0m`;
@@ -101,7 +103,22 @@ export async function cmdPassport(cwd: string, argv: string[]): Promise<number> 
   console.log(`  contributed ${signed.contribution.contributed_tonnes} tCO2e ${dim(`· credited ${signed.contribution.credited_tonnes} · target ${signed.contribution.target_tonnes}`)}`);
   console.log(`  anchors     ${signed.contribution.anchors.length}`);
   console.log(`  expires     ${signed.expires_at.slice(0, 10)}`);
+  // The page and badge state the level the evidence supports *offline*: a
+  // freshly-issued passport cannot claim on-chain resolution it has not done.
+  const derived = deriveTrustLevel(signed, { signatureValid: true, anchorsResolved: false });
+  const urlIdx = argv.indexOf("--url");
+  const publicUrl = urlIdx >= 0 ? argv[urlIdx + 1] : "public/passport.json";
+
+  const page = join(outDir, "passport.html");
+  writeFileSync(page, passportHtml(signed, derived.level, publicUrl), "utf8");
+
+  const accent = derived.level === "L2" ? undefined : derived.level === "L1" ? "#4a5c50" : "#8a5a00";
+  const badgeFile = join(outDir, "passport-badge.svg");
+  writeFileSync(badgeFile, badgeSvg("carbon.md", derived.level + (derived.level === "L0" ? " unverified" : " verified"), accent), "utf8");
+
   console.log(green(`\n✔ Wrote ${file}`));
+  console.log(green(`✔ Wrote ${page}`) + dim(" — the public passport page"));
+  console.log(green(`✔ Wrote ${badgeFile}`) + dim(` — ${derived.level}`));
   console.log(dim("  Anyone can check it:  npx carbon-md verify " + file));
   if (!signed.contribution.anchors.length) {
     console.log(dim("  No retirements yet — this passport can only reach L1 (measured)."));

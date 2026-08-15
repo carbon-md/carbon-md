@@ -12,7 +12,7 @@ import {
 import { findPolicyPath, parsePolicy, type CarbonPolicy } from "../core/policy.js";
 
 // Brand palette (see brand-prompts/00-brand-foundation.md)
-const C = { ink: "#131414", paper: "#F4F0E6", moss: "#2F5D3A", grey: "#71757C" };
+export const C = { ink: "#131414", paper: "#F4F0E6", moss: "#2F5D3A", grey: "#71757C" };
 
 function esc(s: string): string {
   return s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]!));
@@ -23,14 +23,14 @@ function projectName(cwd: string): string {
 }
 
 /** shields-style static SVG badge — no server needed */
-function badgeSvg(label: string, value: string): string {
+export function badgeSvg(label: string, value: string, accent?: string): string {
   const w = (s: string) => Math.round(6.2 * s.length + 12);
   const lw = w(label), vw = w(value), tw = lw + vw;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${tw}" height="20" role="img" aria-label="${esc(label)}: ${esc(value)}">
 <title>${esc(label)}: ${esc(value)}</title>
 <rect width="${tw}" height="20" rx="3" fill="${C.ink}"/>
-<rect x="${lw}" width="${vw}" height="20" rx="3" fill="${C.moss}"/>
-<rect x="${lw}" width="8" height="20" fill="${C.moss}"/>
+<rect x="${lw}" width="${vw}" height="20" rx="3" fill="${accent ?? C.moss}"/>
+<rect x="${lw}" width="8" height="20" fill="${accent ?? C.moss}"/>
 <g fill="#fff" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="11">
 <text x="${lw / 2}" y="14" text-anchor="middle">${esc(label)}</text>
 <text x="${lw + vw / 2}" y="14" text-anchor="middle">${esc(value)}</text>
