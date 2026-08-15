@@ -66,7 +66,7 @@ npx carbon-md verify https://your-ledger/passport.json --min L2
 1. **Signature** — Ed25519 over the canonicalized document. Any edit, anywhere, breaks it.
 2. **Freshness** — passports expire after 90 days; a stale one reports `⚠ STALE`.
 3. **Measurement** — usage present, uncertainty range well-formed, methodology version pinned.
-4. **Anchors** — each transaction is fetched from Base and must exist and not have reverted.
+4. **Anchors** — each transaction is fetched from Base and must exist and not have reverted. Several endpoints are tried; an unreachable chain reports `anchors unconfirmed, not disproved`, never `not found on chain`. A transport failure must not read as an accusation.
 5. **Policy** — credited tonnes ≥ target, and the removal rule above.
 6. **Certification** — the subject is looked up in the signed registry; only an active entry reaches L3, and any failure to read the registry caps the result at L2 rather than granting or denying anything.
 

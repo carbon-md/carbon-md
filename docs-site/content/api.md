@@ -112,7 +112,7 @@ Identical to the CLI:
 1. **Signature** — Ed25519 over the canonicalized document (Web Crypto at the edge, `node:crypto` locally).
 2. **Freshness** — passports expire after 90 days.
 3. **Measurement** — usage present, ranges well-formed, methodology pinned.
-4. **Anchors** — each transaction is fetched from Base; it must exist and not have reverted.
+4. **Anchors** — each transaction is fetched from Base; it must exist and not have reverted. Several RPC endpoints are tried, and *unreachable* is reported separately from *absent*: only a chain that answers and says the transaction is not there produces `not found on chain`. An outage says `anchors unconfirmed, not disproved`.
 5. **Policy** — credited tonnes ≥ target, and under a removal policy every counted anchor must actually be removal.
 6. **Certification** — the subject is looked up in the [signed registry](/certification/); only an active entry reaches L3.
 

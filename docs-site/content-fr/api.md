@@ -112,7 +112,7 @@ C’est un **exemple** : usage synthétique, clé jetable, aucun retirement — 
 1. **Signature** — Ed25519 sur le document canonicalisé (Web Crypto côté edge, `node:crypto` en local).
 2. **Fraîcheur** — les passeports expirent après 90 jours.
 3. **Mesure** — usage présent, fourchettes bien formées, méthodologie épinglée.
-4. **Ancres** — chaque transaction est récupérée sur Base ; elle doit exister et ne pas avoir échoué.
+4. **Ancres** — chaque transaction est récupérée sur Base ; elle doit exister et ne pas avoir échoué. Plusieurs endpoints RPC sont essayés, et *injoignable* est rapporté distinctement d'*absent* : seule une chaîne qui répond et dit que la transaction n'y est pas produit `not found on chain`. Une panne indique `anchors unconfirmed, not disproved`.
 5. **Politique** — tonnes créditées ≥ cible, et sous une politique removal chaque ancre comptée doit réellement être du removal.
 6. **Certification** — le sujet est recherché dans le [registre signé](/fr/certification/) ; seule une entrée active atteint le L3.
 

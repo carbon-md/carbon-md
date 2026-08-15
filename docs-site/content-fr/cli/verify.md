@@ -66,7 +66,7 @@ npx carbon-md verify https://votre-registre/passport.json --min L2
 1. **Signature** — Ed25519 sur le document canonicalisé. La moindre modification, où que ce soit, la casse.
 2. **Fraîcheur** — les passeports expirent après 90 jours ; un passeport périmé affiche `⚠ STALE`.
 3. **Mesure** — usage présent, fourchette d'incertitude bien formée, version de méthodologie épinglée.
-4. **Ancres** — chaque transaction est récupérée sur Base ; elle doit exister et ne pas avoir échoué.
+4. **Ancres** — chaque transaction est récupérée sur Base ; elle doit exister et ne pas avoir échoué. Plusieurs endpoints sont essayés ; une chaîne injoignable rapporte `anchors unconfirmed, not disproved`, jamais `not found on chain`. Une panne de transport ne doit pas se lire comme une accusation.
 5. **Politique** — tonnes créditées ≥ cible, et la règle removal ci-dessus.
 6. **Certification** — le sujet est recherché dans le registre signé ; seule une entrée active atteint le L3, et tout échec de lecture du registre plafonne le résultat à L2 au lieu d'accorder ou de refuser quoi que ce soit.
 
