@@ -1,0 +1,210 @@
+/**
+ * Passport verification, in the edge runtime.
+ *
+ * A port of core/passport.ts + core/keys.ts. Kept dependency-free and in
+ * sync by hand: the rules that decide a trust level must read identically
+ * here and in the CLI, or "verified" would mean two different things.
+ */
+
+const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+export function base58decode(s) {
+  let n = 0n;
+  for (const c of s) {
+    const i = B58.indexOf(c);
+    if (i < 0) throw new Error("invalid base58 character: " + c);
+    n = n * 58n + BigInt(i);
+  }
+  const bytes = [];
+  while (n > 0n) {
+    bytes.unshift(Number(n % 256n));
+    n /= 256n;
+  }
+  for (const c of s) {
+    if (c === "1") bytes.unshift(0);
+    else break;
+  }
+  return Uint8Array.from(bytes);
+}
+
+export function didToPublicKey(did) {
+  const m = /^did:key:z([1-9A-HJ-NP-Za-km-z]+)(#.*)?$/.exec(String(did).trim());
+  if (!m) throw new Error("not a did:key: " + did);
+  const bytes = base58decode(m[1]);
+  if (bytes[0] !== 0xed || bytes[1] !== 0x01) throw new Error("did:key is not Ed25519");
+  return bytes.slice(2);
+}
+
+/** RFC 8785-style canonicalization — must match the CLI byte for byte. */
+export function canonicalize(value) {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return "[" + value.map(canonicalize).join(",") + "]";
+  const entries = Object.entries(value)
+    .filter(([, v]) => v !== undefined)
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+  return "{" + entries.map(([k, v]) => JSON.stringify(k) + ":" + canonicalize(v)).join(",") + "}";
+}
+
+export async function verifySignature(p) {
+  if (!p || !p.proof) return { valid: false, reason: "no proof on the document" };
+  if (p.proof.type !== "eddsa-jcs-2022") return { valid: false, reason: "unsupported proof type " + p.proof.type };
+  if (typeof p.proof.signature !== "string" || !p.proof.signature.startsWith("z")) {
+    return { valid: false, reason: "signature is not multibase base58btc" };
+  }
+  try {
+    const did = String(p.proof.verification_method || "").split("#")[0];
+    const raw = didToPublicKey(did);
+    const { proof, ...unsigned } = p;
+    const data = new TextEncoder().encode(canonicalize(unsigned));
+    const key = await crypto.subtle.importKey("raw", raw, { name: "Ed25519" }, false, ["verify"]);
+    const ok = await crypto.subtle.verify({ name: "Ed25519" }, key, base58decode(p.proof.signature.slice(1)), data);
+    return ok ? { valid: true } : { valid: false, reason: "signature does not match the document" };
+  } catch (e) {
+    return { valid: false, reason: (e && e.message) || String(e) };
+  }
+}
+
+const BASE_RPC = "https://mainnet.base.org";
+
+/** Confirm each anchor's transaction exists on Base and did not revert. */
+export async function resolveAnchors(p, timeoutMs = 6000) {
+  const anchors = (p && p.contribution && p.contribution.anchors) || [];
+  const hashes = anchors.map((a) => a.tx_hash).filter(Boolean);
+  if (!hashes.length) return { resolved: false, notes: ["anchors carry no transaction hash"] };
+  const notes = [];
+  for (const hash of hashes) {
+    try {
+      const res = await fetch(BASE_RPC, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_getTransactionReceipt", params: [hash] }),
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      const body = await res.json();
+      const receipt = body && body.result;
+      if (!receipt) {
+        notes.push(hash.slice(0, 10) + "… not found on chain");
+        return { resolved: false, notes };
+      }
+      if (receipt.status && receipt.status !== "0x1") {
+        notes.push(hash.slice(0, 10) + "… reverted on chain");
+        return { resolved: false, notes };
+      }
+    } catch (e) {
+      const why = e && e.name === "TimeoutError" ? "timeout" : (e && e.message) || String(e);
+      notes.push("could not reach the chain (" + why + ")");
+      return { resolved: false, notes };
+    }
+  }
+  return { resolved: true, notes };
+}
+
+/** Re-derive the level from evidence. Never reads p.trust_level. */
+export function deriveTrustLevel(p, opts) {
+  const warnings = [];
+  if (!opts.signatureValid) {
+    return { level: "L0", warnings: ["signature invalid — nothing below can be trusted"], policyMet: false, removalOk: false };
+  }
+  const e = p.estimated_gco2e || {};
+  const hasUsage = e.calls > 0 && e.central > 0;
+  const hasRanges = e.low <= e.central && e.central <= e.high;
+  const hasMethodology = typeof p.methodology === "string" && p.methodology.length > 0;
+  if (!hasUsage) warnings.push("no usage recorded — cannot claim measurement");
+  if (!hasRanges) warnings.push("uncertainty range is malformed");
+  if (!hasMethodology) warnings.push("no methodology version pinned");
+  if (!(hasUsage && hasRanges && hasMethodology)) return { level: "L0", warnings, policyMet: false, removalOk: false };
+
+  const c = p.contribution || {};
+  const anchors = c.anchors || [];
+  const policyMet = c.credited_tonnes >= c.target_tonnes && c.target_tonnes > 0;
+
+  const portfolio = p.policy && p.policy.portfolio;
+  const removalPolicy = portfolio === "removal-only" || portfolio === "removal-weighted";
+  const nonRemoval = anchors.filter((a) => a.method && a.method !== "removal");
+  const unspecified = anchors.filter((a) => !a.method || a.method === "unspecified");
+  const removalOk = !removalPolicy || (nonRemoval.length === 0 && unspecified.length === 0);
+
+  if (!anchors.length) {
+    warnings.push("no retirement anchors — measurement only");
+    return { level: "L1", warnings, policyMet, removalOk };
+  }
+  if (!opts.anchorsResolved) warnings.push("anchors not resolved on-chain");
+  if (removalPolicy && unspecified.length) {
+    warnings.push(unspecified.length + " anchor(s) of unspecified method under a " + portfolio + " policy");
+  }
+  if (removalPolicy && nonRemoval.length) {
+    warnings.push(nonRemoval.length + " anchor(s) are not removal under a " + portfolio + " policy");
+  }
+  if (!policyMet) warnings.push("contribution target not met");
+
+  const level = policyMet && removalOk && opts.anchorsResolved ? "L2" : "L1";
+  return { level, warnings, policyMet, removalOk };
+}
+
+/** Verify a passport document. Shared by /v1/verify and /v1/badge. */
+export async function verifyPassport(passport, options) {
+  const offline = !!(options && options.offline);
+  const sig = await verifySignature(passport);
+  const expiresAt = passport && passport.expires_at ? Date.parse(passport.expires_at) : NaN;
+  const stale = Number.isFinite(expiresAt) && expiresAt < Date.now();
+
+  let anchorsResolved = false;
+  let notes = [];
+  if (!offline && sig.valid) {
+    const r = await resolveAnchors(passport);
+    anchorsResolved = r.resolved;
+    notes = r.notes;
+  } else if (offline) {
+    notes = ["offline: anchors not checked against the chain"];
+  }
+
+  const derived = deriveTrustLevel(passport, { signatureValid: sig.valid, anchorsResolved });
+  const warnings = derived.warnings.concat(notes);
+  if (stale) warnings.push("expired on " + String(passport.expires_at).slice(0, 10) + " — re-issue with carbon-md passport");
+
+  const anchorCount = (passport && passport.contribution && passport.contribution.anchors && passport.contribution.anchors.length) || 0;
+
+  return {
+    subject: (passport && passport.subject && passport.subject.id) || "unknown",
+    subject_name: (passport && passport.subject && passport.subject.name) || null,
+    verdict: !sig.valid ? "invalid" : stale ? "stale" : "verified",
+    trust_level: derived.level,
+    claimed_trust_level: (passport && passport.trust_level) || null,
+    signature_valid: sig.valid,
+    signature_reason: sig.valid ? undefined : sig.reason,
+    policy_target_met: derived.policyMet,
+    removal_ok: derived.removalOk,
+    anchors: anchorCount,
+    anchors_resolved: offline ? "offline" : anchorsResolved ? "resolved" : "none",
+    methodology: (passport && passport.methodology) || null,
+    warnings,
+    verified_at: new Date().toISOString(),
+  };
+}
+
+export const CORS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, POST, OPTIONS",
+  "access-control-allow-headers": "content-type",
+};
+
+export function json(body, status, extra) {
+  return new Response(JSON.stringify(body, null, 2), {
+    status: status || 200,
+    headers: Object.assign({ "content-type": "application/json; charset=utf-8" }, CORS, extra || {}),
+  });
+}
+
+/** Fetch a passport document from a URL, with guards. */
+export async function fetchPassport(url) {
+  let u;
+  try {
+    u = new URL(url);
+  } catch {
+    throw new Error("invalid url");
+  }
+  if (u.protocol !== "https:" && u.protocol !== "http:") throw new Error("url must be http(s)");
+  const res = await fetch(u.toString(), { signal: AbortSignal.timeout(8000), headers: { accept: "application/json" } });
+  if (!res.ok) throw new Error("HTTP " + res.status + " fetching the passport");
+  return await res.json();
+}

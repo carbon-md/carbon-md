@@ -112,6 +112,16 @@
       ]
     },
     {
+      "title": "Hosted API",
+      "pages": [
+        {
+          "file": "api.md",
+          "slug": "api",
+          "title": "Attestation API"
+        }
+      ]
+    },
+    {
       "title": "Guides",
       "pages": [
         {

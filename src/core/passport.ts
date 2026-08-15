@@ -151,7 +151,7 @@ export function deriveTrustLevel(p: Passport, opts: { signatureValid: boolean; a
     warnings.push("no retirement anchors — measurement only");
     return { level: "L1", warnings, policyMet, removalOk };
   }
-  if (!opts.anchorsResolved) warnings.push("anchors not resolved on-chain (offline check)");
+  if (!opts.anchorsResolved) warnings.push("anchors not resolved on-chain");
   if (removalPolicy && unspecified.length) warnings.push(`${unspecified.length} anchor(s) of unspecified method under a ${p.policy.portfolio} policy`);
   if (removalPolicy && nonRemoval.length) warnings.push(`${nonRemoval.length} anchor(s) are not removal under a ${p.policy.portfolio} policy`);
   if (!policyMet) warnings.push("contribution target not met");
