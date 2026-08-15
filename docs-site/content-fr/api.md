@@ -88,6 +88,18 @@ Liez-le à votre page passeport, pour que le badge soit une porte et non une dé
 [![carbon.md](https://docs.carbonmd.dev/v1/badge?url=…/passport.json)](https://votre-ledger/passport.html)
 ```
 
+## Un exemple vivant
+
+Un vrai passeport signé est publié comme fixture, pour que chaque exemple de cette page soit exécutable :
+
+```bash
+curl "https://docs.carbonmd.dev/v1/verify?url=https://docs.carbonmd.dev/examples/passport.json"
+```
+
+![exemple](https://docs.carbonmd.dev/v1/badge?url=https://docs.carbonmd.dev/examples/passport.json)
+
+C’est un **exemple** : usage synthétique, clé jetable, aucun retirement — il se vérifie donc en **L1**, jamais en L2. Il expire aussi, comme tout passeport. Le moment venu, le badge ci-dessus affichera `stale` au lieu de continuer à affirmer le contraire en silence ; c’est ce comportement qui mérite d’être vu.
+
 ## Ce qui est contrôlé
 
 À l'identique du CLI :

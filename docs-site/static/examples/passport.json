@@ -1,0 +1,41 @@
+{
+  "carbon_passport": "0.1",
+  "subject": {
+    "id": "did:key:z6Mkqv8VF7HNk7xTURh9WXJQEjxiBxUYBebU6WhTox1SK6VQ",
+    "name": "example-agent",
+    "kind": "project"
+  },
+  "period": {
+    "from": "2026-08-15",
+    "to": "2026-08-15"
+  },
+  "methodology": "carbonmd-factors-2026-08",
+  "policy": {
+    "contribution_target": 1.1,
+    "portfolio": "removal-weighted"
+  },
+  "estimated_gco2e": {
+    "low": 422.1,
+    "central": 1303.5,
+    "high": 4407,
+    "calls": 3,
+    "tokens": 2833000
+  },
+  "contribution": {
+    "target_tonnes": 0.001434,
+    "contributed_tonnes": 0,
+    "credited_tonnes": 0,
+    "met": false,
+    "anchors": []
+  },
+  "trust_level": "L1",
+  "issued_at": "2026-08-15T09:54:55.610Z",
+  "expires_at": "2026-11-13T09:54:55.610Z",
+  "issuer": "did:key:z6Mkqv8VF7HNk7xTURh9WXJQEjxiBxUYBebU6WhTox1SK6VQ",
+  "proof": {
+    "type": "eddsa-jcs-2022",
+    "verification_method": "did:key:z6Mkqv8VF7HNk7xTURh9WXJQEjxiBxUYBebU6WhTox1SK6VQ#z6Mkqv8VF7HNk7xTURh9WXJQEjxiBxUYBebU6WhTox1SK6VQ",
+    "created": "2026-08-15T09:54:55.612Z",
+    "signature": "z2KqEufXGj7syYpQUyxnuTmwBtoBwu7wjHpvk5fy2jywdg4MD2TNXWYpu6EhX71D1Dz2sbSXVwQ75Py6bwhAfx365"
+  }
+}

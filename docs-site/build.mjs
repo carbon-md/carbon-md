@@ -282,6 +282,19 @@ for (const section of nav.sections) {
   }
 }
 
+// static/ is copied verbatim into dist — fixtures the docs need to be checkable
+function copyTree(from, to) {
+  if (!existsSync(from)) return;
+  mkdirSync(to, { recursive: true });
+  for (const entry of readdirSync(from)) {
+    const src = join(from, entry);
+    const dst = join(to, entry);
+    if (statSync(src).isDirectory()) copyTree(src, dst);
+    else copyFileSync(src, dst);
+  }
+}
+copyTree(join(ROOT, "static"), OUT);
+
 // static extras: /agent (the agent install contract), robots, sitemap
 const agentTxt = join(ROOT, "..", "repo", "agent.txt");
 if (existsSync(agentTxt)) {

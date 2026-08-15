@@ -206,5 +206,18 @@ export async function fetchPassport(url) {
   if (u.protocol !== "https:" && u.protocol !== "http:") throw new Error("url must be http(s)");
   const res = await fetch(u.toString(), { signal: AbortSignal.timeout(8000), headers: { accept: "application/json" } });
   if (!res.ok) throw new Error("HTTP " + res.status + " fetching the passport");
-  return await res.json();
+  const body = await res.text();
+  try {
+    return JSON.parse(body);
+  } catch {
+    // Single-page sites answer 200 with index.html for any unknown path, so a
+    // typo in the URL arrives here looking like a document. Say so plainly.
+    const ct = res.headers.get("content-type") || "unknown";
+    const looksHtml = body.trimStart().startsWith("<");
+    throw new Error(
+      looksHtml
+        ? "the URL returned HTML, not a passport — check the path (many sites answer 200 with their index page for unknown paths)"
+        : "the URL did not return JSON (content-type: " + ct + ")"
+    );
+  }
 }
