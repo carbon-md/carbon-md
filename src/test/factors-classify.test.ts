@@ -37,11 +37,15 @@ test("small tiers", () => {
     "gpt-5-nano",
     "gemini-3.5-flash",
     "gemini-3.6-flash",
+    "gemini-3.7-flash",
     "gemini-3.1-flash-lite",
     "deepseek-v4-flash",
     "claude-haiku-4",
     "gemma-4-9b",
     "phi-5-mini",
+    "nvidia/nemotron-3.5-lightning",
+    "liquid/lfm-2.5-2.6b",
+    "stepfun/step-3.7-flash",
   ]) {
     const r = classify(m);
     assert.equal(r.cls, "small", `${m} should be small`);
@@ -63,6 +67,8 @@ test("large workhorses", () => {
     "gpt-4o",
     "claude-sonnet-5",
     "grok-4.3",
+    "grok-4.6",
+    "grok-build-0.1",
     "grok-4",
     "kimi-k2.6",
     "kimi-k2.7-code",
@@ -71,6 +77,13 @@ test("large workhorses", () => {
     "deepseek-v4-pro",
     "deepseek/deepseek-v4-pro",
     "qwen/qwen3.7-max",
+    "qwen/qwen3.8-max",
+    "qwen/qwen3.8-2.4t-a95b",
+    "qwen/qwen3.8-27b",
+    "deepseek/deepseek-v4-pro-0813",
+    "bytedance-seed/seed-2-1-turbo",
+    "bytedance-seed/seed-2.0-code",
+    "sakana/sakana-namazu",
     "qwen3-max",
     "z-ai/glm-5.2",
     "glm-5",
@@ -95,7 +108,10 @@ test("small params markers (1b..14b) win first", () => {
   // smallB is checked in the small block, before family rules like qwen.
   assert.equal(classify("qwen3-8b").cls, "small");
   assert.equal(classify("llama-3.2-3b").cls, "small");
+  assert.equal(classify("liquid/lfm-2.5-2.6b").cls, "small");
   assert.equal(classify("some-70b-model").cls, "medium"); // 70b is out of the small band
+  assert.equal(classify("bytedance-seed/seed-2.0-lite").cls, "small");
+  assert.equal(classify("bytedance-seed/seed-2.0-mini").cls, "small");
 });
 
 test("estimate factors follow the class", () => {

@@ -11,8 +11,9 @@
  * figure of honesty. Ranges are wide BY DESIGN: cloud inference is a
  * black box. Estimates are only comparable within a factors version.
  *
- * Classification catalog refreshed 2026-08-11 against live agent usage
- * (Hermes) + public model releases through early August 2026.
+ * Classification catalog refreshed 2026-08-16 against live agent usage
+ * (Hermes) + public model releases through mid-August 2026.
+ * Factor *bands* unchanged — new IDs only; still carbonmd-factors-2026-08.
  */
 
 export const FACTORS_VERSION = "carbonmd-factors-2026-08";
@@ -50,6 +51,8 @@ const SMALL_TOKENS = new Set([
   "gemma",
   "phi",
   "luna", // GPT-5.6 Luna — cheap/small tier
+  "fast", // cheap/fast tiers (composer-fast, *-fast)
+  "lightning", // NVIDIA Nemotron Lightning etc.
 ]);
 
 function tokenize(model: string): string[] {
@@ -69,7 +72,7 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
   const raw = model.toLowerCase();
   const tokens = tokenize(model);
   const has = (t: string) => tokens.includes(t);
-  const smallB = tokens.some((t) => /^([1-9]|1[0-4])b$/.test(t)); // 1b..14b params
+  const smallB = tokens.some((t) => /^([1-9]|1[0-4])(\.\d+)?b$/.test(t)); // 1b..14b, also 2.6b
 
   // --- small / cheap tiers ---
   // grok-composer-2.5-fast: fast/composer tier treated as small on purpose
@@ -131,6 +134,9 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
     raw.includes("glm-") ||
     has("muse") ||
     has("seedream") ||
+    has("seed") || // ByteDance Seed 2.x workhorses (lite/mini already small)
+    has("sakana") ||
+    has("namazu") || // Sakana Namazu — Kimi K2.6 derivative
     tokens.some((t) => t.startsWith("step")) ||
     raw.includes("v4-pro") ||
     raw.includes("codex")
