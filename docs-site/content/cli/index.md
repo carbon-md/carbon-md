@@ -6,7 +6,7 @@ The reference implementation, published on npm as [`carbon-md`](https://www.npmj
 npx carbon-md <command> [options]
 ```
 
-No install needed — `npx` fetches it. To pin a version: `npx carbon-md@0.1.9 …`.
+No install needed — `npx` fetches it. To pin a version: `npx carbon-md@0.1.11 …`.
 
 ## Commands
 

@@ -1,6 +1,6 @@
 {
   "name": "carbon-md",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "carbon.md — an open standard for carbon-governed AI agents. Reference CLI: measure agent emissions, govern them with a policy file, fund verified carbon removal, prove it.",
   "keywords": [
     "ai",
@@ -29,7 +29,9 @@
     "build": "tsc",
     "test": "npm run build && node --test dist/test/*.test.js",
     "dev": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build && npm run preflight",
+    "prebuild": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "preflight": "node scripts/preflight.mjs"
   },
   "dependencies": {
     "viem": "2.55.0",

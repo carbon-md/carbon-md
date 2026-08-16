@@ -125,6 +125,18 @@ The reference CLI prepares **monthly aggregated orders** (estimated tCO₂e × `
 
 The spec is a draft and the factor tables are meant to be argued with — issues and PRs welcome, especially corrections to emission factors, new capture integrations (LiteLLM, Claude Code, LangGraph, CrewAI), and implementation reports.
 
+## Releasing
+
+`npm publish` from a clean checkout of `main`. The build wipes `dist/` first and
+`prepublishOnly` runs a preflight that checks the artifact against the source:
+every command the CLI dispatches must exist in the build, and the binary must
+report the version being published.
+
+This exists because 0.1.10 shipped the 0.1.8 build under a 0.1.11-era version
+number. It installed cleanly, reported the right version, and answered
+"Unknown command: registry" for the feature the release was for. npm versions
+are immutable, so the number was spent — hence a check rather than care.
+
 ## License
 
 MIT — the spec and reference implementation are free forever. Standards only work when nobody owns the gate.

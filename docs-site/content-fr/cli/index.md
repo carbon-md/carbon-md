@@ -6,7 +6,7 @@ L'implémentation de référence, publiée sur npm sous le nom [`carbon-md`](htt
 npx carbon-md <commande> [options]
 ```
 
-Aucune installation nécessaire — `npx` s'en charge. Pour épingler une version : `npx carbon-md@0.1.9 …`.
+Aucune installation nécessaire — `npx` s'en charge. Pour épingler une version : `npx carbon-md@0.1.11 …`.
 
 ## Commandes
 
