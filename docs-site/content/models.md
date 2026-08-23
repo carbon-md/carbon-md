@@ -4,7 +4,7 @@ Living map of **model string → emission class** used by `carbonmd-factors-2026
 
 This page is steered weekly (Sunday evening, Europe/Zurich): new public releases and models seen in agent usage are classified, documented here, and wired into `src/core/factors.ts`.
 
-**Last steered:** 2026-08-16  
+**Last steered:** 2026-08-23  
 **Factors version:** `carbonmd-factors-2026-08`
 
 ## How to read this
@@ -35,10 +35,10 @@ Workhorse coding / agent models. Central **2.5 gCO₂e / 1k output tokens**.
 | Moonshot | `kimi-k2.6`, `kimi-k2.7-code`, `kimi-k3`, `k3`, `kimi-for-coding` |
 | DeepSeek | `deepseek-v4-pro`, `deepseek/deepseek-v4-pro`, `deepseek-v4-pro-0813` |
 | Alibaba | `qwen/qwen3.7-max`, `qwen/qwen3.8-max`, `qwen/qwen3.8-2.4t-a95b`, `qwen/qwen3.8-27b`, `qwen3*` |
-| Zhipu | `z-ai/glm-5.2`, `glm-5*` |
+| Zhipu | `z-ai/glm-5.2`, `z-ai/glm-5.3`, `glm-5*` |
 | ByteDance | `seed-2-1-turbo`, `seed-2.0-code`, `seedream*` |
 | Sakana | `sakana-namazu` (Kimi K2.6 derivative) |
-| Meta | `muse*`, `muse-spark*` |
+| Meta | `muse*`, `muse-spark*`, `muse-spark-1.2-contributor` |
 | Other | `mistral-large*`, `command*`, `*405b*`, `*r1*` |
 
 ## Small
@@ -49,11 +49,12 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 |---|---|
 | OpenAI | `gpt-5.6-luna`, `gpt-5.4-mini`, `*-mini`, `*-nano` |
 | Google | `gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.7-flash`, `*-flash-lite*` |
-| DeepSeek | `deepseek-v4-flash`, `deepseek/deepseek-v4-flash` |
+| DeepSeek | `deepseek-v4-flash`, `deepseek/deepseek-v4-flash`, `deepseek-v4-flash-vision-exp` |
 | xAI | `grok-composer-2.5-fast` |
 | StepFun | `stepfun/step-3.7-flash` |
 | NVIDIA | `nemotron-3.5-lightning` |
 | Liquid | `lfm-2.5-2.6b` |
+| Tencent | `hy-mt2-1.8b`, `hy-mt2-7b`, `hy-mt2-30b-a3b`, `hy-mt*` |
 | Markers | `haiku`, `flash`, `lite`, `micro`, `fast`, `lightning`, `gemma`, `phi`, `1b`…`14b` (incl. `2.6b`) |
 
 > **Decision note (2026-08 steer):** `grok-composer-2.5-fast` is classified **small**, not large.
@@ -70,11 +71,19 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 > `qwen3.7-max`. `seed-2-1-turbo` is **large** (coding/agent workhorse);
 > `lite`/`mini` Seed IDs remain small.
 
+> **Decision note (2026-08-23 steer):** `z-ai/glm-5.3` stays **large** (`glm`
+> family, reasoning / agent workhorse). `meta/muse-spark-1.2-contributor`
+> stays **large** — `contributor` is not a small marker; the `muse` family
+> rule wins even though the contributor SKU is cheaper than Spark. Tencent
+> `hy-mt2*` (Hunyuan-MT translation specialists, including `30b-a3b` with
+> 3B active) is classified **small**. `deepseek-v4-flash-vision-exp` is
+> **small** via `flash`.
+
 ## Medium (guessed)
 
 Anything without a known marker. Central **0.8 gCO₂e / 1k output tokens**, range widened in `status`.
 
-Seen this week and left guessed: `dots-studio/dots-3-note-preview` (16B active / 280B MoE, no family rule yet).
+Seen this week and left guessed: `stealth/ox-alpha` (anonymous coding/agent reasoning model, no family rule yet).
 
 If your production model lands here, open an issue or wait for the weekly steer.
 

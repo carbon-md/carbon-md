@@ -46,6 +46,10 @@ test("small tiers", () => {
     "nvidia/nemotron-3.5-lightning",
     "liquid/lfm-2.5-2.6b",
     "stepfun/step-3.7-flash",
+    "deepseek/deepseek-v4-flash-vision-exp",
+    "tencent/hy-mt2-1.8b",
+    "tencent/hy-mt2-7b",
+    "tencent/hy-mt2-30b-a3b",
   ]) {
     const r = classify(m);
     assert.equal(r.cls, "small", `${m} should be small`);
@@ -86,7 +90,9 @@ test("large workhorses", () => {
     "sakana/sakana-namazu",
     "qwen3-max",
     "z-ai/glm-5.2",
+    "z-ai/glm-5.3",
     "glm-5",
+    "meta/muse-spark-1.2-contributor",
     "mistral-large-3",
     "command-a",
     "llama-3.1-405b",
@@ -102,6 +108,9 @@ test("unknown models fall to medium + guessed", () => {
   const r = classify("some-random-model-9000");
   assert.equal(r.cls, "medium");
   assert.equal(r.guessed, true);
+  const ox = classify("stealth/ox-alpha");
+  assert.equal(ox.cls, "medium");
+  assert.equal(ox.guessed, true);
 });
 
 test("small params markers (1b..14b) win first", () => {
