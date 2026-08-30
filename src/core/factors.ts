@@ -11,8 +11,8 @@
  * figure of honesty. Ranges are wide BY DESIGN: cloud inference is a
  * black box. Estimates are only comparable within a factors version.
  *
- * Classification catalog refreshed 2026-08-23 against live agent usage
- * (Hermes) + public model releases through 2026-08-23.
+ * Classification catalog refreshed 2026-08-30 against live agent usage
+ * (Hermes) + public model releases through 2026-08-30.
  * Factor *bands* unchanged — new IDs only; still carbonmd-factors-2026-08.
  */
 
@@ -82,7 +82,9 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
     smallB ||
     (raw.includes("composer") && raw.includes("fast")) ||
     raw.includes("hy-mt") || // Tencent Hy-MT2 translation family (2026-08-23)
-    raw.includes("hunyuan-mt")
+    raw.includes("hunyuan-mt") ||
+    raw.includes("ox-alpha") || // unmasked 2026-08-26 as GLM-5.3-Flash
+    raw.includes("oxalpha")
   ) {
     return { cls: "small", guessed: false };
   }

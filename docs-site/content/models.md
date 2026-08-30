@@ -4,7 +4,7 @@ Living map of **model string → emission class** used by `carbonmd-factors-2026
 
 This page is steered weekly (Sunday evening, Europe/Zurich): new public releases and models seen in agent usage are classified, documented here, and wired into `src/core/factors.ts`.
 
-**Last steered:** 2026-08-23  
+**Last steered:** 2026-08-30  
 **Factors version:** `carbonmd-factors-2026-08`
 
 ## How to read this
@@ -35,7 +35,7 @@ Workhorse coding / agent models. Central **2.5 gCO₂e / 1k output tokens**.
 | Moonshot | `kimi-k2.6`, `kimi-k2.7-code`, `kimi-k3`, `k3`, `kimi-for-coding` |
 | DeepSeek | `deepseek-v4-pro`, `deepseek/deepseek-v4-pro`, `deepseek-v4-pro-0813` |
 | Alibaba | `qwen/qwen3.7-max`, `qwen/qwen3.8-max`, `qwen/qwen3.8-2.4t-a95b`, `qwen/qwen3.8-27b`, `qwen3*` |
-| Zhipu | `z-ai/glm-5.2`, `z-ai/glm-5.3`, `glm-5*` |
+| Zhipu | `z-ai/glm-5.2`, `z-ai/glm-5.3`, `glm-5*` (non-flash) |
 | ByteDance | `seed-2-1-turbo`, `seed-2.0-code`, `seedream*` |
 | Sakana | `sakana-namazu` (Kimi K2.6 derivative) |
 | Meta | `muse*`, `muse-spark*`, `muse-spark-1.2-contributor` |
@@ -51,6 +51,8 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 | Google | `gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.7-flash`, `*-flash-lite*` |
 | DeepSeek | `deepseek-v4-flash`, `deepseek/deepseek-v4-flash`, `deepseek-v4-flash-vision-exp` |
 | xAI | `grok-composer-2.5-fast` |
+| Alibaba | `qwen/qwen3.8-flash`, `qwen/qwen3.8-flash-next` |
+| Zhipu | `z-ai/glm-5.3-flash`, `stealth/ox-alpha` (unmasked as GLM-5.3-Flash) |
 | StepFun | `stepfun/step-3.7-flash` |
 | NVIDIA | `nemotron-3.5-lightning` |
 | Liquid | `lfm-2.5-2.6b` |
@@ -79,11 +81,17 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 > 3B active) is classified **small**. `deepseek-v4-flash-vision-exp` is
 > **small** via `flash`.
 
+> **Decision note (2026-08-30 steer):** `stealth/ox-alpha` is classified **small**,
+> not medium/guessed. Z.ai unmasked it on 2026-08-26 as `GLM-5.3-Flash`
+> (320B-A18B). The `flash` marker already maps `glm-5.3-flash` / `qwen3.8-flash-next`
+> to small; the explicit `ox-alpha` rule keeps the stealth ID aligned with that
+> SKU. `glm-5.3` (non-flash) stays **large**. Factor *bands* unchanged.
+
 ## Medium (guessed)
 
 Anything without a known marker. Central **0.8 gCO₂e / 1k output tokens**, range widened in `status`.
 
-Seen this week and left guessed: `stealth/ox-alpha` (anonymous coding/agent reasoning model, no family rule yet).
+No new guessed IDs this week.
 
 If your production model lands here, open an issue or wait for the weekly steer.
 

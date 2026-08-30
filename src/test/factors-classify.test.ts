@@ -50,6 +50,11 @@ test("small tiers", () => {
     "tencent/hy-mt2-1.8b",
     "tencent/hy-mt2-7b",
     "tencent/hy-mt2-30b-a3b",
+    "z-ai/glm-5.3-flash",
+    "glm-5.3-flash",
+    "qwen/qwen3.8-flash-next",
+    "qwen/qwen3.8-flash",
+    "stealth/ox-alpha",
   ]) {
     const r = classify(m);
     assert.equal(r.cls, "small", `${m} should be small`);
@@ -108,9 +113,12 @@ test("unknown models fall to medium + guessed", () => {
   const r = classify("some-random-model-9000");
   assert.equal(r.cls, "medium");
   assert.equal(r.guessed, true);
+});
+
+test("ox-alpha is small (unmasked 2026-08-26 as GLM-5.3-Flash)", () => {
   const ox = classify("stealth/ox-alpha");
-  assert.equal(ox.cls, "medium");
-  assert.equal(ox.guessed, true);
+  assert.equal(ox.cls, "small");
+  assert.equal(ox.guessed, false);
 });
 
 test("small params markers (1b..14b) win first", () => {

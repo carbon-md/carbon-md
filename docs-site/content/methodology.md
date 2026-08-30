@@ -78,7 +78,7 @@ Model strings are mapped to a class by whole-token matching (so `gpt-5.4-mini` l
 
 ### Rules (checked in order)
 
-- **small** — `haiku`, `mini`, `flash`, `nano`, `lite`, `micro`, `gemma`, `phi`, `luna`, `fast`, `lightning`, or a `1b`–`14b` parameter tag (incl. `2.6b`); also `composer…fast`, Tencent `hy-mt` / `hunyuan-mt`
+- **small** — `haiku`, `mini`, `flash`, `nano`, `lite`, `micro`, `gemma`, `phi`, `luna`, `fast`, `lightning`, or a `1b`–`14b` parameter tag (incl. `2.6b`); also `composer…fast`, Tencent `hy-mt` / `hunyuan-mt`, `ox-alpha` (GLM-5.3-Flash stealth ID)
 - **frontier** — `opus`, `fable`, `mythos`, `ultra`, `heavy`, `sol`, `o3`, `o4`, full `gpt-5.5` / `gpt-5.6-sol`, Gemini Pro flagships (`gemini-3.1-pro`…)
 - **large** — `sonnet`, `terra`, `gpt-4*`, `gemini…pro` (non-frontier), `grok`, `kimi` / `k2` / `k3`, `deepseek` (non-flash), `qwen`, `glm`, `muse`, `seed` / `seedream`, `sakana` / `namazu`, `codex`, `r1`, `mistral large`, `405b`, `command`
 - **medium** — everything else, flagged as **guessed**
@@ -89,8 +89,8 @@ Model strings are mapped to a class by whole-token matching (so `gpt-5.4-mini` l
 |---|---|
 | **frontier** | `gpt-5.5`, `gpt-5.6-sol`, `claude-opus-5`, `claude-fable-5`, `gemini-3.1-pro-preview` |
 | **large** | `gpt-5.6-terra`, `claude-sonnet-5`, `kimi-k2.6`, `kimi-k2.7-code`, `kimi-k3`, `grok-4.3`, `grok-4.5`, `grok-4.6`, `deepseek-v4-pro`, `qwen3.8-max`, `seed-2-1-turbo`, `sakana-namazu`, `glm-5.3`, `muse-spark-1.2-contributor` |
-| **small** | `gpt-5.6-luna`, `gpt-5.4-mini`, `gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.7-flash`, `deepseek-v4-flash`, `deepseek-v4-flash-vision-exp`, `grok-composer-2.5-fast`, `nemotron-3.5-lightning`, `lfm-2.5-2.6b`, `hy-mt2-30b-a3b` |
-| **medium (guessed)** | unfamiliar strings with no known markers (`stealth/ox-alpha` this week) |
+| **small** | `gpt-5.6-luna`, `gpt-5.4-mini`, `gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.7-flash`, `deepseek-v4-flash`, `deepseek-v4-flash-vision-exp`, `grok-composer-2.5-fast`, `qwen3.8-flash-next`, `glm-5.3-flash`, `stealth/ox-alpha`, `nemotron-3.5-lightning`, `lfm-2.5-2.6b`, `hy-mt2-30b-a3b` |
+| **medium (guessed)** | unfamiliar strings with no known markers |
 
 A guessed classification is surfaced in `status` and widens the reported range. If you see it on a model you care about, that's an invitation to [open an issue](https://github.com/carbon-md/carbon-md/issues) — every new mapping improves the shared table.
 
