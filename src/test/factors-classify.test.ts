@@ -15,8 +15,13 @@ test("frontier flagships", () => {
     "o4",
     "claude-opus-5",
     "claude-fable-5",
+    "claude-fable-5.1",
     "claude-mythos-1",
+    "claude-mythos-5.1",
     "gemini-3.1-pro-preview",
+    "gpt-6-astra",
+    "openai/gpt-6-astra",
+    "openai/gpt-6-astra-pro",
   ]) {
     const r = classify(m);
     assert.equal(r.cls, "frontier", `${m} should be frontier`);
@@ -28,6 +33,18 @@ test("gpt-5.4 full tier is frontier, mini is small", () => {
   assert.equal(classify("gpt-5.4").cls, "frontier");
   assert.equal(classify("gpt-5.4-mini").cls, "small");
 });
+
+test("gpt-6-astra is frontier; hypothetical gpt-6-mini stays small", () => {
+  assert.equal(classify("gpt-6-astra").cls, "frontier");
+  assert.equal(classify("gpt-6-astra-pro").cls, "frontier");
+  assert.equal(classify("gpt-6-mini").cls, "small");
+});
+
+test("hy4-preview is large; hy-mt translation family stays small", () => {
+  assert.equal(classify("tencent/hy4-preview").cls, "large");
+  assert.equal(classify("tencent/hy-mt2-7b").cls, "small");
+});
+
 
 test("small tiers", () => {
   for (const m of [
@@ -55,6 +72,10 @@ test("small tiers", () => {
     "qwen/qwen3.8-flash-next",
     "qwen/qwen3.8-flash",
     "stealth/ox-alpha",
+    "gemini-3.8-flash",
+    "google/gemini-3.8-flash",
+    "inception/mercury-2.5-preview",
+    "ibm-granite/granite-4.2-8b",
   ]) {
     const r = classify(m);
     assert.equal(r.cls, "small", `${m} should be small`);
@@ -98,6 +119,10 @@ test("large workhorses", () => {
     "z-ai/glm-5.3",
     "glm-5",
     "meta/muse-spark-1.2-contributor",
+    "meta/muse-spark-1.3",
+    "meta/muse-spark-1.3-contributor",
+    "qwen/qwen3.8-max-0902",
+    "tencent/hy4-preview",
     "mistral-large-3",
     "command-a",
     "llama-3.1-405b",

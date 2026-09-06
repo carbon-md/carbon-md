@@ -11,8 +11,8 @@
  * figure of honesty. Ranges are wide BY DESIGN: cloud inference is a
  * black box. Estimates are only comparable within a factors version.
  *
- * Classification catalog refreshed 2026-08-30 against live agent usage
- * (Hermes) + public model releases through 2026-08-30.
+ * Classification catalog refreshed 2026-09-06 against live agent usage
+ * (Hermes) + public model releases through 2026-09-06.
  * Factor *bands* unchanged — new IDs only; still carbonmd-factors-2026-08.
  */
 
@@ -53,6 +53,7 @@ const SMALL_TOKENS = new Set([
   "luna", // GPT-5.6 Luna — cheap/small tier
   "fast", // cheap/fast tiers (composer-fast, *-fast)
   "lightning", // NVIDIA Nemotron Lightning etc.
+  "mercury", // Inception Mercury 2.5 — diffusion LLM, Luna/Haiku class
 ]);
 
 function tokenize(model: string): string[] {
@@ -84,7 +85,8 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
     raw.includes("hy-mt") || // Tencent Hy-MT2 translation family (2026-08-23)
     raw.includes("hunyuan-mt") ||
     raw.includes("ox-alpha") || // unmasked 2026-08-26 as GLM-5.3-Flash
-    raw.includes("oxalpha")
+    raw.includes("oxalpha") ||
+    raw.includes("mercury") // Inception Mercury 2.5 — cheap/fast diffusion LLM
   ) {
     return { cls: "small", guessed: false };
   }
@@ -101,6 +103,7 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
     has("o4") ||
     raw.includes("gpt-5.5") ||
     raw.includes("gpt-5.6-sol") ||
+    raw.includes("gpt-6") || // GPT-6 Astra / Astra Pro (2026-09-03)
     (raw.includes("gpt-5") &&
       !raw.includes("mini") &&
       !raw.includes("nano") &&
@@ -113,6 +116,7 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
   if (
     raw.includes("claude-opus") ||
     raw.includes("claude-fable") ||
+    raw.includes("gpt-6") ||
     (has("gemini") && (raw.includes("3.1-pro") || raw.includes("3-pro")))
   ) {
     return { cls: "frontier", guessed: false };
@@ -143,7 +147,9 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
     has("namazu") || // Sakana Namazu — Kimi K2.6 derivative
     tokens.some((t) => t.startsWith("step")) ||
     raw.includes("v4-pro") ||
-    raw.includes("codex")
+    raw.includes("codex") ||
+    has("hy4") || // Tencent Hunyuan 4 flagship (not hy-mt translation)
+    raw.includes("hy4-")
   ) {
     return { cls: "large", guessed: false };
   }

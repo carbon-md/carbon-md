@@ -4,7 +4,7 @@ Living map of **model string → emission class** used by `carbonmd-factors-2026
 
 This page is steered weekly (Sunday evening, Europe/Zurich): new public releases and models seen in agent usage are classified, documented here, and wired into `src/core/factors.ts`.
 
-**Last steered:** 2026-08-30  
+**Last steered:** 2026-09-06  
 **Factors version:** `carbonmd-factors-2026-08`
 
 ## How to read this
@@ -19,8 +19,8 @@ High-capability flagships. Central **4.5 gCO₂e / 1k output tokens**.
 
 | Family | Example IDs |
 |---|---|
-| OpenAI | `gpt-5.5`, `gpt-5.6-sol`, `o3`, `o4` |
-| Anthropic | `claude-opus-5`, `claude-fable-5`, `*mythos*` |
+| OpenAI | `gpt-5.5`, `gpt-5.6-sol`, `gpt-6-astra`, `gpt-6-astra-pro`, `o3`, `o4` |
+| Anthropic | `claude-opus-5`, `claude-fable-5`, `claude-fable-5.1`, `claude-mythos-5.1`, `*mythos*` |
 | Google | `gemini-3.1-pro-preview`, `*ultra*` |
 
 ## Large
@@ -34,11 +34,12 @@ Workhorse coding / agent models. Central **2.5 gCO₂e / 1k output tokens**.
 | xAI | `grok-4.3`, `grok-4.5`, `grok-4.6`, `grok-build-0.1`, `grok-4*` |
 | Moonshot | `kimi-k2.6`, `kimi-k2.7-code`, `kimi-k3`, `k3`, `kimi-for-coding` |
 | DeepSeek | `deepseek-v4-pro`, `deepseek/deepseek-v4-pro`, `deepseek-v4-pro-0813` |
-| Alibaba | `qwen/qwen3.7-max`, `qwen/qwen3.8-max`, `qwen/qwen3.8-2.4t-a95b`, `qwen/qwen3.8-27b`, `qwen3*` |
+| Alibaba | `qwen/qwen3.7-max`, `qwen/qwen3.8-max`, `qwen/qwen3.8-max-0902`, `qwen/qwen3.8-2.4t-a95b`, `qwen/qwen3.8-27b`, `qwen3*` |
 | Zhipu | `z-ai/glm-5.2`, `z-ai/glm-5.3`, `glm-5*` (non-flash) |
 | ByteDance | `seed-2-1-turbo`, `seed-2.0-code`, `seedream*` |
 | Sakana | `sakana-namazu` (Kimi K2.6 derivative) |
-| Meta | `muse*`, `muse-spark*`, `muse-spark-1.2-contributor` |
+| Meta | `muse*`, `muse-spark*`, `muse-spark-1.2-contributor`, `muse-spark-1.3`, `muse-spark-1.3-contributor` |
+| Tencent | `hy4-preview` (Hunyuan 4 flagship; not `hy-mt`) |
 | Other | `mistral-large*`, `command*`, `*405b*`, `*r1*` |
 
 ## Small
@@ -48,7 +49,7 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 | Family | Example IDs |
 |---|---|
 | OpenAI | `gpt-5.6-luna`, `gpt-5.4-mini`, `*-mini`, `*-nano` |
-| Google | `gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.7-flash`, `*-flash-lite*` |
+| Google | `gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.7-flash`, `gemini-3.8-flash`, `*-flash-lite*` |
 | DeepSeek | `deepseek-v4-flash`, `deepseek/deepseek-v4-flash`, `deepseek-v4-flash-vision-exp` |
 | xAI | `grok-composer-2.5-fast` |
 | Alibaba | `qwen/qwen3.8-flash`, `qwen/qwen3.8-flash-next` |
@@ -56,6 +57,8 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 | StepFun | `stepfun/step-3.7-flash` |
 | NVIDIA | `nemotron-3.5-lightning` |
 | Liquid | `lfm-2.5-2.6b` |
+| IBM | `ibm-granite/granite-4.2-8b` |
+| Inception | `inception/mercury-2.5-preview` |
 | Tencent | `hy-mt2-1.8b`, `hy-mt2-7b`, `hy-mt2-30b-a3b`, `hy-mt*` |
 | Markers | `haiku`, `flash`, `lite`, `micro`, `fast`, `lightning`, `gemma`, `phi`, `1b`…`14b` (incl. `2.6b`) |
 
@@ -86,6 +89,22 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 > (320B-A18B). The `flash` marker already maps `glm-5.3-flash` / `qwen3.8-flash-next`
 > to small; the explicit `ox-alpha` rule keeps the stealth ID aligned with that
 > SKU. `glm-5.3` (non-flash) stays **large**. Factor *bands* unchanged.
+
+> **Decision note (2026-09-06 steer):** `gpt-6-astra` / `gpt-6-astra-pro` are
+> classified **frontier**, not medium/guessed. OpenAI's GPT-6 flagship began a
+> phased rollout on 2026-09-03 (API IDs also listed as `openai/gpt-6-astra`).
+> The `gpt-6` rule is checked after small markers, so a hypothetical
+> `gpt-6-mini` / `luna` still lands small. `claude-fable-5.1` and
+> `claude-mythos-5.1` stay **frontier** via existing `fable` / `mythos`.
+> `gemini-3.8-flash` (and the Fairwind-gated Cyber variant) is **small** via
+> `flash`. `muse-spark-1.3` / `muse-spark-1.3-contributor` stay **large** via
+> `muse`. `qwen3.8-max-0902` stays **large** via `qwen`.
+> `ibm-granite/granite-4.2-8b` is **small** via `8b`.
+> `inception/mercury-2.5-preview` is classified **small** (diffusion LLM,
+> vendor-compared to Luna / Flash-Lite / Haiku). `tencent/hy4-preview` is
+> **large** (Hunyuan 4, 770B-A49B coding flagship) — the `hy-mt` translation
+> family remains small; `hy4` is a different product. Factor *bands* unchanged.
+> No new uncatalogued IDs in Hermes usage this week.
 
 ## Medium (guessed)
 
