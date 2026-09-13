@@ -4,7 +4,7 @@
 ```
 carbonmd-factors-2026-08
 ```
-Mis à jour le **2026-09-06** (nouveaux IDs seulement ; bandes gCO₂e inchangées).
+Mis à jour le **2026-09-13** (nouveaux IDs seulement ; bandes gCO₂e inchangées).
 
 ## Formule
 ```
@@ -22,7 +22,7 @@ gCO2e = class_factor × weighted_ktokens
 ## Classification
 - **small** : mini, flash, luna, lite, fast, lightning, mercury, hy-mt / hunyuan-mt, ox-alpha (GLM-5.3-Flash), 1b–14b (dont 2.6b)…
 - **frontier** : opus, fable, sol, gpt-5.5, gpt-6-astra…
-- **large** : sonnet, terra, kimi, deepseek, grok, qwen, glm, seed, sakana/namazu, muse, hy4…
+- **large** : sonnet, terra, kimi, deepseek, grok, qwen, glm, seed, sakana/namazu, muse, hy4, longcat…
 - **medium** : guessed
 
 Détails : [Catalogue modèles](/fr/models/).

@@ -1,15 +1,15 @@
 # Catalogue modèles
 
-**Dernier steer :** 2026-09-06 · `carbonmd-factors-2026-08`
+**Dernier steer :** 2026-09-13 · `carbonmd-factors-2026-08`
 
 ## Frontier
 `gpt-5.5`, `gpt-5.6-sol`, `gpt-6-astra`, `gpt-6-astra-pro`, `claude-opus-5`, `claude-fable-5`, `claude-fable-5.1`, `claude-mythos-5.1`, `gemini-3.1-pro-preview`
 
 ## Large
-`gpt-5.6-terra`, `claude-sonnet-5`, `kimi-k2.6`, `kimi-k3`, `k3`, `grok-4.3`, `grok-4.5`, `grok-4.6`, `grok-build-0.1`, `deepseek-v4-pro`, `deepseek-v4-pro-0813`, `qwen3.7-max`, `qwen3.8-max`, `qwen3.8-max-0902`, `qwen3.8-2.4t-a95b`, `qwen3.8-27b`, `glm-5.2`, `glm-5.3`, `muse-spark-1.2-contributor`, `muse-spark-1.3`, `muse-spark-1.3-contributor`, `seed-2-1-turbo`, `seed-2.0-code`, `sakana-namazu`, `hy4-preview`
+`gpt-5.6-terra`, `claude-sonnet-5`, `kimi-k2.6`, `kimi-k3`, `k3`, `grok-4.3`, `grok-4.5`, `grok-4.6`, `grok-build-0.1`, `deepseek-v4-pro`, `deepseek-v4-pro-0813`, `qwen3.7-max`, `qwen3.8-max`, `qwen3.8-max-0902`, `qwen3.8-2.4t-a95b`, `qwen3.8-27b`, `glm-5.2`, `glm-5.3`, `muse-spark-1.2-contributor`, `muse-spark-1.3`, `muse-spark-1.3-contributor`, `seed-2-1-turbo`, `seed-2.0-code`, `sakana-namazu`, `hy4-preview`, `longcat-2.0`
 
 ## Small
-`gpt-5.6-luna`, `gpt-5.4-mini`, `gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.7-flash`, `gemini-3.8-flash`, `deepseek-v4-flash`, `deepseek-v4-flash-vision-exp`, `grok-composer-2.5-fast`, `qwen3.8-flash`, `qwen3.8-flash-next`, `glm-5.3-flash`, `stealth/ox-alpha`, `step-3.7-flash`, `nemotron-3.5-lightning`, `lfm-2.5-2.6b`, `hy-mt2-1.8b`, `hy-mt2-7b`, `hy-mt2-30b-a3b`, `granite-4.2-8b`, `mercury-2.5-preview`
+`gpt-5.6-luna`, `gpt-5.4-mini`, `gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.7-flash`, `gemini-3.8-flash`, `gemini-3.8-flash-cyber`, `deepseek-v4-flash`, `deepseek-v4-flash-vision-exp`, `deepseek-v4.1-flash`, `deepseek-flash`, `grok-composer-2.5-fast`, `qwen3.8-flash`, `qwen3.8-flash-next`, `glm-5.3-flash`, `stealth/ox-alpha`, `step-3.7-flash`, `ling-3.0-flash-fin`, `nemotron-3.5-lightning`, `lfm-2.5-2.6b`, `hy-mt2-1.8b`, `hy-mt2-7b`, `hy-mt2-30b-a3b`, `granite-4.2-8b`, `mercury-2.5-preview`
 
 > **Note de décision (steer 2026-08) :** `grok-composer-2.5-fast` est classé **small**, pas large.
 > La règle explicite `composer` + `fast` (tier rapide/économique xAI) prime sur la règle
@@ -22,6 +22,8 @@
 > **Note de décision (steer 2026-08-30) :** `stealth/ox-alpha` est classé **small**, plus medium/guessed. Z.ai l’a démasqué le 2026-08-26 comme `GLM-5.3-Flash`. Le marqueur `flash` classe déjà `glm-5.3-flash` / `qwen3.8-flash-next` en small ; la règle `ox-alpha` aligne l’ID stealth. `glm-5.3` (sans flash) reste **large**. Bandes gCO₂e inchangées.
 
 > **Note de décision (steer 2026-09-06) :** `gpt-6-astra` / `gpt-6-astra-pro` sont classés **frontier**, pas medium/guessed. Flagship GPT-6 d’OpenAI, déploiement progressif dès le 2026-09-03. La règle `gpt-6` vient après les marqueurs small : un hypothétique `gpt-6-mini` resterait small. `claude-fable-5.1` / `claude-mythos-5.1` restent **frontier** (`fable` / `mythos`). `gemini-3.8-flash` → **small** (`flash`). `muse-spark-1.3` reste **large** (`muse`). `qwen3.8-max-0902` reste **large**. `granite-4.2-8b` → **small** (`8b`). `mercury-2.5-preview` → **small** (diffusion, classe Luna / Flash-Lite / Haiku). `hy4-preview` → **large** (Hunyuan 4 flagship) ; la famille `hy-mt` reste small. Bandes gCO₂e inchangées. Aucun nouvel ID uncatalogué dans l’usage Hermes cette semaine.
+
+> **Note de décision (steer 2026-09-13) :** `deepseek-v4.1-flash` / alias API `deepseek-flash` → **small** (`flash`). Sortie DeepSeek V4.1-Flash le 2026-09-10. `gemini-3.8-flash-cyber` et `ling-3.0-flash-fin` → **small** (`flash`). `meituan/longcat-2.0` → **large**, plus medium/guessed (workhorse 1.6T-A48B, même bande que Kimi / DeepSeek-Pro / Qwen-Max). Bandes gCO₂e inchangées.
 
 ## Medium
 Inconnu / guessed. Aucun nouvel ID guessed cette semaine.

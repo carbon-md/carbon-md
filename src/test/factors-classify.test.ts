@@ -74,8 +74,13 @@ test("small tiers", () => {
     "stealth/ox-alpha",
     "gemini-3.8-flash",
     "google/gemini-3.8-flash",
+    "gemini-3.8-flash-cyber",
     "inception/mercury-2.5-preview",
     "ibm-granite/granite-4.2-8b",
+    "deepseek/deepseek-v4.1-flash",
+    "deepseek-v4.1-flash",
+    "deepseek-flash",
+    "inclusionai/ling-3.0-flash-fin",
   ]) {
     const r = classify(m);
     assert.equal(r.cls, "small", `${m} should be small`);
@@ -123,6 +128,8 @@ test("large workhorses", () => {
     "meta/muse-spark-1.3-contributor",
     "qwen/qwen3.8-max-0902",
     "tencent/hy4-preview",
+    "meituan/longcat-2.0:free",
+    "meituan-longcat/LongCat-2.0",
     "mistral-large-3",
     "command-a",
     "llama-3.1-405b",

@@ -4,7 +4,7 @@ Living map of **model string → emission class** used by `carbonmd-factors-2026
 
 This page is steered weekly (Sunday evening, Europe/Zurich): new public releases and models seen in agent usage are classified, documented here, and wired into `src/core/factors.ts`.
 
-**Last steered:** 2026-09-06  
+**Last steered:** 2026-09-13  
 **Factors version:** `carbonmd-factors-2026-08`
 
 ## How to read this
@@ -34,6 +34,7 @@ Workhorse coding / agent models. Central **2.5 gCO₂e / 1k output tokens**.
 | xAI | `grok-4.3`, `grok-4.5`, `grok-4.6`, `grok-build-0.1`, `grok-4*` |
 | Moonshot | `kimi-k2.6`, `kimi-k2.7-code`, `kimi-k3`, `k3`, `kimi-for-coding` |
 | DeepSeek | `deepseek-v4-pro`, `deepseek/deepseek-v4-pro`, `deepseek-v4-pro-0813` |
+| Meituan | `meituan/longcat-2.0`, `meituan/longcat-2.0:free`, `longcat*` |
 | Alibaba | `qwen/qwen3.7-max`, `qwen/qwen3.8-max`, `qwen/qwen3.8-max-0902`, `qwen/qwen3.8-2.4t-a95b`, `qwen/qwen3.8-27b`, `qwen3*` |
 | Zhipu | `z-ai/glm-5.2`, `z-ai/glm-5.3`, `glm-5*` (non-flash) |
 | ByteDance | `seed-2-1-turbo`, `seed-2.0-code`, `seedream*` |
@@ -49,12 +50,13 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 | Family | Example IDs |
 |---|---|
 | OpenAI | `gpt-5.6-luna`, `gpt-5.4-mini`, `*-mini`, `*-nano` |
-| Google | `gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.7-flash`, `gemini-3.8-flash`, `*-flash-lite*` |
-| DeepSeek | `deepseek-v4-flash`, `deepseek/deepseek-v4-flash`, `deepseek-v4-flash-vision-exp` |
+| Google | `gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.7-flash`, `gemini-3.8-flash`, `gemini-3.8-flash-cyber`, `*-flash-lite*` |
+| DeepSeek | `deepseek-v4-flash`, `deepseek/deepseek-v4-flash`, `deepseek-v4-flash-vision-exp`, `deepseek-v4.1-flash`, `deepseek/deepseek-v4.1-flash`, `deepseek-flash` |
 | xAI | `grok-composer-2.5-fast` |
 | Alibaba | `qwen/qwen3.8-flash`, `qwen/qwen3.8-flash-next` |
 | Zhipu | `z-ai/glm-5.3-flash`, `stealth/ox-alpha` (unmasked as GLM-5.3-Flash) |
 | StepFun | `stepfun/step-3.7-flash` |
+| InclusionAI | `inclusionai/ling-3.0-flash`, `inclusionai/ling-3.0-flash-fin` |
 | NVIDIA | `nemotron-3.5-lightning` |
 | Liquid | `lfm-2.5-2.6b` |
 | IBM | `ibm-granite/granite-4.2-8b` |
@@ -105,6 +107,15 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 > **large** (Hunyuan 4, 770B-A49B coding flagship) — the `hy-mt` translation
 > family remains small; `hy4` is a different product. Factor *bands* unchanged.
 > No new uncatalogued IDs in Hermes usage this week.
+>
+> **Decision note (2026-09-13 steer):** `deepseek-v4.1-flash` /
+> `deepseek/deepseek-v4.1-flash` / API alias `deepseek-flash` are **small**
+> via `flash`. DeepSeek launched V4.1-Flash on 2026-09-10 (MIT weights;
+> older V4 Flash / Flash Vision API names now route here). `gemini-3.8-flash-cyber`
+> stays **small** via `flash`. `inclusionai/ling-3.0-flash-fin` is **small**
+> via `flash`. `meituan/longcat-2.0` (and `:free`) is classified **large**,
+> not medium/guessed — Meituan LongCat-2.0 is a 1.6T-A48B coding workhorse,
+> same band as Kimi / DeepSeek-Pro / Qwen-Max. Factor *bands* unchanged.
 
 ## Medium (guessed)
 
