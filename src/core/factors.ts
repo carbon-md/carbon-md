@@ -11,8 +11,8 @@
  * figure of honesty. Ranges are wide BY DESIGN: cloud inference is a
  * black box. Estimates are only comparable within a factors version.
  *
- * Classification catalog refreshed 2026-09-13 against live agent usage
- * (Hermes) + public model releases through 2026-09-13.
+ * Classification catalog refreshed 2026-09-20 against live agent usage
+ * (Hermes) + public model releases through 2026-09-20.
  * Factor *bands* unchanged — new IDs only; still carbonmd-factors-2026-08.
  */
 
@@ -151,7 +151,9 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
     has("hy4") || // Tencent Hunyuan 4 flagship (not hy-mt translation)
     raw.includes("hy4-") ||
     has("longcat") || // Meituan LongCat-2.0 — 1.6T MoE coding workhorse
-    raw.includes("longcat")
+    raw.includes("longcat") ||
+    raw.includes("solar-pro") || // Upstage Solar Pro 4 — agentic workhorse
+    has("atria") // Shanghai AI Lab Atria Dawn Preview — 744B agentic MoE
   ) {
     return { cls: "large", guessed: false };
   }

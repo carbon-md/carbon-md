@@ -8,7 +8,7 @@ How carbon.md turns tokens into grams — and why every number carries a range.
 carbonmd-factors-2026-08
 ```
 
-Catalog refreshed **2026-09-13** (new IDs only; gCO₂e bands unchanged). The version is pinned in your `carbon.md` and stamped on **every ledger event**. Estimates are only comparable within a version. When factors are revised, old events keep their original stamp — we never silently rewrite history.
+Catalog refreshed **2026-09-20** (new IDs only; gCO₂e bands unchanged). The version is pinned in your `carbon.md` and stamped on **every ledger event**. Estimates are only comparable within a version. When factors are revised, old events keep their original stamp — we never silently rewrite history.
 
 ## The model
 
@@ -87,9 +87,9 @@ Model strings are mapped to a class by whole-token matching (so `gpt-5.4-mini` l
 
 | Class | Examples seen in the wild |
 |---|---|
-| **frontier** | `gpt-5.5`, `gpt-5.6-sol`, `gpt-6-astra`, `claude-opus-5`, `claude-fable-5.1`, `gemini-3.1-pro-preview` |
-| **large** | `gpt-5.6-terra`, `claude-sonnet-5`, `kimi-k2.6`, `kimi-k2.7-code`, `kimi-k3`, `grok-4.3`, `grok-4.5`, `grok-4.6`, `deepseek-v4-pro`, `qwen3.8-max-0902`, `seed-2-1-turbo`, `sakana-namazu`, `glm-5.3`, `muse-spark-1.3`, `hy4-preview`, `longcat-2.0` |
-| **small** | `gpt-5.6-luna`, `gpt-5.4-mini`, `gemini-3.8-flash`, `deepseek-v4-flash`, `deepseek-v4.1-flash`, `deepseek-v4-flash-vision-exp`, `grok-composer-2.5-fast`, `qwen3.8-flash-next`, `glm-5.3-flash`, `stealth/ox-alpha`, `nemotron-3.5-lightning`, `lfm-2.5-2.6b`, `hy-mt2-30b-a3b`, `granite-4.2-8b`, `mercury-2.5-preview` |
+| **frontier** | `gpt-5.2-codex`, `gpt-5.3-codex`, `gpt-5.5`, `gpt-5.6-sol`, `gpt-6-astra`, `claude-opus-5`, `claude-fable-5.1`, `gemini-3.1-pro-preview` |
+| **large** | `gpt-5.6-terra`, `claude-sonnet-5`, `kimi-k2.6`, `kimi-k2.7-code`, `kimi-k2.8-preview`, `kimi-k3`, `grok-4.3`, `grok-4.5`, `grok-4.6`, `deepseek-v4-pro`, `qwen3.8-max-0902`, `seed-2-1-turbo`, `sakana-namazu`, `glm-5.3`, `muse-spark-1.3`, `hy4-preview`, `longcat-2.0`, `upstage/solar-pro4:free`, `Atria-Dawn-Preview` |
+| **small** | `gpt-5.6-luna`, `gpt-5.4-mini`, `gemini-3.1-flash-lite-preview`, `gemini-3.8-flash`, `deepseek-v4-flash`, `deepseek-v4.1-flash`, `deepseek-v4-flash-vision-exp`, `grok-composer-2.5-fast`, `qwen3.8-flash-next`, `glm-5.3-flash`, `stealth/ox-alpha`, `nemotron-3.5-lightning`, `lfm-2.5-2.6b`, `hy-mt2-30b-a3b`, `granite-4.2-8b`, `mercury-2.5-preview` |
 | **medium (guessed)** | unfamiliar strings with no known markers |
 
 A guessed classification is surfaced in `status` and widens the reported range. If you see it on a model you care about, that's an invitation to [open an issue](https://github.com/carbon-md/carbon-md/issues) — every new mapping improves the shared table.

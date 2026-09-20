@@ -4,7 +4,7 @@ Living map of **model string → emission class** used by `carbonmd-factors-2026
 
 This page is steered weekly (Sunday evening, Europe/Zurich): new public releases and models seen in agent usage are classified, documented here, and wired into `src/core/factors.ts`.
 
-**Last steered:** 2026-09-13  
+**Last steered:** 2026-09-20<br>
 **Factors version:** `carbonmd-factors-2026-08`
 
 ## How to read this
@@ -19,7 +19,7 @@ High-capability flagships. Central **4.5 gCO₂e / 1k output tokens**.
 
 | Family | Example IDs |
 |---|---|
-| OpenAI | `gpt-5.5`, `gpt-5.6-sol`, `gpt-6-astra`, `gpt-6-astra-pro`, `o3`, `o4` |
+| OpenAI | `gpt-5.2-codex`, `gpt-5.3-codex`, `gpt-5.5`, `gpt-5.6-sol`, `gpt-6-astra`, `gpt-6-astra-pro`, `o3`, `o4` |
 | Anthropic | `claude-opus-5`, `claude-fable-5`, `claude-fable-5.1`, `claude-mythos-5.1`, `*mythos*` |
 | Google | `gemini-3.1-pro-preview`, `*ultra*` |
 
@@ -32,7 +32,7 @@ Workhorse coding / agent models. Central **2.5 gCO₂e / 1k output tokens**.
 | OpenAI | `gpt-5.6-terra`, `gpt-4o`, `*codex*` |
 | Anthropic | `claude-sonnet-5`, `*sonnet*` |
 | xAI | `grok-4.3`, `grok-4.5`, `grok-4.6`, `grok-build-0.1`, `grok-4*` |
-| Moonshot | `kimi-k2.6`, `kimi-k2.7-code`, `kimi-k3`, `k3`, `kimi-for-coding` |
+| Moonshot | `kimi-k2.6`, `kimi-k2.7-code`, `kimi-k2.8-preview`, `kimi-k3`, `k3`, `kimi-for-coding` |
 | DeepSeek | `deepseek-v4-pro`, `deepseek/deepseek-v4-pro`, `deepseek-v4-pro-0813` |
 | Meituan | `meituan/longcat-2.0`, `meituan/longcat-2.0:free`, `longcat*` |
 | Alibaba | `qwen/qwen3.7-max`, `qwen/qwen3.8-max`, `qwen/qwen3.8-max-0902`, `qwen/qwen3.8-2.4t-a95b`, `qwen/qwen3.8-27b`, `qwen3*` |
@@ -41,6 +41,8 @@ Workhorse coding / agent models. Central **2.5 gCO₂e / 1k output tokens**.
 | Sakana | `sakana-namazu` (Kimi K2.6 derivative) |
 | Meta | `muse*`, `muse-spark*`, `muse-spark-1.2-contributor`, `muse-spark-1.3`, `muse-spark-1.3-contributor` |
 | Tencent | `hy4-preview` (Hunyuan 4 flagship; not `hy-mt`) |
+| Upstage | `upstage/solar-pro4:free`, `solar-pro4` |
+| Shanghai AI Lab | `Atria-Dawn-Preview`, `atria-dawn-preview` |
 | Other | `mistral-large*`, `command*`, `*405b*`, `*r1*` |
 
 ## Small
@@ -116,6 +118,17 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 > via `flash`. `meituan/longcat-2.0` (and `:free`) is classified **large**,
 > not medium/guessed — Meituan LongCat-2.0 is a 1.6T-A48B coding workhorse,
 > same band as Kimi / DeepSeek-Pro / Qwen-Max. Factor *bands* unchanged.
+>
+> **Decision note (2026-09-20 steer):** Moonshot's `kimi-k2.8-preview` is
+> **large** through the existing `kimi` family rule; its Kimi Code rollout also
+> retains the `kimi-for-coding` endpoint. Shanghai AI Lab's
+> `Atria-Dawn-Preview` is **large**, not medium/guessed: it is a 744B
+> agentic-MoE release built on the GLM-5.2 lineage, so an explicit `atria` rule
+> aligns it with GLM/Kimi/DeepSeek workhorses. Hermes usage also contains
+> `upstage/solar-pro4:free`; Upstage describes Solar Pro 4 as its 512K-context
+> agentic LLM, and the explicit `solar-pro` rule maps it **large**. The complete
+> `gpt-5.2-codex`, `gpt-5.3-codex`, and `gemini-3.1-flash-lite-preview` IDs
+> were documented as already-covered family variants. Factor *bands* unchanged.
 
 ## Medium (guessed)
 

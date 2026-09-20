@@ -9,6 +9,8 @@ test("factors version is stamped 2026-08", () => {
 
 test("frontier flagships", () => {
   for (const m of [
+    "gpt-5.2-codex",
+    "gpt-5.3-codex",
     "gpt-5.5",
     "gpt-5.6-sol",
     "o3",
@@ -56,6 +58,7 @@ test("small tiers", () => {
     "gemini-3.6-flash",
     "gemini-3.7-flash",
     "gemini-3.1-flash-lite",
+    "gemini-3.1-flash-lite-preview",
     "deepseek-v4-flash",
     "claude-haiku-4",
     "gemma-4-9b",
@@ -107,6 +110,7 @@ test("large workhorses", () => {
     "grok-4",
     "kimi-k2.6",
     "kimi-k2.7-code",
+    "kimi-k2.8-preview",
     "kimi-k3",
     "kimi-for-coding",
     "deepseek-v4-pro",
@@ -134,6 +138,8 @@ test("large workhorses", () => {
     "command-a",
     "llama-3.1-405b",
     "deepseek-r1",
+    "upstage/solar-pro4:free",
+    "Atria-Dawn-Preview",
   ]) {
     const r = classify(m);
     assert.equal(r.cls, "large", `${m} should be large`);
