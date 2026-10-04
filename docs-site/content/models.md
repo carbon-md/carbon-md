@@ -4,7 +4,7 @@ Living map of **model string → emission class** used by `carbonmd-factors-2026
 
 This page is steered weekly (Sunday evening, Europe/Zurich): new public releases and models seen in agent usage are classified, documented here, and wired into `src/core/factors.ts`.
 
-**Last steered:** 2026-09-20<br>
+**Last steered:** 2026-10-04<br>
 **Factors version:** `carbonmd-factors-2026-08`
 
 ## How to read this
@@ -19,9 +19,9 @@ High-capability flagships. Central **4.5 gCO₂e / 1k output tokens**.
 
 | Family | Example IDs |
 |---|---|
-| OpenAI | `gpt-5.2-codex`, `gpt-5.3-codex`, `gpt-5.5`, `gpt-5.6-sol`, `gpt-6-astra`, `gpt-6-astra-pro`, `o3`, `o4` |
-| Anthropic | `claude-opus-5`, `claude-fable-5`, `claude-fable-5.1`, `claude-mythos-5.1`, `*mythos*` |
-| Google | `gemini-3.1-pro-preview`, `*ultra*` |
+| OpenAI | `gpt-5.2-codex`, `gpt-5.3-codex`, `gpt-5.5`, `gpt-5.6-sol`, `gpt-6-astra`, `gpt-6-astra-pro`, `gpt-6-sol`, `gpt-6.1-sol`, `o3`, `o4` |
+| Anthropic | `claude-opus-5`, `claude-opus-5-5`, `claude-opus-5-5[1m]`, `anthropic/claude-opus-5.5`, `claude-fable-5`, `claude-fable-5.1`, `claude-mythos-5.1`, `*mythos*` |
+| Google | `gemini-3.1-pro-preview`, Gemini 4 Argon (limited preview; public API ID not confirmed), `*ultra*` |
 
 ## Large
 
@@ -30,8 +30,8 @@ Workhorse coding / agent models. Central **2.5 gCO₂e / 1k output tokens**.
 | Family | Example IDs |
 |---|---|
 | OpenAI | `gpt-5.6-terra`, `gpt-4o`, `*codex*` |
-| Anthropic | `claude-sonnet-5`, `*sonnet*` |
-| xAI | `grok-4.3`, `grok-4.5`, `grok-4.6`, `grok-build-0.1`, `grok-4*` |
+| Anthropic | `claude-sonnet-5`, `claude-sonnet-5-5`, `anthropic/claude-sonnet-5.5`, `*sonnet*` |
+| xAI | `grok-4.3`, `grok-4.5`, `grok-4.6`, `grok-4.7`, `grok-build-0.1`, `grok-4*` |
 | Moonshot | `kimi-k2.6`, `kimi-k2.7-code`, `kimi-k2.8-preview`, `kimi-k3`, `k3`, `kimi-for-coding` |
 | DeepSeek | `deepseek-v4-pro`, `deepseek/deepseek-v4-pro`, `deepseek-v4-pro-0813` |
 | Meituan | `meituan/longcat-2.0`, `meituan/longcat-2.0:free`, `longcat*` |
@@ -43,6 +43,7 @@ Workhorse coding / agent models. Central **2.5 gCO₂e / 1k output tokens**.
 | Tencent | `hy4-preview` (Hunyuan 4 flagship; not `hy-mt`) |
 | Upstage | `upstage/solar-pro4:free`, `solar-pro4` |
 | Shanghai AI Lab | `Atria-Dawn-Preview`, `atria-dawn-preview` |
+| Xiaomi | `mimo-v2.6-pro`, `XiaomiMiMo/MiMo-V2.6-Pro-RL`, `mimo-v2.6-pro-ultraspeed` |
 | Other | `mistral-large*`, `command*`, `*405b*`, `*r1*` |
 
 ## Small
@@ -51,7 +52,7 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 
 | Family | Example IDs |
 |---|---|
-| OpenAI | `gpt-5.6-luna`, `gpt-5.4-mini`, `*-mini`, `*-nano` |
+| OpenAI | `gpt-5.6-luna`, `gpt-6-luna`, `gpt-5.4-mini`, `*-mini`, `*-nano` |
 | Google | `gemini-3.5-flash`, `gemini-3.6-flash`, `gemini-3.7-flash`, `gemini-3.8-flash`, `gemini-3.8-flash-cyber`, `*-flash-lite*` |
 | DeepSeek | `deepseek-v4-flash`, `deepseek/deepseek-v4-flash`, `deepseek-v4-flash-vision-exp`, `deepseek-v4.1-flash`, `deepseek/deepseek-v4.1-flash`, `deepseek-flash` |
 | xAI | `grok-composer-2.5-fast` |
@@ -64,6 +65,8 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 | IBM | `ibm-granite/granite-4.2-8b` |
 | Inception | `inception/mercury-2.5-preview` |
 | Tencent | `hy-mt2-1.8b`, `hy-mt2-7b`, `hy-mt2-30b-a3b`, `hy-mt*` |
+| Xiaomi | `mimo-v2.6-flash`, `XiaomiMiMo/MiMo-V2.6-Flash-RL` |
+| Bilibili Index | `IndexTeam/Index-Translate-2B`, `IndexTeam/Index-Translate-9B`, `IndexTeam/Index-Translate-35B-A3B-preview` |
 | Markers | `haiku`, `flash`, `lite`, `micro`, `fast`, `lightning`, `gemma`, `phi`, `1b`…`14b` (incl. `2.6b`) |
 
 > **Decision note (2026-08 steer):** `grok-composer-2.5-fast` is classified **small**, not large.
@@ -130,11 +133,29 @@ Cheap / fast tiers. Central **0.15 gCO₂e / 1k output tokens**.
 > `gpt-5.2-codex`, `gpt-5.3-codex`, and `gemini-3.1-flash-lite-preview` IDs
 > were documented as already-covered family variants. Factor *bands* unchanged.
 
+## 2026-10-04 steer: releases, catch-up and provenance
+
+The previous catalog refresh was 2026-09-20. This steer covers **2026-09-28 through 2026-10-04**, plus missing releases since that refresh.
+
+- [GPT-6.1 Sol](https://openai.com/index/introducing-gpt-6-1-sol/) (September 29) → **frontier** through existing `sol` / `gpt-6` rules. Hermes also recorded `gpt-6.1-sol`. Cheaper API pricing alone does not justify changing an emission band.
+- [Claude Sonnet 5.5](https://www.anthropic.com/claude-sonnet-5-5) (September 28), API `claude-sonnet-5-5` → **large** through `sonnet`; also seen in Hermes.
+- [Gemini 4 Argon](https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-4-argon/) (September 30) → **frontier** through an explicit Gemini + Argon product-name rule. Access is restricted to trusted Fairwind cyber defenders. The spelling `gemini-4-argon` is a catalog label, **not a confirmed public API ID or a claim of general availability**.
+- [Index-Translate](https://huggingface.co/IndexTeam/Index-Translate-35B-A3B-preview) → **small**: `2B` / `9B` already match parameter markers; the `35B-A3B-preview` text-translation checkpoint gets a narrow explicit rule for its 3B-active MoE, consistent with Hy-MT2-30B-A3B. Local inference is still outside these cloud-token estimates.
+- Catch-up: [GPT-6 Sol / Luna](https://openai.com/index/introducing-gpt-6-sol-and-luna/) and [Claude Opus 5.5](https://www.anthropic.com/claude-opus-5-5) (September 22) → **frontier / small / frontier** through existing rules. Preserve the Hermes alias `claude-opus-5-5[1m]` literally; `[1m]` does not change its class.
+- Catch-up: [Grok 4.7](https://x.ai/news/grok-4-7) (September 21) → **large**, as for prior Grok flagships; seen in Hermes. [MiMo-V2.6](https://mimo.xiaomi.com/mimo-v2-6) (September 22, vendor date) → **large** for Pro / Pro-RL / Pro-UltraSpeed (42B active), **small** for Flash / Flash-RL through `flash`. `UltraSpeed` is a serving mode, not the whole-token `ultra` marker.
+- [Pareto 26.10 Preview](https://unbiased.ai/changelog/) (October 1) uses the unchanged API ID `pareto`. It remains **medium + guessed**: routing/backend composition is not disclosed sufficiently to infer an emission class from price or benchmarks.
+
+All Hermes model strings checked in this run have a known classification. **Emission bands, input-token weight and factors version are unchanged.** New mappings only; no historical event rewrite.
+
+### Decision models: tracked, not validated by the token formula
+
+[Cloudflare Clef / Clef-flash](https://blog.cloudflare.com/clef-decision-models/), [Perplexity `pplx-decider-v1-27b`](https://huggingface.co/perplexity-ai/pplx-decider-v1-27b) and [Strands `strands-decider-2b`](https://strandsagents.com/blog/introducing-strands-decider/) were also reviewed. They return decisions/probabilities rather than autoregressive text. Their generic heuristic results (e.g. `flash` / `2b` → small) **are not validated emissions factors for decision inference**; do not substitute option counts for output tokens. No new decision-specific bands are introduced. Audio/video-generation releases are outside this text-token catalog's supported accounting.
+
 ## Medium (guessed)
 
 Anything without a known marker. Central **0.8 gCO₂e / 1k output tokens**, range widened in `status`.
 
-No new guessed IDs this week.
+`pareto` is now documented here as **medium + guessed**, pending backend provenance; it was not found in Hermes usage.
 
 If your production model lands here, open an issue or wait for the weekly steer.
 
@@ -146,7 +167,7 @@ Every **Sunday 20:00 Europe/Zurich**, Hermes:
 2. Proposes class mappings (frontier / large / medium / small)
 3. Updates `factors.ts` + this page + methodology examples
 4. Rebuilds and deploys [docs.carbonmd.dev](https://docs.carbonmd.dev)
-5. Reports what changed
+5. Commits and pushes changes to both public and private GitHub repositories, then reports what changed
 
 No silent factor-band rewrites: class **values** (gCO₂e table) only change with an explicit factors version bump and human review.
 

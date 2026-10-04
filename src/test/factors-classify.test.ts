@@ -1,10 +1,42 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { classify, estimateGco2e, FACTORS_VERSION } from "../core/factors.js";
+import { classify, estimateGco2e, CLASS_FACTORS, INPUT_TOKEN_WEIGHT, FACTORS_VERSION } from "../core/factors.js";
 
 test("factors version is stamped 2026-08", () => {
   assert.equal(FACTORS_VERSION, "carbonmd-factors-2026-08");
+});
+
+test("2026-10-04 steer preserves every emission band and input weight", () => {
+  assert.deepEqual(CLASS_FACTORS, {
+    frontier: { low: 1.5, central: 4.5, high: 15 },
+    large: { low: 0.8, central: 2.5, high: 8 },
+    medium: { low: 0.2, central: 0.8, high: 2.5 },
+    small: { low: 0.03, central: 0.15, high: 0.6 },
+  });
+  assert.equal(INPUT_TOKEN_WEIGHT, 0.2);
+});
+
+test("2026-10-04 releases, usage aliases and catch-up IDs", () => {
+  const examples = {
+    frontier: ["gpt-6-sol", "openai/gpt-6-sol", "gpt-6.1-sol", "openai/gpt-6.1-sol",
+      "claude-opus-5-5", "claude-opus-5-5[1m]", "anthropic/claude-opus-5.5",
+      "Gemini 4 Argon", "google/gemini-4-argon"],
+    large: ["claude-sonnet-5-5", "anthropic/claude-sonnet-5.5", "grok-4.7",
+      "mimo-v2.6-pro", "XiaomiMiMo/MiMo-V2.6-Pro-RL", "mimo-v2.6-pro-ultraspeed"],
+    small: ["gpt-6-luna", "openai/gpt-6-luna", "mimo-v2.6-flash",
+      "XiaomiMiMo/MiMo-V2.6-Flash-RL", "IndexTeam/Index-Translate-2B",
+      "IndexTeam/Index-Translate-9B", "IndexTeam/Index-Translate-35B-A3B-preview",
+      "IndexTeam/Index-Translate-35B-A3B-preview-FP8"],
+  } as const;
+  for (const [cls, models] of Object.entries(examples)) {
+    for (const model of models) assert.deepEqual(classify(model), { cls, guessed: false }, model);
+  }
+  // A routed backend cannot be inferred from a price or a benchmark score.
+  assert.deepEqual(classify("pareto"), { cls: "medium", guessed: true });
+  assert.deepEqual(classify("gemini-4-argon-mini"), { cls: "small", guessed: false });
+  // Do not extrapolate the 3B-active exception to unknown future Index sizes.
+  assert.deepEqual(classify("index-translate-70b"), { cls: "medium", guessed: true });
 });
 
 test("frontier flagships", () => {

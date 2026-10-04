@@ -8,7 +8,7 @@ How carbon.md turns tokens into grams — and why every number carries a range.
 carbonmd-factors-2026-08
 ```
 
-Catalog refreshed **2026-09-20** (new IDs only; gCO₂e bands unchanged). The version is pinned in your `carbon.md` and stamped on **every ledger event**. Estimates are only comparable within a version. When factors are revised, old events keep their original stamp — we never silently rewrite history.
+Catalog refreshed **2026-10-04** (new IDs only; gCO₂e bands unchanged). The version is pinned in your `carbon.md` and stamped on **every ledger event**. Estimates are only comparable within a version. When factors are revised, old events keep their original stamp — we never silently rewrite history.
 
 ## The model
 
@@ -83,7 +83,9 @@ Model strings are mapped to a class by whole-token matching (so `gpt-5.4-mini` l
 - **large** — `sonnet`, `terra`, `gpt-4*`, `gemini…pro` (non-frontier), `grok`, `kimi` / `k2` / `k3`, `deepseek` (non-flash), `qwen`, `glm`, `muse`, `seed` / `seedream`, `sakana` / `namazu`, `codex`, `r1`, `mistral large`, `405b`, `command`, Tencent `hy4` (not `hy-mt`), Meituan `longcat`
 - **medium** — everything else, flagged as **guessed**
 
-### Current catalog examples (2026-09)
+The latest steer also recognizes Gemini + Argon as **frontier**, MiMo + Pro as **large**, and the specific Index-Translate-35B-A3B-preview text checkpoint as **small** (3B active). These are naming/architecture heuristics, not measured energy disclosures. Small markers still win before frontier rules.
+
+### Current catalog examples (2026-10)
 
 | Class | Examples seen in the wild |
 |---|---|
@@ -91,6 +93,17 @@ Model strings are mapped to a class by whole-token matching (so `gpt-5.4-mini` l
 | **large** | `gpt-5.6-terra`, `claude-sonnet-5`, `kimi-k2.6`, `kimi-k2.7-code`, `kimi-k2.8-preview`, `kimi-k3`, `grok-4.3`, `grok-4.5`, `grok-4.6`, `deepseek-v4-pro`, `qwen3.8-max-0902`, `seed-2-1-turbo`, `sakana-namazu`, `glm-5.3`, `muse-spark-1.3`, `hy4-preview`, `longcat-2.0`, `upstage/solar-pro4:free`, `Atria-Dawn-Preview` |
 | **small** | `gpt-5.6-luna`, `gpt-5.4-mini`, `gemini-3.1-flash-lite-preview`, `gemini-3.8-flash`, `deepseek-v4-flash`, `deepseek-v4.1-flash`, `deepseek-v4-flash-vision-exp`, `grok-composer-2.5-fast`, `qwen3.8-flash-next`, `glm-5.3-flash`, `stealth/ox-alpha`, `nemotron-3.5-lightning`, `lfm-2.5-2.6b`, `hy-mt2-30b-a3b`, `granite-4.2-8b`, `mercury-2.5-preview` |
 | **medium (guessed)** | unfamiliar strings with no known markers |
+
+### New examples from the 2026-10-04 steer
+
+| Class | Examples |
+|---|---|
+| **frontier** | `gpt-6.1-sol`, `gpt-6-sol`, `claude-opus-5-5[1m]`, Gemini 4 Argon (limited preview; no confirmed public API ID) |
+| **large** | `claude-sonnet-5-5`, `grok-4.7`, `XiaomiMiMo/MiMo-V2.6-Pro-RL`, `mimo-v2.6-pro-ultraspeed` |
+| **small** | `gpt-6-luna`, `XiaomiMiMo/MiMo-V2.6-Flash-RL`, `IndexTeam/Index-Translate-2B`, `IndexTeam/Index-Translate-9B`, `IndexTeam/Index-Translate-35B-A3B-preview` |
+| **medium (guessed)** | `pareto` (26.10 Preview; backend provenance unresolved) |
+
+Decision-only models (Clef, Perplexity Decider, Strands Decider) are tracked in the catalog but **not validated by this autoregressive output-token formula**. Probabilities/options are not generated tokens. Likewise, audio/video generation and local inference require different accounting; a matching name marker does not make those workloads supported.
 
 A guessed classification is surfaced in `status` and widens the reported range. If you see it on a model you care about, that's an invitation to [open an issue](https://github.com/carbon-md/carbon-md/issues) — every new mapping improves the shared table.
 

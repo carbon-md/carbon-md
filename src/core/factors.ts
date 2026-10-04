@@ -11,8 +11,8 @@
  * figure of honesty. Ranges are wide BY DESIGN: cloud inference is a
  * black box. Estimates are only comparable within a factors version.
  *
- * Classification catalog refreshed 2026-09-20 against live agent usage
- * (Hermes) + public model releases through 2026-09-20.
+ * Classification catalog refreshed 2026-10-04 against live agent usage
+ * (Hermes) + public model releases / limited previews through 2026-10-04.
  * Factor *bands* unchanged — new IDs only; still carbonmd-factors-2026-08.
  */
 
@@ -86,7 +86,8 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
     raw.includes("hunyuan-mt") ||
     raw.includes("ox-alpha") || // unmasked 2026-08-26 as GLM-5.3-Flash
     raw.includes("oxalpha") ||
-    raw.includes("mercury") // Inception Mercury 2.5 — cheap/fast diffusion LLM
+    raw.includes("mercury") || // Inception Mercury 2.5 — cheap/fast diffusion LLM
+    /(?:^|\/)index-translate-35b-a3b-preview(?:$|-)/.test(raw) // 3B-active translation MoE
   ) {
     return { cls: "small", guessed: false };
   }
@@ -117,7 +118,7 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
     raw.includes("claude-opus") ||
     raw.includes("claude-fable") ||
     raw.includes("gpt-6") ||
-    (has("gemini") && (raw.includes("3.1-pro") || raw.includes("3-pro")))
+    (has("gemini") && (has("argon") || raw.includes("3.1-pro") || raw.includes("3-pro")))
   ) {
     return { cls: "frontier", guessed: false };
   }
@@ -153,7 +154,8 @@ export function classify(model: string): { cls: ModelClass; guessed: boolean } {
     has("longcat") || // Meituan LongCat-2.0 — 1.6T MoE coding workhorse
     raw.includes("longcat") ||
     raw.includes("solar-pro") || // Upstage Solar Pro 4 — agentic workhorse
-    has("atria") // Shanghai AI Lab Atria Dawn Preview — 744B agentic MoE
+    has("atria") || // Shanghai AI Lab Atria Dawn Preview — 744B agentic MoE
+    (has("mimo") && has("pro")) // MiMo-V2.6-Pro / Pro-RL / Pro-UltraSpeed (42B active)
   ) {
     return { cls: "large", guessed: false };
   }
