@@ -1,6 +1,6 @@
 # Documentation carbon.md
 
-**Un standard ouvert pour des agents IA gouvernés côté carbone.** Un fichier `carbon.md` à la racine de votre dépôt déclare la politique carbone de vos agents : comment leurs émissions sont estimées, quelle part est compensée par des contributions à du removal carbone vérifié, ce qu'ils ont le droit de dépenser, et où se trouve la preuve.
+**Un standard ouvert pour des agents IA gouvernés côté carbone.** Un fichier `carbon.md` à la racine de votre dépôt déclare la politique carbone de vos agents : comment leurs émissions sont estimées, à hauteur de quelle part ils contribuent à du removal carbone vérifié, ce qu'ils ont le droit de dépenser, et où se trouve la preuve.
 
 Les humains fixent la politique. Les agents l'exécutent. Tout est prouvable.
 
@@ -16,7 +16,7 @@ Les agents IA lancent des milliers d'appels LLM par jour. Leurs opérateurs ont 
 
 1. **Mesurer** — la consommation de tokens est capturée aux goulots d'étranglement (Claude Code, LiteLLM, OpenTelemetry, n'importe quel journal d'usage) et convertie en estimations de CO₂e *avec des fourchettes d'incertitude explicites*.
 2. **Gouverner** — un fichier de politique rédigé par un humain fixe les cibles de contribution, les plafonds budgétaires et les seuils d'approbation que les agents doivent respecter.
-3. **Contribuer** — les émissions sont compensées par des achats de removal carbone vérifié (mensuellement, avec confirmation d'abord par défaut — les agents ne dépensent jamais sans surveillance au-dessus de votre seuil).
+3. **Contribuer** — une contribution à hauteur des émissions finance des achats de removal carbone vérifié (mensuellement, avec confirmation d'abord par défaut — les agents ne dépensent jamais sans surveillance au-dessus de votre seuil).
 4. **Prouver** — chaque retrait obtient un reçu public ; le badge renvoie à un registre, pas à une impression.
 
 ## Ce que ce n'est pas
