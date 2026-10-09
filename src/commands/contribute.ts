@@ -147,6 +147,31 @@ export async function cmdContribute(cwd: string, argv: string[]): Promise<number
   return 0;
 }
 
+/** The ledger row for a retirement executed on the x402 rail. Keeps the
+ *  transaction hash: it is what the passport anchors and `verify` resolves. */
+export function retirementEvent(r: {
+  tonnes: number;
+  cost: number;
+  certificateUrls: string[];
+  txHash?: string;
+  creditClass: string;
+  method: CreditMethod;
+  ts?: string;
+}): ContributionEvent {
+  return {
+    type: "contribution",
+    ts: r.ts ?? new Date().toISOString(),
+    tonnes: r.tonnes,
+    cost: r.cost,
+    currency: "USDC",
+    rail: "x402-klima",
+    receipt: r.certificateUrls[0] ?? (r.txHash ? `https://basescan.org/tx/${r.txHash}` : ""),
+    credit_class: r.creditClass,
+    method: r.method,
+    ...(r.txHash ? { tx_hash: r.txHash } : {}),
+  };
+}
+
 async function executeX402(cwd: string, argv: string[], policy: CarbonPolicy): Promise<number> {
   const wallet = loadWallet(cwd);
   if (!wallet) {
@@ -271,19 +296,15 @@ async function executeX402(cwd: string, argv: string[], policy: CarbonPolicy): P
     }
   }
 
-  const receipt = urls[0] ?? (result.txHash ? `https://basescan.org/tx/${result.txHash}` : "");
   appendEvents(cwd, [
-    {
-      type: "contribution",
-      ts: new Date().toISOString(),
+    retirementEvent({
       tonnes: parseFloat(q.tonnesFormatted),
       cost: total,
-      currency: "USDC",
-      rail: "x402-klima",
-      receipt,
-      credit_class: cls.name,
+      certificateUrls: urls,
+      txHash: result.txHash,
+      creditClass: cls.name,
       method,
-    },
+    }),
   ]);
 
   console.log(`\n${green("✔ Retired " + q.tonnesFormatted + " tCO₂e")} (${result.status})`);
