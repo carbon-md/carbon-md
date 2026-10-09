@@ -22,7 +22,7 @@ Contribution order — my-project
   Policy check     ✔ below approval_above ($10)
                    ✔ within monthly_budget_max ($25, $0 used)
 
-  Execute:  npx carbon-md contribute --auto
+  Execute:  npx carbon-md contribute --execute --class biochar
   Or record a manual purchase:
             npx carbon-md contribute --record --tonnes 0.005 --cost 1.10 \
               --rail carbonmark --receipt https://…
@@ -32,9 +32,9 @@ Contribution order — my-project
 
 | Flag | Meaning |
 |---|---|
-| `--auto` | Execute autonomously via the on-chain rail, if policy and wallet allow |
+| `--execute` | Retire on the on-chain rail (Klima x402 on Base) from the agent wallet, after the policy checks and a typed confirmation |
 | `--record` | Record a purchase you made elsewhere (fiat, Carbonmark, CNaught…) |
-| `--tonnes <n>` | With `--record`: tonnes retired |
+| `--tonnes <n>` | With `--record`: tonnes retired. With `--execute`: tonnes to retire (default: what is outstanding) |
 | `--cost <n>` | With `--record`: amount paid |
 | `--currency <c>` | With `--record`: defaults to USD |
 | `--rail <name>` | With `--record`: where it was purchased |
@@ -64,18 +64,18 @@ Recording what actually happened is always allowed — hiding it is not. `--reco
 
 Two independent gates, both must pass:
 
-1. **`approval_above`** — an order costing more requires explicit human confirmation. `--auto` refuses and prints the order instead.
+1. **`approval_above`** — an order costing more is flagged as needing human confirmation. Every `--execute` stops for a typed `retire` before it signs anything, so nothing is spent without a human in the loop.
 2. **`monthly_budget_max`** — month-to-date contributions plus this order must stay under the cap.
 
 A third, physical gate applies on the on-chain rail: the [wallet](/cli/wallet/) is prepaid, so an agent cannot spend more than was deposited — regardless of what any config says.
 
-## Autonomous mode
+## On-chain execution
 
 ```bash
-npx carbon-md contribute --auto
+npx carbon-md contribute --execute --class biochar --tonnes 0.02
 ```
 
-Requires a funded wallet. Flow: `quote → policy check → sign one USDC transfer → retire → certificate URL → ledger`. The rail is Klima's x402 endpoint on Base; the wallet needs **USDC only** (no ETH — gas is relayed). Details in [Retirements & receipts](/guides/retirements/).
+Requires a funded wallet. Flow: `quote → policy check → typed confirmation → sign one USDC transfer → retire → certificate URL + transaction hash → ledger`. The transaction hash is what makes the retirement an anchor [`verify`](/cli/verify/) can resolve on-chain. The rail is Klima's x402 endpoint on Base; the wallet needs **USDC only** (no ETH — gas is relayed). Details in [Retirements & receipts](/guides/retirements/).
 
 ## Recording a manual purchase
 

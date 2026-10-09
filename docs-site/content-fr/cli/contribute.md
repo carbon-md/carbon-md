@@ -22,7 +22,7 @@ Contribution order — my-project
   Policy check     ✔ below approval_above ($10)
                    ✔ within monthly_budget_max ($25, $0 used)
 
-  Execute:  npx carbon-md contribute --auto
+  Execute:  npx carbon-md contribute --execute --class biochar
   Or record a manual purchase:
             npx carbon-md contribute --record --tonnes 0.005 --cost 1.10 \
               --rail carbonmark --receipt https://…
@@ -32,9 +32,9 @@ Contribution order — my-project
 
 | Flag | Signification |
 |---|---|
-| `--auto` | Exécuter de façon autonome via le rail on-chain, si la politique et le wallet le permettent |
+| `--execute` | Retirer via le rail on-chain (Klima x402 sur Base) depuis le wallet de l'agent, après les contrôles de politique et une confirmation tapée |
 | `--record` | Enregistrer un achat effectué ailleurs (fiat, Carbonmark, CNaught…) |
-| `--tonnes <n>` | Avec `--record` : tonnes retirées |
+| `--tonnes <n>` | Avec `--record` : tonnes retirées. Avec `--execute` : tonnes à retirer (par défaut : ce qui reste dû) |
 | `--cost <n>` | Avec `--record` : montant payé |
 | `--currency <c>` | Avec `--record` : USD par défaut |
 | `--rail <nom>` | Avec `--record` : où l'achat a eu lieu |
@@ -64,18 +64,18 @@ Enregistrer ce qui s'est réellement passé est toujours permis — le dissimule
 
 Deux garde-fous indépendants, tous deux obligatoires :
 
-1. **`approval_above`** — un ordre plus coûteux exige une confirmation humaine explicite. `--auto` refuse et affiche l'ordre à la place.
+1. **`approval_above`** — un ordre plus coûteux est signalé comme nécessitant une confirmation humaine. Chaque `--execute` s'arrête sur un `retire` à taper avant de signer quoi que ce soit : rien n'est dépensé sans un humain dans la boucle.
 2. **`monthly_budget_max`** — les contributions du mois en cours plus cet ordre doivent rester sous le plafond.
 
 Un troisième garde-fou, physique celui-là, s'applique sur le rail on-chain : le [wallet](/fr/cli/wallet/) est prépayé, donc un agent ne peut pas dépenser plus que ce qui y a été déposé — quoi que dise n'importe quelle configuration.
 
-## Mode autonome
+## Exécution on-chain
 
 ```bash
-npx carbon-md contribute --auto
+npx carbon-md contribute --execute --class biochar --tonnes 0.02
 ```
 
-Exige un wallet approvisionné. Déroulé : `devis → contrôle de politique → signature d'un unique transfert USDC → retrait → URL du certificat → registre`. Le rail est l'endpoint x402 de Klima sur Base ; le wallet n'a besoin que d'**USDC** (pas d'ETH — le gas est relayé). Détails dans [Retirements & reçus](/fr/guides/retirements/).
+Exige un wallet approvisionné. Déroulé : `devis → contrôle de politique → confirmation tapée → signature d'un unique transfert USDC → retrait → URL du certificat + hash de transaction → registre`. Le hash de transaction est ce qui fait du retrait une ancre que [`verify`](/fr/cli/verify/) peut résoudre on-chain. Le rail est l'endpoint x402 de Klima sur Base ; le wallet n'a besoin que d'**USDC** (pas d'ETH — le gas est relayé). Détails dans [Retirements & reçus](/fr/guides/retirements/).
 
 ## Enregistrer un achat manuel
 
