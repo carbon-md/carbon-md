@@ -19,11 +19,11 @@ function projectName(cwd: string): string {
   return basename(resolve(cwd)) || "project";
 }
 
-function anchorFrom(c: ContributionEvent): PassportAnchor {
+export function anchorFrom(c: ContributionEvent): PassportAnchor {
   return {
     rail: c.rail,
     chain_id: c.rail.startsWith("x402") ? 8453 : undefined,
-    tx_hash: (c as any).tx_hash,
+    tx_hash: c.tx_hash,
     registry_serial: (c as any).registry_serial,
     credit_class: c.credit_class,
     method: methodOf(c),

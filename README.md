@@ -4,7 +4,7 @@
 
 **An open standard for carbon-governed AI agents.** — Spec v0.1 (draft)
 
-A `carbon.md` file in your repository declares your agents' carbon policy: how their emissions are estimated, how much is compensated through verified carbon-removal **contributions**, what they may spend, and where the proof lives. Humans set the policy. Agents execute within it. Everything is provable.
+A `carbon.md` file in your repository declares your agents' carbon policy: how their emissions are estimated, what share of them is matched by verified carbon-removal **contributions**, what they may spend, and where the proof lives. Humans set the policy. Agents execute within it. Everything is provable.
 
 ```bash
 npx carbon-md init

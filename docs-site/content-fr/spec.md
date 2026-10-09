@@ -34,7 +34,7 @@ Chaîne de version de la spécification. Actuellement `"0.1"`. Les outils refuse
 
 ### `policy.contribution_target`
 
-Nombre. La fraction des émissions estimées à compenser. `1.0` compense 100 % ; `1.10` compense 110 %.
+Nombre. La fraction des émissions estimées à laquelle la contribution correspond. `1.0` = 100 % ; `1.10` = 110 %.
 
 Le texte généré n'appelle jamais cela « neutre » ni « positif » — c'est un ratio de contribution. Voir [Claims & conformité](/fr/guides/claims/).
 

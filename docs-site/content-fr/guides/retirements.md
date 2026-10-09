@@ -33,7 +33,7 @@ Ce qui le rend utilisable par un agent :
 ```bash
 npx carbon-md wallet init     # créer la clé (sans fonds)
 # → l'approvisionner d'un petit montant d'USDC sur Base (étape humaine)
-npx carbon-md contribute --auto
+npx carbon-md contribute --execute --class biochar
 ```
 
 ## La qualité des crédits — la partie qui compte

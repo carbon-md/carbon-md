@@ -11,7 +11,7 @@ Ce que vous pouvez dire d'un registre carbon.md — et ce que vous ne devez pas 
 | ✅ À dire | ❌ À ne jamais dire |
 |---|---|
 | « mesure les émissions de ses agents et contribue à hauteur de 110 % via du removal carbone vérifié » | « neutre en carbone » |
-| « compensé par des crédits carbone vérifiés » | « climate positive » |
+| « contribution équivalente en crédits carbone vérifiés » | « climate positive » |
 | « émissions estimées, avec fourchettes d'incertitude » | « compense vos émissions » |
 | « a financé le retrait de X tCO₂e » | « IA zéro émission » |
 
@@ -19,7 +19,7 @@ Ce que vous pouvez dire d'un registre carbon.md — et ce que vous ne devez pas 
 
 **Juridiquement** — la directive européenne *Empowering Consumers for the Green Transition* (ECGT) interdit les allégations environnementales, sur les produits destinés aux consommateurs, qui reposent sur la compensation ; elle s'applique à partir du **27 septembre 2026**. « Neutre en carbone grâce à la compensation » devient interdit, et pas seulement mal vu.
 
-**Sur le fond** — compenser des émissions par un achat de removal est une *contribution*. Le CO₂ a tout de même été émis. Le removal prend du temps et porte sa propre incertitude. Appeler cela « neutre » exagère ce qui s'est produit — or toute la valeur de ce projet repose sur le fait de ne pas exagérer.
+**Sur le fond** — acheter du removal à hauteur de ses émissions est une *contribution*. Le CO₂ a tout de même été émis. Le removal prend du temps et porte sa propre incertitude. Appeler cela « neutre » exagère ce qui s'est produit — or toute la valeur de ce projet repose sur le fait de ne pas exagérer.
 
 ## Ce que l'outillage fait pour vous
 

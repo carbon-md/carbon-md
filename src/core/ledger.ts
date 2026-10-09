@@ -40,6 +40,10 @@ export interface ContributionEvent {
   credit_class?: string;
   /** Optional so older ledgers stay readable — see CreditMethod. */
   method?: CreditMethod;
+  /** On-chain retirement transaction (Base for the x402 rail). It becomes the
+   *  passport anchor that `verify` resolves — without it a retirement can only
+   *  ever reach L1. */
+  tx_hash?: string;
 }
 
 export function methodOf(c: ContributionEvent): CreditMethod {

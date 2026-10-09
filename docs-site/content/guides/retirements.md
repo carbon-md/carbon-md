@@ -33,7 +33,7 @@ What makes it usable by an agent:
 ```bash
 npx carbon-md wallet init     # create the key (no funds)
 # → fund it with a small USDC amount on Base (human step)
-npx carbon-md contribute --auto
+npx carbon-md contribute --execute --class biochar
 ```
 
 ## Credit quality — the part that matters

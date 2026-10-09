@@ -12,9 +12,9 @@ mesurer  →  gouverner  →  contribuer  →  prouver
 
 **Mesurer.** Les agents émettent par l'inférence. On ne peut pas gouverner ce qu'on ne compte pas : la capture se fait donc aux goulots d'étranglement — une intégration par frontière de fournisseur, pas par application.
 
-**Gouverner.** Un fichier Markdown à la racine du dépôt porte la politique : quelle fraction des émissions compenser, quel portefeuille, combien peut être dépensé par mois, et au-dessus de quel montant un humain doit confirmer. Le fichier est l'interface — lisible par des personnes, analysable par des outils, et ingérable par les agents qu'il gouverne.
+**Gouverner.** Un fichier Markdown à la racine du dépôt porte la politique : à hauteur de quelle fraction des émissions contribuer, quel portefeuille, combien peut être dépensé par mois, et au-dessus de quel montant un humain doit confirmer. Le fichier est l'interface — lisible par des personnes, analysable par des outils, et ingérable par les agents qu'il gouverne.
 
-**Contribuer.** Les émissions sont compensées par l'achat et le retrait de crédits carbone vérifiés. Mensuellement et de façon agrégée, jamais en micro-transactions par appel.
+**Contribuer.** Une contribution à hauteur des émissions finance l'achat et le retrait de crédits carbone vérifiés. Mensuellement et de façon agrégée, jamais en micro-transactions par appel.
 
 **Prouver.** Chaque retrait produit un reçu. La page de registre et le badge renvoient aux numéros de série des registres et, sur le rail on-chain, à une transaction que n'importe qui peut vérifier.
 
@@ -40,9 +40,9 @@ Voir [Méthodologie & facteurs](/fr/methodology/).
 carbon.md ne génère délibérément jamais les mots « neutre en carbone » ni « climate positive ». Deux raisons :
 
 1. **Juridique.** La directive européenne ECGT interdit les allégations de neutralité fondées sur la compensation pour les produits destinés aux consommateurs, à partir du 27 septembre 2026.
-2. **Honnêteté.** Compenser des émissions par des achats de removal est une *contribution* ; cela ne dés-émet pas le CO₂.
+2. **Honnêteté.** Acheter du removal à hauteur de ses émissions est une *contribution* ; cela ne dés-émet pas le CO₂.
 
-Le texte généré dit : *ce projet mesure les émissions de ses agents et les compense à X % par des crédits carbone vérifiés.* Voir [Claims & conformité](/fr/guides/claims/).
+Le texte généré dit : *ce projet mesure les émissions de ses agents et contribue à hauteur de X % via des crédits carbone vérifiés.* Voir [Claims & conformité](/fr/guides/claims/).
 
 ## Removal-weighted par défaut
 
