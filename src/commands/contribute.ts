@@ -4,9 +4,12 @@ import {
   aggregate,
   appendEvents,
   creditedTonnes,
+  monthStartUtc,
   readLedger,
+  spentSince,
   type ContributionEvent,
   type CreditMethod,
+  type LedgerEvent,
 } from "../core/ledger.js";
 import { findPolicyPath, parsePolicy, type CarbonPolicy } from "../core/policy.js";
 import { accountFor, loadWallet, usdcBalance } from "../core/wallet.js";
@@ -23,6 +26,51 @@ const bold = (s: string) => `\x1b[1m${s}\x1b[0m`;
 const dim = (s: string) => `\x1b[2m${s}\x1b[0m`;
 const yellow = (s: string) => `\x1b[33m${s}\x1b[0m`;
 const green = (s: string) => `\x1b[32m${s}\x1b[0m`;
+
+/**
+ * The monthly_budget_max gate, as the lines to print when it stops an order
+ * (null when the order fits).
+ *
+ * spentSince() returns Infinity when a contribution row in this month has a
+ * missing, non-numeric or negative cost. That has to stop the order — and say
+ * why: "spent this month (Infinity)" would read like a bug, not like a ledger
+ * row a human has to fix.
+ */
+export function budgetStop(
+  spent: number,
+  total: number,
+  budget: { amount: number; currency: string }
+): string[] | null {
+  if (!Number.isFinite(spent)) {
+    return [
+      `\n✖ POLICY STOP: a corrupt contribution row in .carbon-md/ledger.jsonl (missing, non-numeric or negative cost) blocks spending until it is fixed.`,
+      "  monthly_budget_max can't be checked against a spend it can't add up. Fix or remove the row, then retry.",
+    ];
+  }
+  if (spent + total > budget.amount) {
+    return [
+      `\n✖ POLICY STOP: this order (${total.toFixed(2)}) + spent this month (${spent.toFixed(2)}) exceeds monthly_budget_max (${budget.amount} ${budget.currency}).`,
+      "  Raise the cap in carbon.md (a human decision, in the file) or reduce the amount.",
+    ];
+  }
+  return null;
+}
+
+/**
+ * The monthly_budget_max gate as executeX402 runs it: this UTC month's spend
+ * from the ledger, plus this order, against the cap. `now` is injectable so
+ * the window can be tested away from the real clock.
+ */
+export function monthlyBudgetStop(
+  events: LedgerEvent[],
+  total: number,
+  budget: { amount: number; currency: string },
+  now: Date = new Date()
+): string[] | null {
+  // UTC calendar month; unparseable timestamps count as spent and a corrupt
+  // cost blocks the order (fail closed).
+  return budgetStop(spentSince(events, monthStartUtc(now)), total, budget);
+}
 
 function getFlag(argv: string[], name: string): string | undefined {
   const i = argv.indexOf(name);
@@ -63,7 +111,8 @@ export async function cmdContribute(cwd: string, argv: string[]): Promise<number
     const usage =
       "Usage: carbon-md contribute --record --tonnes <t> --cost <amount> [--rail cnaught|carbonmark|manual]\n" +
       "                            [--receipt <url>] [--class \"<credit class>\"] [--method removal|avoidance|mixed]";
-    if (!Number.isFinite(tonnes) || tonnes <= 0 || !Number.isFinite(cost)) {
+    // A negative cost would be read back as a corrupt row and block every --execute.
+    if (!Number.isFinite(tonnes) || tonnes <= 0 || !Number.isFinite(cost) || cost < 0) {
       console.error(usage);
       return 1;
     }
@@ -215,12 +264,6 @@ async function executeX402(cwd: string, argv: string[], policy: CarbonPolicy): P
   // Policy enforcement — the whole point of the file.
   const budget = policy.policy.monthly_budget_max;
   const approval = policy.policy.approval_above;
-  const monthStart = new Date();
-  monthStart.setDate(1);
-  monthStart.setHours(0, 0, 0, 0);
-  const spentThisMonth = events
-    .filter((e): e is ContributionEvent => e.type === "contribution" && new Date(e.ts) >= monthStart)
-    .reduce((s, c) => s + c.cost, 0);
 
   console.log(`\n${bold("Retirement order — Klima x402 relay (Base)")}`);
   console.log(`  class        ${cls.name} ${dim("(" + method + ")")}`);
@@ -241,11 +284,9 @@ async function executeX402(cwd: string, argv: string[], policy: CarbonPolicy): P
 
   // Policy before funds: what the file forbids is worth knowing before, not
   // after, you top the wallet up for an order it was never going to allow.
-  if (spentThisMonth + total > budget.amount) {
-    console.error(
-      `\n✖ POLICY STOP: this order (${total.toFixed(2)}) + spent this month (${spentThisMonth.toFixed(2)}) exceeds monthly_budget_max (${budget.amount} ${budget.currency}).`
-    );
-    console.error("  Raise the cap in carbon.md (a human decision, in the file) or reduce the amount.");
+  const stop = monthlyBudgetStop(events, total, budget);
+  if (stop) {
+    for (const l of stop) console.error(l);
     return 1;
   }
 
