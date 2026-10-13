@@ -45,15 +45,52 @@ export function canonicalize(value) {
   return "{" + entries.map(([k, v]) => JSON.stringify(k) + ":" + canonicalize(v)).join(",") + "}";
 }
 
+/**
+ * Bind the signing key to the identity the document speaks for — mirrors
+ * checkSignerBinding in core/passport.ts, reasons included.
+ *
+ * A signature only proves *someone* signed, while L3 is looked up by
+ * subject.id: without this, any key could sign for a certified subject's DID
+ * and inherit its certification. v0.1 passports are self-issued, so the
+ * signing DID must equal both subject.id and issuer, and the did:key
+ * fragment must be the key's own multibase value.
+ */
+export function checkSignerBinding(p) {
+  const vm = p && p.proof ? p.proof.verification_method : undefined;
+  // No String() coercion: ["did:key:X#X"] would stringify into a valid-looking method.
+  if (typeof vm !== "string") return { valid: false, reason: "verification method is not a string" };
+  const hash = vm.indexOf("#");
+  const did = hash < 0 ? vm : vm.slice(0, hash);
+  if (!did.startsWith("did:key:")) return { valid: false, reason: "verification method is not a did:key: " + vm };
+  if (hash < 0) return { valid: false, reason: "verification method has no #fragment" };
+  const fragment = vm.slice(hash + 1);
+  if (fragment !== did.slice("did:key:".length)) {
+    return { valid: false, reason: "verification method fragment #" + fragment + " does not match " + did };
+  }
+  // Same semantics as the CLI's p.subject?.id: a falsy non-null subject (0, "", false) has no id.
+  const subject = p.subject != null ? p.subject.id : undefined;
+  if (subject !== did) return { valid: false, reason: "signed by " + did + " but subject is " + shownId(subject) };
+  if (p.issuer !== did) return { valid: false, reason: "signed by " + did + " but issuer is " + shownId(p.issuer) };
+  return { valid: true, did };
+}
+
+// How a mismatched id reads in a reason. Mirrors shownId in src/core/passport.ts.
+function shownId(v) {
+  if (v == null || v === "") return "missing";
+  return typeof v === "string" ? v : JSON.stringify(v);
+}
+
 export async function verifySignature(p) {
   if (!p || !p.proof) return { valid: false, reason: "no proof on the document" };
   if (p.proof.type !== "eddsa-jcs-2022") return { valid: false, reason: "unsupported proof type " + p.proof.type };
   if (typeof p.proof.signature !== "string" || !p.proof.signature.startsWith("z")) {
     return { valid: false, reason: "signature is not multibase base58btc" };
   }
+  // Before the cryptography: a perfect signature by the wrong key is still a forgery.
+  const binding = checkSignerBinding(p);
+  if (!binding.valid) return binding;
   try {
-    const did = String(p.proof.verification_method || "").split("#")[0];
-    const raw = didToPublicKey(did);
+    const raw = didToPublicKey(binding.did);
     const { proof, ...unsigned } = p;
     const data = new TextEncoder().encode(canonicalize(unsigned));
     const key = await crypto.subtle.importKey("raw", raw, { name: "Ed25519" }, false, ["verify"]);
